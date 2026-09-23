@@ -1,0 +1,237 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    x:Class="MOSAIC.Views.Cards.FlowControl.TriggerBufferCardView"
+    x:DataType="vm:TriggerBufferViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Pulse while capturing -->
+        <Style Selector="Border.capturing-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.0" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusWarningBrush}"/>
+                        <Setter Property="Opacity" Value="1.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card"
+            Classes.capturing-pulse="{Binding IsCapturing}">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Block.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}"
+                                CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="BUFFER" FontSize="10" FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsCapturing}"
+                                Background="{StaticResource StatusWarningBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="CAPTURING" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="11" TextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <UniformGrid Columns="2" HorizontalAlignment="Stretch">
+                <Border Classes="cardSection" Margin="0,0,4,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="SEGMENTS" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding SegmentCount}" FontSize="22" FontWeight="Bold"
+                                   Foreground="{StaticResource CategoryFlowControlBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="4,0,0,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="STATUS" Classes="sectionLabel"/>
+                        <TextBlock FontSize="14" FontWeight="Bold">
+                            <TextBlock.Text>
+                                <Binding Path="IsCapturing">
+                                    <Binding.Converter>
+                                        <converters:BoolToStringConverter TrueValue="Recording…" FalseValue="Idle"/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" HorizontalAlignment="Stretch">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Save path"
+                           Classes="fieldLabel" Margin="0,0,12,4"/>
+                <TextBox Grid.Row="0" Grid.Column="1"
+                         Text="{Binding SavePath}"
+                         PlaceholderText="e.g. C:/Data/buffer_data.csv"
+                         Background="{DynamicResource ThemeInputBackgroundBrush}"
+                         Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                         Margin="0,0,0,4"/>
+                <UniformGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Columns="2">
+                    <Button Content="Save to CSV"
+                            Command="{Binding SaveCommand}"
+                            Background="{StaticResource CategoryFlowControlBrush}"
+                            Foreground="White"
+                            Padding="12,10" Margin="0,0,4,0" CornerRadius="6"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            FontSize="12" FontWeight="SemiBold"/>
+                    <Button Content="Clear Buffer"
+                            Command="{Binding ClearCommand}"
+                            Background="{DynamicResource ThemeSectionBrush}"
+                            Foreground="{StaticResource StatusErrorBrush}"
+                            BorderBrush="{StaticResource StatusErrorBrush}"
+                            BorderThickness="1"
+                            Padding="12,10" Margin="4,0,0,0" CornerRadius="6"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            FontSize="12" FontWeight="SemiBold"/>
+                </UniformGrid>
+            </Grid>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleSegmentsExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="▸" IsVisible="{Binding !IsSegmentsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0"
+                                       Text="▾" IsVisible="{Binding IsSegmentsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Captured Segments" FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding SegmentCount, StringFormat='{}{0} total'}"
+                                       FontSize="12" Foreground="{DynamicResource ThemeTextDimmedBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel IsVisible="{Binding IsSegmentsExpanded}" Spacing="2">
+
+                        <!-- Column headers — 5 columns now: #, label, samples, shape, delete -->
+                        <Grid ColumnDefinitions="30,*,70,70,28" Margin="4,0,4,4">
+                            <TextBlock Grid.Column="0" Text="#" Classes="sectionLabel"/>
+                            <TextBlock Grid.Column="1" Text="LABEL" Classes="sectionLabel"/>
+                            <TextBlock Grid.Column="2" Text="SAMPLES" Classes="sectionLabel"
+                                       TextAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Text="SHAPE" Classes="sectionLabel"
+                                       TextAlignment="Right"/>
+                            <!-- Column 4: spacer for the ✕ button column -->
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Segments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SegmentSummary">
+                                    <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                            CornerRadius="4" Padding="8,5" Margin="0,1">
+                                        <Grid ColumnDefinitions="30,*,70,70,28">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Index}" FontSize="11"
+                                                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Label}" FontSize="11"
+                                                       FontFamily="Cascadia Mono, Consolas, monospace"
+                                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding RowCount}" FontSize="11"
+                                                       Foreground="{StaticResource StatusNormalBrush}"
+                                                       VerticalAlignment="Center" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding Shape}" FontSize="11"
+                                                       FontFamily="Cascadia Mono, Consolas, monospace"
+                                                       Foreground="{DynamicResource ThemeTextDimmedBrush}"
+                                                       VerticalAlignment="Center" TextAlignment="Right"/>
+
+                                            <!-- Per-row delete button. Bound to the outer VM via the
+                                                 $parent[UserControl] ancestor traversal so the
+                                                 DataTemplate's DataContext (a SegmentSummary) is
+                                                 passed as the parameter. Hover style turns it red so
+                                                 destructive actions stay visually distinct. -->
+                                            <Button Grid.Column="4" Content="✕"
+                                                    Command="{Binding $parent[UserControl].((vm:TriggerBufferViewModel)DataContext).RemoveSegmentCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    Padding="6,2" FontSize="10" CornerRadius="3"
+                                                    Margin="4,0,0,0"
+                                                    Background="Transparent"
+                                                    Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                                    BorderThickness="1"
+                                                    HorizontalAlignment="Stretch"
+                                                    HorizontalContentAlignment="Center"
+                                                    ToolTip.Tip="Delete this segment">
+                                                <Button.Styles>
+                                                    <Style Selector="Button:pointerover">
+                                                        <Setter Property="Background"
+                                                                Value="{StaticResource StatusErrorBrush}"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="BorderBrush"
+                                                                Value="{StaticResource StatusErrorBrush}"/>
+                                                    </Style>
+                                                </Button.Styles>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Empty state -->
+                        <Border IsVisible="{Binding SegmentCount, Converter={x:Static converters:CountToVisibilityConverter.IsZero}}"
+                                Padding="12" CornerRadius="4">
+                            <TextBlock Text="No segments captured yet. Use the Trigger to start recording."
+                                       FontSize="11" TextWrapping="Wrap" TextAlignment="Center"
+                                       Foreground="{DynamicResource ThemeTextDimmedBrush}"/>
+                        </Border>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

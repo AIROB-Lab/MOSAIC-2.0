@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:MOSAIC.Controls"
+             x:Name="Root"
+             x:Class="MOSAIC.Controls.NumericParameterRow">
+
+    <!-- label · numeric field with up/down arrows. Consumers bind Value two-way to their VM property.
+         All child bindings use ElementName=Root, so no x:DataType is needed here. -->
+    <Grid ColumnDefinitions="Auto,*">
+        <TextBlock Grid.Column="0" Classes="fieldLabel"
+                   Text="{Binding Label, ElementName=Root}" Margin="0,0,12,0"/>
+
+        <controls:SafeNumericUpDown Grid.Column="1" HorizontalAlignment="Right" Width="170"
+                       Value="{Binding Value, ElementName=Root, Mode=TwoWay}"
+                       Minimum="{Binding Minimum, ElementName=Root}"
+                       Maximum="{Binding Maximum, ElementName=Root}"
+                       Increment="{Binding Increment, ElementName=Root}"
+                       FormatString="0" FontSize="13" Padding="8,4"
+                       Background="{DynamicResource ThemeInputBackgroundBrush}"
+                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                       BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+    </Grid>
+</UserControl>

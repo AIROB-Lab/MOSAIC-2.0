@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+    <PropertyGroup>
+        <TargetFramework>net10.0-browser</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Browser" />
+        <PackageReference Include="Delsys.Drivers" Condition="'$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="Delsys.Signals" Condition="'$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="DelsysAPI" Condition="'$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="FftFlat" />
+        <PackageReference Include="FFTW.NET" />
+        <PackageReference Include="InTheHand.Net.Bluetooth" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" />
+        <PackageReference Include="python" />
+        <PackageReference Include="pythonnet" />
+        <PackageReference Include="ScottPlot" />
+        <PackageReference Include="ScottPlot.Avalonia" />
+        <PackageReference Include="Svg.Controls.Skia.Avalonia" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MOSAIC\MOSAIC.csproj">
+            <AdditionalProperties>EnableWindowsDevices=false</AdditionalProperties>
+        </ProjectReference>
+    </ItemGroup>
+</Project>

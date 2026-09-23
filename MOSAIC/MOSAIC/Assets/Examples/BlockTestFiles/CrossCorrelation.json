@@ -1,0 +1,16 @@
+{
+  "Clock": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "TwoChannels": {
+    "Type": "SinGenerator",
+    "Inputs": ["Clock"],
+    "Params": [2, 1.0, 1.0, 0.0, 0.7853981633974483]
+  },
+  "Correlation": {
+    "Type": "CrossCorrelation",
+    "Inputs": ["TwoChannels"],
+    "Params": [100, 1000, 5]
+  }
+}

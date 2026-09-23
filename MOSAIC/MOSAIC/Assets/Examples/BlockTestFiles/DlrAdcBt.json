@@ -1,0 +1,43 @@
+// DLR ADC/BT — bare acquisition test.
+//
+//   timer ..... paces the pipeline; the DLR block takes ONE frame per tick
+//   dlrAdc .... opens the serial port, streams, decodes frames into volts
+//
+// BEFORE RUNNING:
+//
+//   1. Pair the board and find its OUTGOING Bluetooth COM port
+//      (Settings > Bluetooth & devices > More Bluetooth settings > COM Ports tab).
+//      Put that port in Params[0] below, or pick it on the block's card.
+//
+//   2. Set "DesiredRate" on the timer to the board's ACTUAL frame rate. This is the
+//      one setting that matters. Each tick consumes exactly one frame, so:
+//        timer too slow -> buffer overflows, oldest frames dropped, error count climbs
+//        timer too fast -> ticks find nothing, the last sample is republished (stair steps)
+//      The raw-mode harness prints the measured board rate; use that number.
+//
+//   3. Params[1] must match how many channels the board is actually configured for.
+//      The block sends this count to the board at Connect, and sizes its frames from it:
+//      frame = 4 + 2*channels + 4 bytes. A mismatch shows up as "Length mismatch" errors.
+//
+// The block does NOT auto-connect. Load the pipeline, then press Connect on the card.
+//
+// PARAMS: [ portName, numChannels, baudRate ]
+//   portName ..... "COM7", or a bare number like 7 (both resolve to COM7). Empty = pick on the card.
+//   numChannels .. ADC channels to request, 1..255. Default 10.
+//   baudRate ..... default 115200; the board ships at this.
+//
+// Adding "Path" to a block writes every published sample to a timestamped CSV in that
+// directory — the way to check the recording afterwards rather than watching the scope.
+{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 100
+  },
+
+  "dlrAdc": {
+    "Type": "DlrAdcBt",
+    "Inputs": ["timer"],
+    "Params": ["COM7", 10, 115200]
+    // "Path": "C:/Data/dlr_session1"
+  }
+}

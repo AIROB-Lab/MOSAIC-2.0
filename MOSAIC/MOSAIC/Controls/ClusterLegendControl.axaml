@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:MOSAIC.Controls"
+             x:Name="Root"
+             x:Class="MOSAIC.Controls.ClusterLegendControl">
+
+    <!-- Wrap of "label (count)" chips, each with a delete (✕) button. The item type differs per
+         consumer (each VM has its own ClusterInfo with Label/PointCount/ColorBrush), so the chip
+         template uses reflection bindings (x:CompileBindings="False"). -->
+    <ItemsControl ItemsSource="{Binding ItemsSource, ElementName=Root}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Border x:CompileBindings="False"
+                        Background="{DynamicResource ThemeInputBackgroundBrush}"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1"
+                        CornerRadius="6" Padding="10,6" Margin="0,0,8,8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="12" Height="12" VerticalAlignment="Center"
+                                 Fill="{Binding ColorBrush}"/>
+                        <TextBlock VerticalAlignment="Center" FontSize="12"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                            <Run Text="{Binding Label}"/><Run Text=" ("/><Run Text="{Binding PointCount}"/><Run Text=")"/>
+                        </TextBlock>
+                        <Button Content="✕" Width="18" Height="18" FontSize="10" Padding="0"
+                                Background="Transparent" Foreground="{DynamicResource StatusErrorBrush}"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Command="{Binding ClearClusterCommand,
+                                          RelativeSource={RelativeSource AncestorType=controls:ClusterLegendControl}}"
+                                CommandParameter="{Binding Label}">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover">
+                                    <Setter Property="Opacity" Value="0.7"/>
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

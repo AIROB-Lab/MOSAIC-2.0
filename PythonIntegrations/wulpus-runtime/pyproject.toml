@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "mosaic-wulpus-runtime"
+version = "0.1.0"
+description = "Pinned Python 3.9 environment for the MOSAIC Wulpus integration"
+authors = ["MOSAIC contributors"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "~3.9"
+numpy="~1.23.5"
+scipy="~1.9.3"
+ipympl="~0.9.2"
+matplotlib="~3.5.2"
+jupyter="~1.0.0"
+pyserial="~3.5"
+wulpus={path = "../wulpus-package"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

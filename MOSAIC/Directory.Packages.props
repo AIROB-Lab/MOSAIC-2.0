@@ -1,0 +1,66 @@
+<Project>
+  <!-- https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Avalonia packages -->
+    <!-- Important: keep version in sync! -->
+    <!-- Held on the 12.0 line. 12.1.x is API-compatible and builds and runs fine here, but since
+         12.1.0 the Win32 backend raises IPlatformSettings.ColorValuesChanged on every TopLevel
+         construction - every popup, ComboBox dropdown, flyout and tooltip - which cascades a
+         resource invalidation over the whole visual tree (AvaloniaUI/Avalonia#21897, reported as
+         350-450 ms UI-thread stalls). This app has 47 ComboBoxes and 31 tooltips, so it sits in
+         the blast radius. The fix (PR #21930) merged to main on 2026-08-18, after 12.1.1 shipped,
+         and is unreleased - expected in 12.2. Move to 12.1.x once that ships. -->
+    <PackageVersion Include="Avalonia" Version="12.0.5" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.5" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.5" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.0.5" />
+    <PackageVersion Include="Avalonia.iOS" Version="12.0.5" />
+    <PackageVersion Include="Tmds.DBus" Version="0.95.1" />
+    <PackageVersion Include="Avalonia.Browser" Version="12.0.5" />
+    <PackageVersion Include="Avalonia.Android" Version="12.1.2" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageVersion Include="Delsys.Drivers" Version="1.2.2.110-main" />
+    <PackageVersion Include="Delsys.Signals" Version="2.0.0.17-main" />
+    <PackageVersion Include="DelsysAPI" Version="2.8.1.1051-Main" />
+    <PackageVersion Include="FftFlat" Version="1.0.1" />
+    <PackageVersion Include="FFTW.NET" Version="1.0.1" />
+    <PackageVersion Include="InTheHand.BluetoothLE" Version="4.0.44" />
+    <PackageVersion Include="InTheHand.Net.Bluetooth" Version="4.2.5" />
+    <!-- Still a dev build, and unavoidably so: no RELEASED LiveCharts2 supports Avalonia 12.
+         The stable line stops at 2.0.5, which pins Avalonia >= 11.0.0; 2.1.0-dev-798 is the
+         first build to target Avalonia 12 and is what the maintainer points v12 users at.
+         Re-check when a stable 2.1.0 appears. Keep all three IDs on the same version. -->
+    <PackageVersion Include="LiveChartsCore" Version="2.1.0-dev-798" />
+    <PackageVersion Include="LiveChartsCore.SkiaSharpView" Version="2.1.0-dev-798" />
+    <PackageVersion Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.1.0-dev-798" />
+    <PackageVersion Include="Material.Avalonia" Version="3.19.0" />
+    <!-- Beta, but NOT an Avalonia 12 workaround - it predates that migration. 6.0.0 is still
+         beta upstream and stable stops at 5.0.0, so there is nothing released to move to. -->
+    <PackageVersion Include="MathNet.Numerics" Version="6.0.0-beta2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="MSTest" Version="4.3.3" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="4.3.3" />
+    <PackageVersion Include="MSTest.TestFramework" Version="4.3.3" />
+    <PackageVersion Include="python" Version="3.14.6" />
+    <PackageVersion Include="pythonnet" Version="3.0.5" />
+    <!-- ScottPlot and ScottPlot.Avalonia must move in lockstep: ScottPlot.Avalonia 5.1.59
+         declares a dependency on ScottPlot >= 5.1.59.
+         5.1.59 is where upstream added Avalonia 12 support (PR #5233), which is why the
+         Sesame.ScottPlot.Avalonia fork this used to reference is no longer needed. -->
+    <PackageVersion Include="ScottPlot" Version="5.1.59" />
+    <PackageVersion Include="ScottPlot.Avalonia" Version="5.1.59" />
+    <!-- Do NOT bump to 12.0.0.14 or .15. Both pull Svg.Skia >= 5.2.0, which requires
+         SkiaSharp >= 4.148.0, while Avalonia 12 pins SkiaSharp 3.119.4. NuGet resolves that
+         silently - no restore warning - and the build then fails on the SkiaSharp 4 API
+         (SKPaint.TextSize/Typeface/MeasureText moved to SKFont). -->
+    <PackageVersion Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.13" />
+    <PackageVersion Include="System.IO.Ports" Version="10.0.11" />
+    <PackageVersion Include="System.Resources.Extensions" Version="10.0.11" />
+    <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.2" />
+  </ItemGroup>
+</Project>

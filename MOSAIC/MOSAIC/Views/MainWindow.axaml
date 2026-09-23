@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:MOSAIC.Views"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="MOSAIC.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="MOSAIC">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..."
+                          Click="OnOpenConfigMenuClicked"
+                          InputGesture="Ctrl+O"/>
+                          
+                <Separator/>
+                
+                <MenuItem Header="_Save"
+                          Click="OnSaveConfigMenuClicked"
+                          InputGesture="Ctrl+S"/>
+                          
+                <MenuItem Header="Save _As..."
+                          Click="OnSaveAsConfigMenuClicked"
+                          InputGesture="Ctrl+Shift+S"/>
+                          
+                <Separator/>
+                <MenuItem Header="_Exit"
+                          Click="OnExitMenuClicked"
+                          InputGesture="Alt+F4"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="Copy" InputGesture="Ctrl+C"/>
+                <MenuItem Header="Paste" InputGesture="Ctrl+V"/>
+            </MenuItem>
+        </Menu>
+        <ContentPresenter x:Name="PartMainContent"
+                          DockPanel.Dock="Bottom"/>
+    </DockPanel>
+</Window>

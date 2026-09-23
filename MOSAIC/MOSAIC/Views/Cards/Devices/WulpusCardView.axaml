@@ -1,0 +1,248 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Devices"
+    xmlns:heatmap="clr-namespace:MOSAIC.Visualization.Heatmap"
+    xmlns:snapshot="clr-namespace:MOSAIC.Visualization.SnapshotMonitor"
+    x:Class="MOSAIC.Views.Cards.Devices.WulpusCardView"
+    x:DataType="vm:WulpusViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Wulpus.Name}"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="ULTRASOUND" FontSize="10" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="cardSubtitle" Text="{Binding Wulpus.FrequencyText}"/>
+                        <TextBlock Classes="cardSubtitle" Text="•"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Wulpus.NumChannelConfigs}"
+                                       FontSize="12" Foreground="{DynamicResource ThemeAccentBrush}" FontWeight="Medium"/>
+                            <TextBlock Text=" configs × " FontSize="12" Foreground="{DynamicResource ThemeAccentBrush}"/>
+                            <TextBlock Text="{Binding Wulpus.NumSamples}"
+                                       FontSize="12" Foreground="{DynamicResource ThemeAccentBrush}" FontWeight="Medium"/>
+                            <TextBlock Text=" samples" FontSize="12" Foreground="{DynamicResource ThemeAccentBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Wulpus.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Wulpus.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Configuration Files -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="CONFIGURATION"/>
+
+                    <!-- USS Config -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Classes="fieldLabel" Text="USS Config"/>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding Wulpus.UssConfigPath, Mode=OneWay}"
+                                     IsReadOnly="True"
+                                     FontSize="11"
+                                     PlaceholderText="No USS config loaded"
+                                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                     BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                     CornerRadius="6" Padding="8,6"/>
+                            <Button Grid.Column="1"
+                                    Content="Browse…"
+                                    Command="{Binding BrowseUssConfigCommand}"
+                                    FontSize="11" Padding="12,6"
+                                    CornerRadius="6"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- RX/TX Config -->
+                    <StackPanel Spacing="4">
+                        <TextBlock Classes="fieldLabel" Text="RX/TX Config"/>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding Wulpus.RxTxConfigPath, Mode=OneWay}"
+                                     IsReadOnly="True"
+                                     FontSize="11"
+                                     PlaceholderText="No RX/TX config loaded"
+                                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                     BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                     CornerRadius="6" Padding="8,6"/>
+                            <Button Grid.Column="1"
+                                    Content="Browse…"
+                                    Command="{Binding BrowseRxTxConfigCommand}"
+                                    FontSize="11" Padding="12,6"
+                                    CornerRadius="6"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Settings (Mode, Metadata) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="SETTINGS"/>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <!-- Sending Mode -->
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Data Mode"/>
+                            <ComboBox ItemsSource="{Binding SendingModes}"
+                                      SelectedItem="{Binding Wulpus.SendingMode, Mode=TwoWay}"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                      CornerRadius="6" Padding="8,6" MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <!-- Append Metadata -->
+                        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Bottom">
+                            <ToggleSwitch IsChecked="{Binding Wulpus.AppendMetadata, Mode=TwoWay}"
+                                          OnContent="Metadata" OffContent="Metadata"
+                                          FontSize="10" Padding="4,2"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Device Connection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="DEVICE"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                        <!-- Scan -->
+                        <Button Grid.Column="0"
+                                Content="Scan"
+                                Command="{Binding ScanCommand}"
+                                FontSize="11" Padding="12,6" CornerRadius="6"/>
+
+                        <!-- Device List -->
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding Wulpus.FoundDevices}"
+                                  SelectedIndex="{Binding SelectedDeviceIndex, Mode=TwoWay}"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                  CornerRadius="6" Padding="8,6" MinHeight="32"
+                                  HorizontalAlignment="Stretch"/>
+
+                        <!-- Open -->
+                        <Button Grid.Column="2"
+                                Content="Open"
+                                Command="{Binding OpenCommand}"
+                                FontSize="11" Padding="12,6" CornerRadius="6"/>
+
+                        <!-- Close -->
+                        <Button Grid.Column="3"
+                                Content="Close"
+                                Command="{Binding CloseCommand}"
+                                FontSize="11" Padding="12,6" CornerRadius="6"/>
+                    </Grid>
+
+                    <!-- Connection Info -->
+                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding Wulpus.IsConnected}">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                            <Ellipse Width="8" Height="8" Fill="{StaticResource StatusNormalBrush}" VerticalAlignment="Center"/>
+                            <TextBlock FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="Connected to {0}">
+                                        <Binding Path="Wulpus.ConnectedPort"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" FontSize="11"
+                                   Foreground="{DynamicResource ThemeTextMutedBrush}"
+                                   Text="{Binding Wulpus.IsSelfTriggered,
+                                          StringFormat='Mode: {0}',
+                                          FallbackValue=''}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Streaming Control -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="STREAMING"/>
+
+                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8">
+                        <!-- Start -->
+                        <Button Grid.Column="0"
+                                Content="▶  Start"
+                                Command="{Binding StartStreamCommand}"
+                                FontSize="11" Padding="14,6" CornerRadius="6"
+                                Background="{StaticResource CategoryDevicesBrush}" Foreground="White"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+                        <!-- Stop -->
+                        <Button Grid.Column="1"
+                                Content="■  Stop"
+                                Command="{Binding StopStreamCommand}"
+                                FontSize="11" Padding="14,6" CornerRadius="6"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+                        <!-- Spacer -->
+                        <Panel Grid.Column="2"/>
+
+                        <!-- Acquisition Counter -->
+                        <Border Grid.Column="3"
+                                Background="{StaticResource SemiTransparentBadgeBrush}"
+                                CornerRadius="6" Padding="12,6" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{Binding Wulpus.AcquisitionCount, StringFormat='{}{0:N0}'}"
+                                           FontSize="14" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeAccentBrush}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="acq" FontSize="9"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- A-Mode Snapshot (spatial waveform) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="A-MODE"/>
+                    <snapshot:SnapshotMonitorView
+                        Snapshot="{Binding Wulpus.Snapshot}"
+                        MinHeight="180"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Heatmap (configs × samples B-mode grid) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="B-MODE"/>
+                    <heatmap:HeatMapView
+                        Heatmap="{Binding Wulpus.Heatmap}"
+                        ShowSizeTrack="True"
+                        MinHeight="160"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,71 @@
+// BodyRig 2 — TWO sensors.
+//
+//   sensor18Reading ─┐
+//   sensor18ROT      ├─> quats ─> bodyRig      (2-segment chain)
+//   sensorNNReading ─┘
+//   sensorNNROT
+//
+// Sensors 18 and 92, confirmed streaming (18 at ~216 Hz, 92 at ~105 Hz).
+// Each ESP node streams to UDP port 11000 + its device number: 11018 and 11092.
+// Both need an inbound firewall rule; a range rule for 11000-11255 covers any future node.
+//
+// WHY THE JOINER: BodyRig accepts exactly one input, so several sensors have to be merged
+// into a single concatenated quaternion vector first. The Joiner republishes whenever its
+// TIMER SOURCE arrives — name the sensor you want to pace the rig, here sensor18ROT.
+//
+// SENSOR IDS INSIDE THE RIG ARE POSITIONAL, NOT ESP DEVICE NUMBERS.
+// The rig reads the joined vector in groups of four and binds group k to whichever segments
+// have SensorIndex == k. So with this file:
+//     group 0 = sensor18ROT  -> bind a segment to S0
+//     group 1 = sensor92ROT  -> bind a segment to S1
+// Do NOT set SensorIndex to 18. Group order follows the "Inputs" order declared on the
+// Joiner below.
+//
+// You do not have to hold that mapping in your head any more: the card walks this graph back
+// to the UDP ports and labels each slot with the node behind it -- "S0 . #18", "S1 . #92" --
+// in the chain strip, the bind dropdown and the sensor status line. Hovering a row also names
+// the port and the source block. Renaming or reordering the Joiner inputs updates it on reload.
+//
+// WIRE FORMAT (confirmed by capture, 2026-08-19): 52-byte packets = 13 float32,
+//   [0..3] quaternion w,x,y,z   [4..6] accel   [7..9] gyro   [10..12] mag
+// The rig streams continuously; CommandSender only selects WHICH streams it sends.
+{
+  "ControlSender": {
+    "Type": "CommandSender",
+    "Params": ["192.168.0.255", 11000]
+  },
+
+  "sensor18Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11018, "float"]
+  },
+  "sensor18ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor18Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "sensor92Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11092, "float"]
+  },
+  "sensor92ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor92Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "quats": {
+    "Type": "Joiner",
+    "Inputs": ["sensor18ROT", "sensor92ROT"],
+    "Params": ["timerBlockName:sensor18ROT"]
+  },
+
+  "bodyRig": {
+    "Type": "BodyRig",
+    "Inputs": ["quats"],
+    "Params": ["", 2, ""]
+  }
+}

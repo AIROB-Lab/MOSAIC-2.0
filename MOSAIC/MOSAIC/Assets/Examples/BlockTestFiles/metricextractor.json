@@ -1,0 +1,39 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "sin1": {
+    "Type": "SinGenerator",
+    "Inputs": [
+      "timer"
+    ],
+    "Params": [
+      4,
+      1.0,
+      2.0,
+      0.0
+    ]
+  },
+  "window": {
+    "Type": "SlidingWindow",
+    "Inputs": [
+      "sin1"
+    ],
+    "Params": [
+      100,
+      25,
+      "Rectangular"
+    ],
+    "DesiredRate": 200
+  },
+  "rms": {
+    "Type": "MetricExtractor",
+    "Inputs": [
+      "window"
+    ],
+    "Params": [
+      "RMS"
+    ]
+  }
+}

@@ -1,0 +1,147 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.CropCardView"
+    x:DataType="vm:CropViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Crop.Name}"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="CROP" FontSize="10" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="cardSubtitle" Text="{Binding Crop.FrequencyText}"/>
+                        <TextBlock Text="•" FontSize="12" Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                        <TextBlock Classes="cardSubtitle" Text="{Binding Crop.InputShape}"/>
+                        <TextBlock Text="→" FontSize="12" Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                        <TextBlock Classes="cardSubtitle" Text="{Binding Crop.OutputShape}"
+                                   Foreground="{StaticResource CategorySignalProcessingBrush}" FontWeight="Medium"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Crop.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Crop.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Depth Crop (always visible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="DEPTH RANGE (COLUMNS)"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Start Index"/>
+                            <controls:SafeNumericUpDown Value="{Binding Crop.DepthIndex, Mode=TwoWay}"
+                                           Minimum="0" Maximum="100000" Increment="1"
+                                           FormatString="0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                           CornerRadius="6" Padding="8,4" MinHeight="32"
+                                           HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Count"/>
+                            <controls:SafeNumericUpDown Value="{Binding Crop.DepthCount, Mode=TwoWay}"
+                                           Minimum="1" Maximum="100000" Increment="1"
+                                           FormatString="0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                           CornerRadius="6" Padding="8,4" MinHeight="32"
+                                           HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Row Crop (toggleable) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="ROW RANGE (CHANNELS)"
+                                   VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Column="1"
+                                      IsChecked="{Binding Crop.HasRowCrop, Mode=TwoWay}"
+                                      OnContent="" OffContent=""
+                                      Padding="0" MinWidth="0"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12"
+                          IsVisible="{Binding Crop.HasRowCrop}">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Start Row"/>
+                            <controls:SafeNumericUpDown Value="{Binding Crop.RowIndex, Mode=TwoWay}"
+                                           Minimum="0" Maximum="10000" Increment="1"
+                                           FormatString="0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                           CornerRadius="6" Padding="8,4" MinHeight="32"
+                                           HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Row Count"/>
+                            <controls:SafeNumericUpDown Value="{Binding Crop.RowCount, Mode=TwoWay}"
+                                           Minimum="1" Maximum="10000" Increment="1"
+                                           FormatString="0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                           CornerRadius="6" Padding="8,4" MinHeight="32"
+                                           HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Visualization -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="CROPPED OUTPUT"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Ch"/>
+                            <controls:SafeNumericUpDown Value="{Binding Crop.VisualizedConfig, Mode=TwoWay}"
+                                           Minimum="0" Maximum="1000" Increment="1"
+                                           FormatString="0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                           CornerRadius="4" Padding="6,2" MinHeight="24" MinWidth="70"
+                                           FontSize="10"/>
+                        </StackPanel>
+                    </Grid>
+                    <viz:VisualizationPanel
+                        Source="{Binding Crop.Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,101 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "..",
+          "files": [
+            "MOSAIC/MOSAIC/MOSAIC.csproj"
+          ],
+          "exclude": [
+            "**/template_project.csproj",
+            "**/bin/**",
+            "**/obj/**",
+            "**/*Tests*/*.csproj"
+          ]
+        }
+      ],
+      "dest": "_api",
+      "outputFormat": "mref",
+      "includePrivateMembers": true,
+      "disableDefaultFilter": false,
+      "allowCompilationErrors": true,
+      "noRestore": false,
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage",
+      "enumSortOrder": "alphabetic",
+      "properties": {
+        "Configuration": "Release",
+        "TargetFramework": "net10.0"
+      },
+      "filter": "filterConfig.yml"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "src": "_api",
+        "dest": "api",
+        "files": [
+          "**/*.yml"
+        ]
+      },
+      {
+        "files": [
+          "api/index.md"
+        ]
+      },
+      {
+        "files": [
+          "docs/**/*.md",
+          "docs/**/toc.yml",
+          "toc.yml",
+          "*.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**",
+          "examples/**",
+          "api-blocks.json"
+        ],
+        "exclude": [
+          "**/__pycache__/**",
+          "**/*.pyc"
+        ]
+      }
+    ],
+    "output": "_site",
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "templates/mosaic"
+    ],
+    "globalMetadata": {
+      "_appTitle": "MOSAIC",
+      "_appName": "AIROB MOSAIC",
+      "_appFooter": "<strong>squishy humans / solid research \u2665</strong>",
+      "_enableSearch": true,
+      "_disableSideFilter": false,
+      "_enableNewTab": true,
+      "_disableContribution": true,
+      "_disableBreadcrumb": true
+    },
+    "postProcessors": [],
+    "keepFileLink": false,
+    "disableGitFeatures": false,
+    "markdownEngineProperties": {
+      "alerts": {
+        "NOTE": "alert alert-info",
+        "TIP": "alert alert-info",
+        "IMPORTANT": "alert alert-info",
+        "WARNING": "alert alert-warning",
+        "CAUTION": "alert alert-danger",
+        "Take Home Lesson": "alert alert-secondary"
+      }
+    }
+  }
+}

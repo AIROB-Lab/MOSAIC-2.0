@@ -1,0 +1,169 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MOSAIC.Views.MobileMainView"
+             x:CompileBindings="False">
+    <Grid RowDefinitions="58,*,68"
+          Background="{DynamicResource ThemeBackgroundBrush}">
+
+        <!-- Compact mobile app bar. Desktop keeps its full menu and recording controls. -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource ThemeAccentBrush}"
+                Padding="16,0,8,0">
+            <Grid ColumnDefinitions="*,52,52">
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="MOSAIC"
+                               Foreground="White"
+                               FontSize="19"
+                               FontWeight="Bold"
+                               LetterSpacing="1.5" />
+                    <Border Background="#30FFFFFF"
+                            CornerRadius="9"
+                            Padding="7,3">
+                        <TextBlock x:Name="PlatformLabel"
+                                   Text="MOBILE"
+                                   Foreground="White"
+                                   FontSize="9"
+                                   FontWeight="SemiBold"
+                                   LetterSpacing="0.8"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Classes="appbar"
+                        Click="OnOpenClicked"
+                        ToolTip.Tip="Open pipeline">
+                    <Viewbox Width="23" Height="23">
+                        <Path Fill="White"
+                              Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" />
+                    </Viewbox>
+                </Button>
+
+                <Button Grid.Column="2"
+                        Classes="appbar"
+                        Click="OnThemeClicked"
+                        ToolTip.Tip="Toggle theme">
+                    <TextBlock x:Name="ThemeGlyph"
+                               Text="☾"
+                               Foreground="White"
+                               FontSize="24"
+                               VerticalAlignment="Center" />
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- The graph engine is shared with desktop; only its surrounding shell changes. -->
+        <ContentControl x:Name="WorkspaceHost"
+                        Grid.Row="1"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch" />
+
+        <Border Grid.Row="2"
+                Background="{DynamicResource ThemeSurfaceBrush}"
+                BorderBrush="{DynamicResource ThemeBorderBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,*,*,*,*" Margin="4,2">
+                <Button Grid.Column="0" Classes="mobile-nav" Click="OnCanvasClicked">
+                    <StackPanel Spacing="2" HorizontalAlignment="Center">
+                        <Grid Height="30">
+                            <Viewbox Width="22" Height="22">
+                                <Path Fill="{DynamicResource ThemeTextSecondaryBrush}"
+                                      Data="M4,3H20A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5A2,2 0 0,1 4,3M5,6V18H19V6H5Z" />
+                            </Viewbox>
+                        </Grid>
+                        <TextBlock Text="Canvas" Classes="nav-label" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="1" Classes="mobile-nav" Click="OnBlocksClicked">
+                    <StackPanel Spacing="2" HorizontalAlignment="Center">
+                        <Grid Height="30">
+                            <Viewbox Width="22" Height="22">
+                                <Path Fill="{DynamicResource ThemeTextSecondaryBrush}"
+                                      Data="M3,3H10V10H3V3M14,3H21V10H14V3M3,14H10V21H3V14M14,14H21V21H14V14Z" />
+                            </Viewbox>
+                        </Grid>
+                        <TextBlock Text="Blocks" Classes="nav-label" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="2" Classes="mobile-nav primary" Click="OnAddClicked">
+                    <StackPanel Spacing="2" HorizontalAlignment="Center">
+                        <Border Width="30" Height="30"
+                                CornerRadius="15"
+                                Background="{DynamicResource ThemeAccentBrush}">
+                            <Path Data="M7,0H9V7H16V9H9V16H7V9H0V7H7Z"
+                                  Fill="White"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Add" Classes="nav-label" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="3" Classes="mobile-nav" Click="OnLogClicked">
+                    <StackPanel Spacing="2" HorizontalAlignment="Center">
+                        <Grid Height="30">
+                            <Viewbox Width="22" Height="22">
+                                <Path Fill="{DynamicResource ThemeTextSecondaryBrush}"
+                                      Data="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M5,8V10H19V8H5M5,12V14H16V12H5M5,16V18H13V16H5Z" />
+                            </Viewbox>
+                        </Grid>
+                        <TextBlock Text="Log" Classes="nav-label" />
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Column="4" Classes="mobile-nav" Click="OnRecordFolderClicked">
+                    <StackPanel Spacing="2" HorizontalAlignment="Center">
+                        <Grid Height="30">
+                            <Viewbox Width="22" Height="22">
+                                <Path Fill="{DynamicResource ThemeTextSecondaryBrush}"
+                                      Data="M12,8A4,4 0 1,1 8,12A4,4 0 0,1 12,8M4,4H10L12,6H20A2,2 0 0,1 22,8V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V6A2,2 0 0,1 4,4Z" />
+                            </Viewbox>
+                        </Grid>
+                        <TextBlock Text="Record" Classes="nav-label" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+
+    <UserControl.Styles>
+        <Style Selector="Button.appbar">
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.appbar:pointerover">
+            <Setter Property="Background" Value="#20FFFFFF" />
+        </Style>
+        <Style Selector="Button.mobile-nav">
+            <Setter Property="MinWidth" Value="56" />
+            <Setter Property="Height" Value="62" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.mobile-nav:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}" />
+        </Style>
+        <Style Selector="TextBlock.nav-label">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+</UserControl>

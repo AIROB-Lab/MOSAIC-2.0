@@ -1,0 +1,110 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    xmlns:streaming="clr-namespace:MOSAIC.Models.Streaming"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.Streaming.SinGeneratorCardView"
+    x:DataType="streaming:SinGenerator">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor" />
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <Grid RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*" RowSpacing="12">
+
+            <!-- Header Section -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Name}"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="GENERATOR" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding FrequencyText}"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <!-- Separator -->
+            <Border Grid.Row="1" Classes="divider"/>
+
+            <!-- Parameters Section -->
+            <Border Grid.Row="2" Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="PARAMETERS"/>
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="12">
+
+                        <!-- Frequency -->
+                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Frequency (Hz)"/>
+                            <controls:SafeNumericUpDown Value="{Binding Frequency}"
+                                           Minimum="0.01" Maximum="100" Increment="0.1"
+                                           FormatString="F2"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                           BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                        </StackPanel>
+
+                        <!-- Amplitude -->
+                        <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Amplitude"/>
+                            <controls:SafeNumericUpDown Value="{Binding Amplitude}"
+                                           Minimum="0.01" Maximum="100" Increment="0.1"
+                                           FormatString="F2"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                           BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                        </StackPanel>
+
+                        <!-- Component Count -->
+                        <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Components"/>
+                            <controls:SafeNumericUpDown Value="{Binding ComponentCount}"
+                                           Minimum="1" Maximum="64" Increment="1"
+                                           FormatString="0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                           BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                        </StackPanel>
+
+                        <!-- Phase -->
+                        <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Phase (rad)"/>
+                            <controls:SafeNumericUpDown Value="{Binding Phase}"
+                                           Minimum="-6.28" Maximum="6.28" Increment="0.1"
+                                           FormatString="F2"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                           BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Plots -->
+            <Border Grid.Row="3"
+                    Background="{DynamicResource ThemeScopeBackgroundBrush}"
+                    CornerRadius="6"
+                    Padding="4"
+                    ClipToBounds="False">
+                <visualization:VisualizationPanel Source="{Binding Viz}" ScopeVisibleByDefault="True"
+                                                  ShowScopeViewModeToggle="True" MinHeight="160"/>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

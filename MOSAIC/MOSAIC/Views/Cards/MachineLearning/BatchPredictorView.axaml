@@ -1,0 +1,360 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:machineLearning="clr-namespace:MOSAIC.ViewModels.MachineLearning"
+    x:Class="MOSAIC.Views.Cards.MachineLearning.BatchPredictorView"
+    x:DataType="machineLearning:BatchPredictorViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusTextToColorConverter x:Key="StatusTextToColor"/>
+        <converters:BoolToOpacityConverter     x:Key="BoolToOpacity"/>
+        <converters:TrainingToColorConverter   x:Key="TrainingToColor"/>
+        <converters:StringToBrushConverter     x:Key="StringToBrush"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Training pulse animation on the card border (matches IncrementalPredictorView) -->
+        <Style Selector="Border.training-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.5" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource CategoryMachineLearningBrush}"/>
+                        <Setter Property="Opacity" Value="1.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Outer card — gets training-pulse class when training -->
+    <Border Classes="card"
+            Classes.training-pulse="{Binding IsTraining}">
+
+        <StackPanel Spacing="12">
+
+            <!-- HEADER -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryMachineLearningBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="BATCH PREDICTOR" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- TRAINED badge -->
+                        <Border Background="{StaticResource StatusNormalBrush}" CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsTrained}">
+                            <TextBlock Text="TRAINED" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                        <!-- Live training indicator -->
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsTraining}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="Training…" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding FrequencyText}" Classes="cardSubtitle"/>
+                        <TextBlock Text="|" Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="12"/>
+                        <TextBlock FontSize="12" Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                            <Run Text="In: "/>
+                            <Run Text="{Binding InputDimension}" Foreground="{StaticResource CategoryMachineLearningBrush}"/>
+                            <Run Text=" → Out: "/>
+                            <Run Text="{Binding OutputDimension}" Foreground="{StaticResource StatusNormalBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Status, Converter={StaticResource StatusTextToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}" FontWeight="SemiBold" Foreground="White" FontSize="11"
+                              TextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- TRAINING PANEL (BatchPredictor-specific) -->
+            <!--
+              Buffer count badge + Reset-before-training checkbox + prominent Train Now button.
+              This sits right after the header so the primary BatchPredictor action is in
+              easy reach, before the deeper-dive Model Configuration expander below.
+              The Train button uses IsEnabled (not CanExecute) for reliability —
+              validation lives inside the command and surfaces as StatusText.
+            -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="14" VerticalAlignment="Center">
+
+                    <!-- Buffer segments badge -->
+                    <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                            CornerRadius="6" Padding="14,8" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Buffer:" Classes="fieldLabel" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding BufferSegmentCount}" FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource CategoryMachineLearningBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="segments" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Reset-before-training toggle -->
+                    <CheckBox Grid.Column="1" Content="Reset before training" VerticalAlignment="Center"
+                              IsChecked="{Binding ResetBeforeTraining}"
+                              Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                    <!-- Train Now button: enabled whenever NOT training; validation is internal -->
+                    <Button Grid.Column="3" Content="Train Now"
+                            Command="{Binding TrainFromBufferCommand}"
+                            IsEnabled="{Binding !IsTraining}"
+                            Background="{StaticResource CategoryMachineLearningBrush}" Foreground="White"
+                            Padding="22,10" CornerRadius="6" FontSize="14" FontWeight="Bold" MinWidth="130"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- MODEL CONFIGURATION (Collapsible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <!-- Collapse header — full-width clickable row -->
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand"
+                            Command="{Binding ToggleConfigExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="▸" IsVisible="{Binding !IsConfigExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0"
+                                       Text="▾" IsVisible="{Binding IsConfigExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Model Configuration" FontSize="13"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            <TextBlock Grid.Column="3" Text="{Binding SelectedModelType}" FontSize="12"
+                                       Foreground="{DynamicResource ThemeTextDimmedBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+
+                    <!-- Collapsible content -->
+                    <StackPanel Spacing="12" IsVisible="{Binding IsConfigExpanded}">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <TextBlock Grid.Column="0" Text="Model Type:" Classes="fieldLabel"
+                                      VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <ComboBox Grid.Column="1"
+                                     ItemsSource="{Binding AvailableModelTypes}"
+                                     SelectedItem="{Binding SelectedModelType}"
+                                     HorizontalAlignment="Stretch"
+                                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                     Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Button Grid.Column="2" Content="Apply"
+                                    Command="{Binding ApplyModelCommand}"
+                                    Background="{StaticResource CategoryMachineLearningBrush}"
+                                    Foreground="White" Padding="16,8" Margin="12,0,0,0"
+                                    CornerRadius="6" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <TextBlock Text="{Binding SelectedModelDescription}" FontSize="11"
+                                  Foreground="{DynamicResource ThemeTextSecondaryBrush}" TextWrapping="Wrap"/>
+
+                        <UniformGrid Columns="3" HorizontalAlignment="Stretch">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="0,0,8,0">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="LAMBDA (λ)" Classes="sectionLabel"/>
+                                    <Slider Minimum="0" Maximum="10" Value="{Binding Lambda, Mode=TwoWay}" MinWidth="100"/>
+                                    <TextBlock Text="{Binding Lambda, StringFormat='{}{0:F3}'}" FontSize="14"
+                                              FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                              HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="4,0"
+                                    IsEnabled="{Binding IsRffModel}"
+                                    Opacity="{Binding IsRffModel, Converter={StaticResource BoolToOpacity}}">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="SIGMA (σ)" Classes="sectionLabel"/>
+                                    <Slider Minimum="0.01" Maximum="5" Value="{Binding Sigma, Mode=TwoWay}" MinWidth="100"/>
+                                    <TextBlock Text="{Binding Sigma, StringFormat='{}{0:F2}'}" FontSize="14"
+                                              FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                              HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="8,0,0,0"
+                                    IsEnabled="{Binding IsRffModel}"
+                                    Opacity="{Binding IsRffModel, Converter={StaticResource BoolToOpacity}}">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="FEATURES (D)" Classes="sectionLabel"/>
+                                    <Slider Minimum="50" Maximum="1000" Value="{Binding FeatureDim, Mode=TwoWay}"
+                                           TickFrequency="10" IsSnapToTickEnabled="True" MinWidth="100"/>
+                                    <TextBlock Text="{Binding FeatureDim}" FontSize="14"
+                                              FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                              HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- STATS CARDS -->
+            <UniformGrid Columns="4" HorizontalAlignment="Stretch">
+                <Border Classes="cardSection" Padding="10,8" Margin="0,0,4,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="SAMPLES" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding SampleCount, StringFormat='{}{0:N0}'}" FontSize="16"
+                                  FontWeight="Bold" Foreground="{StaticResource StatusNormalBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Padding="10,8" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="CONFIDENCE" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding ConfidencePercent, StringFormat='{}{0:F1}%'}" FontSize="16"
+                                  FontWeight="Bold" Foreground="{StaticResource CategoryMachineLearningBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Padding="10,8" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="BUFFER" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding BufferSegmentCount}" FontSize="16"
+                                  FontWeight="Bold" Foreground="{StaticResource StatusWarningBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Padding="10,8" Margin="4,0,0,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="TRAINED SEG" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding SegmentsProcessed, StringFormat='{}{0:N0}'}" FontSize="16"
+                                  FontWeight="Bold" Foreground="{StaticResource StatusErrorBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- STATUS LINE -->
+            <Border CornerRadius="6" Padding="12,6" MinHeight="28"
+                    Background="{DynamicResource ThemeSurfaceBrush}"
+                    IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                <TextBlock Text="{Binding Status}" FontSize="12"
+                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- CONTROL BUTTONS -->
+            <Grid ColumnDefinitions="*,*,2*,*" ColumnSpacing="6">
+                <Button Grid.Column="0" Content="Reset Model" Command="{Binding ResetModelCommand}"
+                        Background="{StaticResource CategoryMachineLearningBrush}" Foreground="White"
+                        Padding="12,10" CornerRadius="6"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"/>
+                <Button Grid.Column="1" Content="Save Model" Command="{Binding SaveModelCommand}"
+                        Background="{StaticResource CategoryMachineLearningBrush}" Foreground="White"
+                        Padding="12,10" CornerRadius="6"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"/>
+                <TextBox Grid.Column="2" Text="{Binding LoadPath}"
+                         PlaceholderText="Load path (e.g. .../session1/20260508_*_BatchPredictor_*.json)"
+                         Background="{DynamicResource ThemeInputBackgroundBrush}"
+                         Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                         BorderBrush="{DynamicResource ThemeInputBorderBrush}" CornerRadius="6"
+                         Margin="4,0"/>
+                <Button Grid.Column="3" Content="Load Model" Command="{Binding LoadModelCommand}"
+                        Background="{StaticResource CategoryMachineLearningBrush}" Foreground="White"
+                        Padding="12,10" CornerRadius="6"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"/>
+            </Grid>
+
+            <!-- LIVE PREDICTION BAR CHART (Collapsible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand"
+                            Command="{Binding ToggleBarsExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*">
+                            <TextBlock Grid.Column="0"
+                                       Text="▸" IsVisible="{Binding !IsBarsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0"
+                                       Text="▾" IsVisible="{Binding IsBarsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Live Prediction" FontSize="13"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </Grid>
+                    </Button>
+
+                    <ItemsControl ItemsSource="{Binding PredictionBars}"
+                                  IsVisible="{Binding IsBarsExpanded}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="machineLearning:PredictionBarItem">
+                                <Grid ColumnDefinitions="70,*,40" Margin="0,1" Height="16">
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="9"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <ProgressBar Grid.Column="1" Minimum="0" Maximum="1"
+                                                 Value="{Binding Value}" Height="8"
+                                                 CornerRadius="3" VerticalAlignment="Center"
+                                                 Foreground="{Binding ColorHex, Converter={StaticResource StringToBrush}}"
+                                                 Background="{DynamicResource ThemeInputBackgroundBrush}"/>
+                                    <TextBlock Grid.Column="2" FontSize="9"
+                                               Text="{Binding Value, StringFormat={}{0:F2}}"
+                                               FontFamily="Cascadia Mono, Consolas, monospace"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- PREDICTION OUTPUT (Scope + Legend) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="PREDICTION OUTPUT" Classes="sectionLabel"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Last segment:" FontSize="11"
+                                      Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                      VerticalAlignment="Center"/>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="4" Padding="8,4">
+                                <TextBlock Text="{Binding CurrentTargetName}" FontSize="11" FontWeight="Bold"
+                                          Foreground="{Binding IsTraining, Converter={StaticResource TrainingToColor}}"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Per-channel legend chips derived from buffer-segment labels -->
+                    <controls:ScopeLegendControl ItemsSource="{Binding PredictionLabels}"/>
+
+                    <viz:VisualizationPanel
+                        Source="{Binding Block.Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="180"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

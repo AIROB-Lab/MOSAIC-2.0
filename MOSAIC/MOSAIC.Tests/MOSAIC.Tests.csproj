@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    First unit-test project for MOSAIC.
+
+    Targets net10.0 only (single-target). MOSAIC.csproj multi-targets
+    net10.0;net10.0-windows on Windows; referencing it from a net10.0-only
+    project resolves to the net10.0 build, which keeps the Windows-only
+    optional hardware/COM surface (Delsys, serial, LSL) out of the test build.
+
+    Package versions come from Directory.Packages.props (central package
+    management) — do NOT add Version= attributes here.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DelsysAPI" Condition="'$(EnableDelsys)' == 'true'" />
+    <!-- DelsysAPI drags Delsys.Drivers in transitively with all assets; a direct reference is the
+         only way to trim its native DLLs out of compile (MSB3246) while keeping the runtime copy. -->
+    <PackageReference Include="Delsys.Drivers" ExcludeAssets="compile;contentfiles" Condition="'$(EnableDelsys)' == 'true'" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MOSAIC\MOSAIC.csproj" />
+    <Compile Include="..\..\Documentation\examples\WindowRms.cs" Link="Documentation\WindowRms.cs" />
+    <Compile Include="..\..\Documentation\examples\GainBlock.cs" Link="Documentation\GainBlock.cs" />
+    <Compile Include="..\..\Documentation\examples\GainViewModel.cs" Link="Documentation\GainViewModel.cs" />
+    <Compile Include="..\..\Documentation\examples\GainCardView.axaml.cs" Link="Documentation\GainCardView.axaml.cs" />
+    <AvaloniaXaml Include="..\..\Documentation\examples\GainCardView.axaml" Link="Documentation\GainCardView.axaml" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,223 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Tests"
+    x:Class="MOSAIC.Views.Cards.Tests.TACCardView"
+    x:DataType="vm:TACViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor" />
+        <converters:StatusToBoolConverter x:Key="BlockStatusToEnabled" />
+        <converters:StatusToVisConverter x:Key="BlockStatusToVis" />
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.trying-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource CategoryAnalyticsBrush}" />
+                        <Setter Property="Opacity" Value="0.85" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}" />
+                        <Setter Property="Opacity" Value="1.0" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card" Classes.trying-pulse="{Binding Block.IsTrying}">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Name}" />
+                        <Border Background="{StaticResource CategoryAnalyticsBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="TAC TEST" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding Block.IsTrying}"
+                                Background="{StaticResource StatusWarningBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center" />
+                                <TextBlock Text="EVALUATING" FontSize="10" FontWeight="Bold" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsTestComplete}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="COMPLETE" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Classes="cardSubtitle" Text="Threshold:" />
+                        <TextBlock Classes="cardSubtitle" Text="{Binding SuccessThreshold, StringFormat={}{0:F2}}"
+                                   Foreground="{StaticResource CategoryAnalyticsBrush}" />
+                        <TextBlock Classes="cardSubtitle" Text="| Dwell:" />
+                        <TextBlock Classes="cardSubtitle" Text="{Binding DwellTime, StringFormat={}{0:F1}s}"
+                                   Foreground="{StaticResource CategoryAnalyticsBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="11" />
+                </Border>
+            </Grid>
+
+            <Border Classes="divider" />
+
+            <!-- Block configuration is opened from the ⚙ gear button in the card header (PopoutCardBase). -->
+
+            <!-- Live trial metrics (bind to Block.* real-time observables) -->
+            <UniformGrid Columns="4" HorizontalAlignment="Stretch">
+                <Border Classes="cardSection" Margin="0,0,2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="DISTANCE" />
+                        <TextBlock Text="{Binding Block.DistanceToTarget, StringFormat={}{0:F3}}"
+                                   FontSize="16" FontWeight="Bold"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="DWELL" />
+                        <TextBlock Text="{Binding Block.TimeInTarget, StringFormat={}{0:F1}s}"
+                                   FontSize="16" FontWeight="Bold"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{StaticResource StatusNormalBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="OVERSHOOT" />
+                        <TextBlock Text="{Binding Block.CurrentOvershootCount}"
+                                   FontSize="16" FontWeight="Bold"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{StaticResource StatusWarningBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0,0,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="TASK" />
+                        <TextBlock Text="{Binding Block.CurrentTaskName}" FontSize="14" FontWeight="Bold"
+                                   Foreground="{StaticResource CategoryAnalyticsBrush}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Dwell progress bar -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="DWELL PROGRESS" />
+                        <TextBlock Grid.Column="1" FontSize="11" Margin="0,0,12,0"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   Text="{Binding Block.TrialElapsed, StringFormat=elapsed: {0:F1}s}" />
+                        <TextBlock Grid.Column="2" FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                   Text="{Binding Block.HoldProgress, StringFormat={}{0:P0}}" />
+                    </Grid>
+                    <ProgressBar Value="{Binding Block.HoldProgress}"
+                                 Minimum="0" Maximum="1"
+                                 Height="12" CornerRadius="6"
+                                 Foreground="{StaticResource StatusNormalBrush}"
+                                 Background="{DynamicResource ThemeInputBackgroundBrush}" />
+                    <TextBlock Text="{Binding LastTrialResult}" FontSize="12" FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               FontFamily="Cascadia Mono, Consolas, monospace"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Aggregate metrics (bind to Results.* observables on TACResults) -->
+            <UniformGrid Columns="4" HorizontalAlignment="Stretch">
+                <Border Classes="cardSection" Margin="0,0,2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="COMPLETED" />
+                        <TextBlock Text="{Binding Results.TrialsCompleted}"
+                                   FontSize="16" FontWeight="Bold"
+                                   Foreground="{StaticResource StatusNormalBrush}" />
+                        <TextBlock Classes="cardSubtitle" FontSize="11"
+                                   Text="{Binding Results.TrialsAttempted, StringFormat=of {0}}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="RATE" />
+                        <TextBlock Text="{Binding Results.CompletionRate, StringFormat={}{0:F0}%}"
+                                   FontSize="16" FontWeight="Bold"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{StaticResource CategoryAnalyticsBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="AVG TIME" />
+                        <TextBlock Text="{Binding Results.AverageCompletionTime, StringFormat={}{0:F1}s}"
+                                   FontSize="16" FontWeight="Bold"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0,0,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="PATH EFF" />
+                        <TextBlock Text="{Binding Results.AveragePathEfficiency, StringFormat={}{0:P0}}"
+                                   FontSize="16" FontWeight="Bold"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Controls -->
+            <UniformGrid Columns="2" HorizontalAlignment="Stretch">
+                <Button Content="↺ Reset Metrics"
+                        Command="{Binding ResetMetricsCommand}"
+                        Background="{StaticResource CategoryAnalyticsBrush}"
+                        Foreground="White"
+                        Padding="12,10" CornerRadius="6" Margin="0,0,4,0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        FontSize="13" FontWeight="Bold" Cursor="Hand" />
+                <Button Content="⬇ Export CSV"
+                        Command="{Binding ExportResultsCommand}"
+                        Background="{StaticResource StatusNormalBrush}"
+                        Foreground="White"
+                        Padding="12,10" CornerRadius="6" Margin="4,0,0,0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        FontSize="13" FontWeight="Bold" Cursor="Hand" />
+            </UniformGrid>
+
+            <!-- Distance trace -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="DISTANCE TRACE" />
+                    <viz:VisualizationPanel
+                        Source="{Binding Viz}"
+                        ScopeVisibleByDefault="True"
+                        MinHeight="120" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

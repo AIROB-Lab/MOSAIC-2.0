@@ -1,0 +1,16 @@
+﻿{
+  "Timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "sin": {
+    "Type": "SinGenerator",
+    "Inputs": ["Timer"],
+    "Params": [4, 1.0, 0.2, 0.0]
+  },
+  "LowpassFilter": {
+    "Type": "FilterBlock",
+    "Inputs": ["sin"],
+    "Params": ["Lowpass", "IIR", 2, 0, 4, 64]
+  }
+}

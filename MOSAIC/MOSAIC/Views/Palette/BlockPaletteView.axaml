@@ -1,0 +1,173 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Palette"
+    xmlns:factory="clr-namespace:MOSAIC.Components.Factory"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    x:Class="MOSAIC.Views.Palette.BlockPaletteView"
+    x:CompileBindings="False">
+
+    <UserControl.Resources>
+        <conv:BlockCategoryToBrushConverter x:Key="CategoryBrush" />
+    </UserControl.Resources>
+
+    <DockPanel Background="{DynamicResource ThemeBackgroundAltBrush}">
+
+        <!-- Header -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource ThemeAccentBrush}"
+                Height="50"
+                Padding="14,0">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="Block Palette"
+                           VerticalAlignment="Center"
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           Foreground="White" />
+                <TextBlock Grid.Column="1"
+                           x:Name="BlockCountText"
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0"
+                           FontSize="11"
+                           Foreground="White"
+                           Opacity="0.7" />
+                <Button Grid.Column="2"
+                        Content="✕"
+                        Click="OnCloseClicked"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="White"
+                        FontSize="14"
+                        Padding="8,2"
+                        Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Opacity" Value="0.7" />
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Search -->
+        <Border DockPanel.Dock="Top"
+                Padding="10,8"
+                Background="{DynamicResource ThemeSurfaceBrush}"
+                BorderBrush="{DynamicResource ThemeBorderBrush}"
+                BorderThickness="0,0,0,1">
+            <TextBox x:Name="SearchBox"
+                     Text="{Binding SearchText, Mode=TwoWay}"
+                     Watermark="Search blocks…"
+                     FontSize="12"
+                     Height="32"
+                     VerticalContentAlignment="Center"
+                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                     BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                     BorderThickness="1"
+                     CornerRadius="4"
+                     Padding="8,0" />
+        </Border>
+
+        <!-- Category list -->
+        <ScrollViewer x:Name="BlocksScrollViewer"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding FilteredGroups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Expander IsExpanded="True"
+                                  HorizontalAlignment="Stretch"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="0">
+                            <Expander.Header>
+                                <Grid ColumnDefinitions="Auto,*" Height="36">
+                                    <!-- Category color stripe -->
+                                    <Border Grid.Column="0"
+                                            Width="3"
+                                            Height="18"
+                                            CornerRadius="2"
+                                            Margin="12,0,10,0"
+                                            Background="{Binding Category, Converter={StaticResource CategoryBrush}}" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding DisplayName}"
+                                               VerticalAlignment="Center"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                               LetterSpacing="0.5" />
+                                </Grid>
+                            </Expander.Header>
+
+                            <!-- Block items -->
+                            <ItemsControl ItemsSource="{Binding Blocks}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="BlockItemBorder"
+                                                Padding="12,8"
+                                                Margin="0,0,0,1"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <!-- Category dot -->
+                                                <Ellipse Grid.Column="0"
+                                                         Width="6" Height="6"
+                                                         Margin="0,0,8,0"
+                                                         VerticalAlignment="Center"
+                                                         Fill="{Binding Category, Converter={StaticResource CategoryBrush}}" />
+
+                                                <!-- Block name + description -->
+                                                <StackPanel Grid.Column="1" Spacing="1">
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               FontSize="13"
+                                                               FontWeight="Medium"
+                                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="10"
+                                                               Foreground="{DynamicResource ThemeTextMutedBrush}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               MaxLines="1" />
+                                                </StackPanel>
+
+                                                <!-- Source indicator -->
+                                                <Border Grid.Column="2"
+                                                        IsVisible="{Binding CanBeSource}"
+                                                        Background="{DynamicResource ThemeAccentMutedBrush}"
+                                                        CornerRadius="3"
+                                                        Padding="4,2"
+                                                        Margin="6,0,0,0"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="SRC"
+                                                               FontSize="9"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource ThemeAccentBrush}" />
+                                                </Border>
+                                            </Grid>
+
+                                            <Border.Styles>
+                                                <Style Selector="Border:pointerover">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}" />
+                                                </Style>
+                                            </Border.Styles>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Expander>
+
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+
+    <UserControl.Styles>
+        <Style Selector="Expander">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+    </UserControl.Styles>
+</UserControl>

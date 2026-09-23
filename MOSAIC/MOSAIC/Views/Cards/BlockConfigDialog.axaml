@@ -1,0 +1,52 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="MOSAIC.Views.Cards.BlockConfigDialog"
+    x:CompileBindings="False"
+    Title="Configuration"
+    Width="460"
+    SizeToContent="Height"
+    CanResize="False"
+    WindowStartupLocation="CenterOwner"
+    Background="{DynamicResource ThemeBackgroundBrush}">
+
+    <DockPanel>
+        <!-- Title bar -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource ThemeAccentBrush}"
+                Height="52"
+                Padding="18,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="12">
+                <TextBlock Text="⚙" FontSize="18" Foreground="White" VerticalAlignment="Center" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Configuration"
+                               FontSize="15" FontWeight="SemiBold" Foreground="White" />
+                    <TextBlock Text="{Binding Name}"
+                               FontSize="11" Opacity="0.8" Foreground="White"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <Border DockPanel.Dock="Bottom"
+                BorderBrush="{DynamicResource ThemeBorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="18,12"
+                Background="{DynamicResource ThemeSurfaceBrush}">
+            <Button Content="Close"
+                    HorizontalAlignment="Right"
+                    Padding="18,8"
+                    Click="OnCloseClicked"
+                    Background="{DynamicResource ThemeAccentBrush}"
+                    Foreground="White"
+                    FontWeight="SemiBold"
+                    BorderThickness="0" />
+        </Border>
+
+        <!-- Body: the per-card config view is injected here -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="640">
+            <ContentControl x:Name="Body" Margin="18" />
+        </ScrollViewer>
+    </DockPanel>
+</Window>

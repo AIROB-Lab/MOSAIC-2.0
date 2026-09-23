@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+             x:Class="MOSAIC.Views.Cards.SignalProcessing.GainCardView"
+             x:DataType="vm:GainViewModel">
+    <Border Padding="16" CornerRadius="8"
+            Background="{DynamicResource ThemeSectionBrush}">
+        <StackPanel Spacing="10">
+            <TextBlock Text="{Binding Block.Name}" FontWeight="Bold"/>
+            <TextBlock Text="Gain multiplier"/>
+            <Slider Minimum="-10" Maximum="10"
+                    Value="{Binding Gain, Mode=TwoWay}"/>
+            <TextBlock Text="{Binding Gain, StringFormat='{}{0:F2}'}"/>
+            <Button Content="Apply" Command="{Binding ApplyCommand}"/>
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+        </StackPanel>
+    </Border>
+</UserControl>

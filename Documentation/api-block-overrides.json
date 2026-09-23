@@ -1,0 +1,69 @@
+{
+  "MOSAIC.Models.Devices.BodyRig": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.BodyRig"
+    ]
+  },
+  "MOSAIC.Models.FlowControl.ControlAlgorithm": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Manager.ControlAlgorithm"
+    ]
+  },
+  "MOSAIC.Models.SignalProcessing.DepthFilter": {
+    "related": [
+      "MOSAIC.Models.SignalProcessing.FilterImplementation",
+      "MOSAIC.Models.SignalProcessing.FilterType",
+      "MOSAIC.ViewModels.SignalProcessing.FilterConverters",
+      "MOSAIC.ViewModels.SignalProcessing.FilterTypeToBackgroundConverter"
+    ],
+    "relatedNamespaces": [
+      "MOSAIC.Components.SignalProcessing"
+    ]
+  },
+  "MOSAIC.Models.SignalProcessing.Filter": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.SignalProcessing"
+    ]
+  },
+  "MOSAIC.Models.Devices.HannesHand": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Devices.HannesHand"
+    ]
+  },
+  "MOSAIC.Models.Devices.MuoviSingleProbe": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Devices.Muovi"
+    ]
+  },
+  "MOSAIC.Models.Devices.Muovi": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Devices.Muovi"
+    ]
+  },
+  "MOSAIC.Models.Devices.Myo": {
+    "related": [
+      "MOSAIC.Components.Manager.BLE.Commands.MyoCommandDefinitions",
+      "MOSAIC.Components.Manager.BLE.Commands.MyoCommandEnum"
+    ]
+  },
+  "MOSAIC.Models.Devices.Quattrocento": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Devices.Quattrocento"
+    ]
+  },
+  "MOSAIC.Models.Devices.SiFi": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Devices.SiFi"
+    ]
+  },
+  "MOSAIC.Models.Devices.Wulpus": {
+    "relatedNamespaces": [
+      "MOSAIC.Components.Devices.Wulpus"
+    ]
+  },
+  "MOSAIC.Models.TemplateViz": {
+    "viewModel": [
+      "MOSAIC.ViewModels.TemplateViewModel"
+    ]
+  }
+}

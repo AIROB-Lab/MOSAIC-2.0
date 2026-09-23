@@ -1,0 +1,27 @@
+﻿{
+//  "Timer": {
+//    "Type": "ClockBlock",
+//    "DesiredRate": 100
+//  },
+  "MuoviSingle": {
+    "Type": "MuoviSingleProbe",
+    "Inputs": [],
+    "DesiredRate": 100,
+    "Params": ["matrix"]
+  },
+  "Amplifier": {
+    "Type": "Function",
+    "Inputs": ["MuoviSingle"],
+    "Params": ["multiply", 10]
+  }
+//  "RMS_Features": {
+//    "Type": "RMS",
+//    "Inputs": ["Amplifier"],
+//    "Params": [40]
+//  },
+//  "PCA": {
+//    "Type": "OnlinePCA",
+//    "Inputs": ["RMS_Features"],
+//    "Params": [2, 0.2, 100, 500]
+//  }
+}

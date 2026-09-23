@@ -1,0 +1,34 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MOSAIC"
+             xmlns:converters="clr-namespace:MOSAIC.Converters;assembly=MOSAIC"
+             x:Class="MOSAIC.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="/Resources/Styles/CardStyles.axaml"/>
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <!-- Theme-independent colors (categories, status) -->
+                <ResourceInclude Source="/Resources/Styles/MosaicColors.axaml"/>
+
+                <!-- Theme dictionaries are added programmatically in App.axaml.cs -->
+
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters available app-wide -->
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
+            <converters:RunningToImageConverter x:Key="RunningToImageConverter"/>
+            <converters:BoolToStatusColorConverter x:Key="BoolToStatusColorConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

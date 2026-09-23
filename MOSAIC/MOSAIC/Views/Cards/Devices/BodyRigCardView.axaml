@@ -1,0 +1,417 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:MOSAIC.Converters"
+             xmlns:devices="clr-namespace:MOSAIC.ViewModels.Devices"
+             xmlns:controls="clr-namespace:MOSAIC.Controls"
+             xmlns:viz="clr-namespace:MOSAIC.Visualization"
+             x:Class="MOSAIC.Views.Cards.Devices.BodyRigCardView"
+             x:DataType="devices:BodyRigViewModel">
+
+    <UserControl.Resources>
+        <converters:BoolToStatusColorConverter x:Key="BoolToStatusColor"/>
+        <converters:FileNameConverter x:Key="FileName"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Health pill. Explicit brushes per state rather than a keyword-matching text
+             converter: "No data" and "Degraded" match no keyword set and would all render
+             identical grey, which is precisely the distinction the pill exists to make. -->
+        <Style Selector="Border.pill.ok">
+            <Setter Property="Background" Value="{StaticResource StatusNormalBrush}"/>
+        </Style>
+        <Style Selector="Border.pill.warn">
+            <Setter Property="Background" Value="{StaticResource StatusWarningBrush}"/>
+        </Style>
+        <Style Selector="Border.pill.bad">
+            <Setter Property="Background" Value="{StaticResource StatusErrorBrush}"/>
+        </Style>
+        <Style Selector="Border.pill">
+            <Setter Property="Background" Value="{DynamicResource StatusIdleBrush}"/>
+        </Style>
+
+        <!-- Chain rows. Background="Transparent" alone does not defeat Avalonia's default
+             button hover, so the row would flash grey on every mouse move without this. -->
+        <Style Selector="Button.chainRow /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.chainRow:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}"/>
+        </Style>
+        <Style Selector="Button.chainRow.sel /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card">
+        <StackPanel Spacing="12">
+
+            <!-- ─── Header: name, mode, health ─────────────────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Block.Name, FallbackValue='Body Rig'}"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="BODY RIG" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ModeLabel}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding SubtitleText}"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" Classes="pill"
+                        Classes.ok="{Binding HealthOk}" Classes.warn="{Binding HealthWarn}"
+                        Classes.bad="{Binding HealthBad}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding HealthText}" FontSize="10" FontWeight="SemiBold" Foreground="White"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- ─── Fault banner: names one specific, actionable failure ────── -->
+            <Border Background="Transparent" BorderBrush="{StaticResource StatusErrorBrush}" BorderThickness="1"
+                    CornerRadius="6" Padding="8,5" IsVisible="{Binding HasFault}">
+                <TextBlock Text="{Binding FaultText}" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"
+                           Foreground="{StaticResource StatusErrorBrush}"/>
+            </Border>
+
+            <!-- ─── Source: is data arriving, and from how many sensors ────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="SOURCE"/>
+
+                    <Grid ColumnDefinitions="*,*,*">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="sectionLabel" Text="FRAMES/S"/>
+                            <TextBlock Classes="metricValue" Text="{Binding FrameRateHz, StringFormat='{}{0:F0}'}"
+                                       Foreground="{Binding IsReceiving, Converter={StaticResource BoolToStatusColor},
+                                                            ConverterParameter=StatusIdleBrush}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Classes="sectionLabel" Text="SENSORS"/>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Classes="metricValue" Text="{Binding SensorsArriving}"/>
+                                <TextBlock FontSize="9" VerticalAlignment="Bottom"
+                                           Foreground="{DynamicResource ThemeTextMutedBrush}"
+                                           Text="{Binding BoundSensorCount, StringFormat='{}/ {0} bound'}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="2">
+                            <TextBlock Classes="sectionLabel" Text="ERRORS"/>
+                            <TextBlock Classes="metricValue" Text="{Binding FrameErrors}"
+                                       Foreground="{Binding !HasFrameErrors, Converter={StaticResource BoolToStatusColor},
+                                                            ConverterParameter=StatusErrorBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Serial row, irrelevant when an upstream block feeds quaternions -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" IsVisible="{Binding IsSerialMode}">
+                        <TextBlock Classes="fieldLabel" Text="PORT" VerticalAlignment="Center"
+                                   FontFamily="Cascadia Mono,Consolas,monospace"/>
+                        <TextBox Grid.Column="1" Text="{Binding PortName, Mode=TwoWay}" PlaceholderText="COM5"
+                                 FontSize="13" FontWeight="Bold"
+                                 FontFamily="Cascadia Mono,Consolas,monospace"
+                                 Padding="6,3" VerticalContentAlignment="Center"
+                                 IsEnabled="{Binding !IsPortOpen}"/>
+                        <Button Grid.Column="2" Command="{Binding ToggleConnectionCommand}" MinWidth="90"
+                                FontSize="11" FontWeight="SemiBold" Foreground="White"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Background="{StaticResource CategoryDevicesBrush}">
+                            <Panel>
+                                <TextBlock Text="Connect" IsVisible="{Binding !IsPortOpen}"/>
+                                <TextBlock Text="Disconnect" IsVisible="{Binding IsPortOpen}"/>
+                            </Panel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ─── Kinematic chain: the card's centre of gravity ──────────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <!-- The two bulk parent actions live here rather than in CHAIN SETUP: they
+                         rewrite the tree drawn immediately below, so this is where a reader
+                         looks for them. In a setup section they read as a second, competing
+                         place to arrange segments alongside the SEGMENT editor's "Attached to". -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <TextBlock Classes="sectionLabel" Text="KINEMATIC CHAIN" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Button Content="Link 0→1→2…" Command="{Binding ChainSequentiallyCommand}"
+                                    FontSize="10" Padding="8,2" HorizontalContentAlignment="Center"
+                                    ToolTip.Tip="Parent each segment to the one before it, making a single chain."/>
+                            <Button Content="Clear" Command="{Binding ClearParentsCommand}"
+                                    FontSize="10" Padding="8,2" HorizontalContentAlignment="Center"
+                                    ToolTip.Tip="Detach every segment, leaving a flat list of roots."/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Classes="hint" Text="{Binding ChainSummary}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                    <TextBlock Classes="hint" Text="{Binding SensorCoverage}"/>
+
+                    <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Chain}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="devices:ChainNodeViewModel">
+                                    <Button Classes="chainRow" Classes.sel="{Binding IsSelected}"
+                                            Background="Transparent" BorderThickness="0"
+                                            Padding="6,4" CornerRadius="4" Margin="0,1"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                            Cursor="Hand"
+                                            Command="{Binding $parent[ItemsControl].((devices:BodyRigViewModel)DataContext).SelectSegmentCommand}"
+                                            CommandParameter="{Binding Index}">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="6">
+                                            <Border Width="{Binding IndentWidth}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Glyph}" Width="12" FontSize="11"
+                                                       VerticalAlignment="Center"
+                                                       FontFamily="Cascadia Mono,Consolas,monospace"
+                                                       Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                                                <Border Background="{StaticResource SemiTransparentBadgeBrush}"
+                                                        CornerRadius="4" Padding="5,1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Index}" FontSize="10" FontWeight="Bold"
+                                                               FontFamily="Cascadia Mono,Consolas,monospace"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding DisplayName}" FontSize="12"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <Border Grid.Column="3" Background="{StaticResource SemiTransparentBadgeBrush}"
+                                                    CornerRadius="3" Padding="5,1" VerticalAlignment="Center"
+                                                    ToolTip.Tip="{Binding SensorTooltip}">
+                                                <TextBlock Text="{Binding SensorLabel}" FontSize="10"
+                                                           FontFamily="Cascadia Mono,Consolas,monospace"/>
+                                            </Border>
+                                            <Ellipse Grid.Column="4" Width="8" Height="8" VerticalAlignment="Center"
+                                                     Fill="{Binding IsLive, Converter={StaticResource BoolToStatusColor},
+                                                                    ConverterParameter=StatusIdleBrush}"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Border Background="Transparent" BorderBrush="{StaticResource StatusWarningBrush}"
+                            BorderThickness="1" CornerRadius="6" Padding="8,5"
+                            IsVisible="{Binding HasTopologyWarning}">
+                        <TextBlock Text="{Binding TopologyWarning}" FontSize="11" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" Foreground="{StaticResource StatusWarningBrush}"/>
+                    </Border>
+
+                    <!-- How many rows the strip above has. This was a section of its own, which
+                         left the card with a second place that was also about arranging the
+                         chain. Rebuild and its warning appear only once the count is dirty, so
+                         the destructive path stays deliberate without shouting all the time. -->
+                    <Border Height="1" Background="{DynamicResource ThemeBorderBrush}"
+                            Opacity="0.3" Margin="0,2"/>
+                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8">
+                        <TextBlock Classes="fieldLabel" Text="Segments" VerticalAlignment="Center"/>
+                        <!-- 90px left roughly 20px for the text once the built-in spinner
+                             buttons had taken their share, so a two-digit count was clipped. -->
+                        <controls:SafeNumericUpDown Grid.Column="1" Value="{Binding PendingSegmentCount}"
+                                                    Minimum="1" Maximum="64" Increment="1"
+                                                    FormatString="0" Width="124" FontSize="12"/>
+                        <TextBlock Grid.Column="2" Classes="hint" VerticalAlignment="Center"
+                                   TextWrapping="Wrap" IsVisible="{Binding SegmentCountDirty}"
+                                   Text="Clears every name, parent, binding, link length and DH offset."/>
+                        <Button Grid.Column="3" Content="Rebuild" Command="{Binding ApplySegmentCountCommand}"
+                                IsVisible="{Binding SegmentCountDirty}" FontSize="11" Foreground="White"
+                                HorizontalContentAlignment="Center"
+                                Background="{StaticResource StatusErrorBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ─── Selected segment: everything about the one segment in hand ─
+                 Name, sensor, parent AND its geometry. Link length and DH used to live in
+                 CHAIN SETUP below, which made that section secretly about the selected
+                 segment too, and left the "set a real segment length" hint in JOINT ANGLE
+                 pointing at a control two sections away behind a disclosure toggle. -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <TextBlock Classes="sectionLabel" Text="SEGMENT" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" Text="{Binding SegmentName, Mode=TwoWay}" PlaceholderText="unnamed"
+                                 FontSize="12" Padding="6,3"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <TextBlock Classes="fieldLabel" Text="Driven by" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" FontSize="12"
+                                  ItemsSource="{Binding SensorChoiceLabels}"
+                                  SelectedIndex="{Binding SensorChoice, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding SensorStatusText}" FontSize="11"
+                                   VerticalAlignment="Center"
+                                   Foreground="{Binding SensorIsLive, Converter={StaticResource BoolToStatusColor},
+                                                        ConverterParameter=StatusIdleBrush}"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <TextBlock Classes="fieldLabel" Text="Attached to" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" FontSize="12"
+                                  ItemsSource="{Binding ParentOptions}"
+                                  SelectedItem="{Binding SelectedParentOption}"/>
+                    </Grid>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="fieldLabel" Text="LINK LENGTH (CM)"/>
+                        <Grid ColumnDefinitions="*,8,*,8,*">
+                            <controls:SafeNumericUpDown Grid.Column="0" Value="{Binding LinkX}"
+                                           Minimum="-200" Maximum="200"
+                                           Increment="0.5" FormatString="F1" FontSize="11"
+                                           PlaceholderText="X"/>
+                            <controls:SafeNumericUpDown Grid.Column="2" Value="{Binding LinkY}"
+                                           Minimum="-200" Maximum="200"
+                                           Increment="0.5" FormatString="F1" FontSize="11"
+                                           PlaceholderText="Y"/>
+                            <controls:SafeNumericUpDown Grid.Column="4" Value="{Binding LinkZ}"
+                                           Minimum="-200" Maximum="200"
+                                           Increment="0.5" FormatString="F1" FontSize="11"
+                                           PlaceholderText="Z"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="fieldLabel" Text="DH ANGLES — ROLL / PITCH / YAW (°)"/>
+                        <Grid ColumnDefinitions="*,8,*,8,*">
+                            <controls:SafeNumericUpDown Grid.Column="0" Value="{Binding DhRoll}"
+                                           Minimum="-180" Maximum="180" Increment="1"
+                                           FormatString="F1" FontSize="11" PlaceholderText="Roll"/>
+                            <controls:SafeNumericUpDown Grid.Column="2" Value="{Binding DhPitch}"
+                                           Minimum="-90" Maximum="90" Increment="1"
+                                           FormatString="F1" FontSize="11" PlaceholderText="Pitch"/>
+                            <controls:SafeNumericUpDown Grid.Column="4" Value="{Binding DhYaw}"
+                                           Minimum="-180" Maximum="180" Increment="1"
+                                           FormatString="F1" FontSize="11" PlaceholderText="Yaw"/>
+                        </Grid>
+                        <!-- The Euler triple is a lossy projection of the stored quaternion, and
+                             every spinner touch rewrites the quaternion from the rounded triple.
+                             This is the honest read-out for a loaded calibration. -->
+                        <TextBlock Text="{Binding SelectedDhQuaternionText}" FontSize="10"
+                                   FontFamily="Cascadia Mono,Consolas,monospace"
+                                   Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ─── Joint angle: what the segment is actually doing ────────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="JOINT ANGLE"/>
+                    <TextBlock Classes="hint" Text="{Binding JointFrameLabel}"/>
+                    <controls:JointAngleRow Label="Roll"  Value="{Binding JointRoll}"  Minimum="-180" Max="180"/>
+                    <controls:JointAngleRow Label="Pitch" Value="{Binding JointPitch}" Minimum="-180" Max="180"/>
+                    <controls:JointAngleRow Label="Yaw"   Value="{Binding JointYaw}"   Minimum="-180" Max="180"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Classes="hint" Text="{Binding SanityHint}" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Column="1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                                   Text="{Binding ReachCm, StringFormat='{}{0:F0} cm from origin'}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ─── Calibration ───────────────────────────────────────────────
+                 Three stacked unlabelled boxes gave no clue which was which, or that they
+                 interact. Each row is now labelled like the SEGMENT editor above, the arrows
+                 sit against the list they page through, and each button carries the field it
+                 acts on. Full paths are shown by file name: the profile list is bound to
+                 paths because load and store consume them, but the folder is already stated
+                 one row up and repeating it hid the only part that differs. -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Classes="sectionLabel" Text="CALIBRATION" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding ProfileCounter}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <TextBlock Classes="fieldLabel" Text="Folder" VerticalAlignment="Center"
+                                   Width="54"/>
+                        <TextBox Grid.Column="1" Text="{Binding CalibrationDirectory, Mode=TwoWay}"
+                                 PlaceholderText="where profiles are kept" FontSize="11"
+                                 FontFamily="Cascadia Mono,Consolas,monospace"/>
+                    </Grid>
+
+                    <!-- No paging arrows. They stepped the selection AND loaded in one click,
+                         while the list next to them only selected and waited for Load — two
+                         controls for one job, disagreeing about whether picking a profile applies
+                         it. The list plus Load says it once, unambiguously. -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                        <TextBlock Classes="fieldLabel" Text="Profile" VerticalAlignment="Center"
+                                   Width="54"/>
+                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" FontSize="11"
+                                  ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource FileName}}"
+                                               FontFamily="Cascadia Mono,Consolas,monospace"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="2" Content="Load" Command="{Binding LoadCalibrationCommand}"
+                                FontSize="11" MinWidth="58" HorizontalContentAlignment="Center"
+                                ToolTip.Tip="Apply the selected profile to the chain"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                        <TextBlock Classes="fieldLabel" Text="Save as" VerticalAlignment="Center"
+                                   Width="54"/>
+                        <TextBox Grid.Column="1" Text="{Binding NewProfileName, Mode=TwoWay}"
+                                 PlaceholderText="new name — leave blank to overwrite the selected profile"
+                                 FontSize="11"
+                                 FontFamily="Cascadia Mono,Consolas,monospace"/>
+                        <Button Grid.Column="2" Content="Store" Command="{Binding StoreCalibrationCommand}"
+                                FontSize="11" MinWidth="58" HorizontalContentAlignment="Center"
+                                ToolTip.Tip="Write the current chain to that profile"/>
+                    </Grid>
+
+                    <!-- Names the file Store would write, or what is still missing. The folder,
+                         the selection and the name box interact, and that is not inferable from
+                         placeholder text alone. -->
+                    <TextBlock Classes="hint" Text="{Binding StoreTargetHint}" TextWrapping="Wrap"/>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ─── Pose stream ───────────────────────────────────────────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="{Binding PoseStreamLabel}"/>
+                    <viz:VisualizationPanel
+                        Source="{Binding Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ─── Status bar ────────────────────────────────────────────── -->
+            <Border Classes="cardSection">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" FontSize="10" Opacity="0.4"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}Frames: {0} · Err: {1}">
+                                <Binding Path="FramesProcessed"/>
+                                <Binding Path="FrameErrors"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="11"
+                               FontFamily="Cascadia Mono,Consolas,monospace"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

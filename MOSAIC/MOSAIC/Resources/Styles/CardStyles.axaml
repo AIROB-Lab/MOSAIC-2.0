@@ -1,0 +1,81 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ════════════════════ Card shell ════════════════════ -->
+
+    <!-- The standard block-card shell. Apply Classes="card" to a card's outer Border and
+         delete its inline Padding/Margin/CornerRadius/BorderThickness/BorderBrush/Background. -->
+    <Style Selector="Border.card">
+        <Setter Property="Padding" Value="14"/>
+        <Setter Property="Margin" Value="16"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeCardGradient}"/>
+    </Style>
+
+    <!-- A bordered content section inside a card. -->
+    <Style Selector="Border.cardSection">
+        <Setter Property="Background" Value="{DynamicResource ThemeSectionBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="12"/>
+    </Style>
+
+    <!-- The 1px / 0.5-opacity divider line. -->
+    <Style Selector="Border.divider">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeBorderBrush}"/>
+        <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+
+    <!-- ════════════════════ Type scale ════════════════════ -->
+    <!-- One legible scale shared by every card. 11px is the floor for on-card text;
+         the old 8/9px labels sat below the comfortable-reading threshold. -->
+
+    <!-- Block name in the card header. -->
+    <Style Selector="TextBlock.cardTitle">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextPrimaryBrush}"/>
+    </Style>
+
+    <!-- One-line description under the title. Cards may override Foreground with their
+         category brush; the class only fixes size/weight. -->
+    <Style Selector="TextBlock.cardSubtitle">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}"/>
+    </Style>
+
+    <!-- Section / group header (the UPPERCASE labels). Was 9px — now 11px with
+         letter-spacing so all-caps stays legible. Text still supplies the casing. -->
+    <Style Selector="TextBlock.sectionLabel">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="LetterSpacing" Value="0.5"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}"/>
+    </Style>
+
+    <!-- Inline label sitting beside an input ("Channel:", "Rate:"). -->
+    <Style Selector="TextBlock.fieldLabel">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Large numeric read-out (FFT size, bins, channels …). -->
+    <Style Selector="TextBlock.metricValue">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource StatusNormalBrush}"/>
+    </Style>
+
+    <!-- Secondary / helper text (replaces the 8px hints). -->
+    <Style Selector="TextBlock.hint">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextMutedBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+</Styles>

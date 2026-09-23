@@ -1,0 +1,33 @@
+﻿{
+  "clock": {
+    "Type": "ClockBlock",
+    "Inputs": [],
+    "DesiredRate": 500
+  },
+
+  "sin": {
+    "Type": "SinGenerator",
+    "Inputs": [ "clock" ],
+    "DesiredRate": 500,
+    "Params": [ 16, 1.0, 5.0, 0.0, 0.8 ]
+  },
+
+  "window128": {
+    "Type": "SlidingWindow",
+    "Inputs": [ "sin" ],
+    "DesiredRate": 500,
+    "Params": [ 128, 32, "Rectangular" ]
+  },
+
+  "mav": {
+    "Type": "MeanAverageValue",
+    "Inputs": [ "window128" ]
+  },
+
+  "umap3d": {
+    "Type": "SupervisedUMAP",
+    "Inputs": [ "mav" ],
+    "Params": [ 3, 15, 0.1, 42 ],
+    "DesiredRate": 10
+  }
+}

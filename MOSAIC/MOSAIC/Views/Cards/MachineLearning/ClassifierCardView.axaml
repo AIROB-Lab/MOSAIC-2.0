@@ -1,0 +1,365 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:scope="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    xmlns:ml="clr-namespace:MOSAIC.ViewModels.MachineLearning"
+    x:Class="MOSAIC.Views.Cards.MachineLearning.ClassifierCardView"
+    x:DataType="ml:ClassifierBlockViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+        <converters:TrainingToColorConverter x:Key="TrainingToColor"/>
+        <converters:StringToBrushConverter x:Key="StringToBrush"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.training-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.5" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource CategoryMachineLearningBrush}"/>
+                        <Setter Property="Opacity" Value="1.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card" Classes.training-pulse="{Binding IsTraining}">
+
+        <StackPanel Spacing="12">
+
+            <!-- HEADER -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryMachineLearningBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="CLASSIFIER" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                        <!-- Training badge (incremental mode) -->
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsTraining}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CurrentTargetName}" FontSize="10" FontWeight="Bold"
+                                           Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Trained badge -->
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsTrained}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="TRAINED" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding FrequencyText}" Classes="cardSubtitle"/>
+                        <TextBlock Text="|" Classes="cardSubtitle"/>
+                        <TextBlock Classes="cardSubtitle">
+                            <Run Text="In: "/>
+                            <Run Text="{Binding InputDimension}" Foreground="{StaticResource CategoryMachineLearningBrush}"/>
+                            <Run Text=" → Classes: "/>
+                            <Run Text="{Binding NumClasses}" Foreground="{StaticResource StatusNormalBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}" FontWeight="SemiBold" Foreground="White" FontSize="11"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- LIVE PREDICTION -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4">
+                <TextBlock Grid.Column="0" Text="Predicted:" Classes="fieldLabel" Margin="0,0,8,0"/>
+                <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                        CornerRadius="8" Padding="12,6">
+                    <TextBlock Text="{Binding PredictedClassName}" FontSize="20" FontWeight="Bold"
+                               Foreground="{StaticResource StatusNormalBrush}"
+                               HorizontalAlignment="Center"/>
+                </Border>
+                <TextBlock Grid.Column="2" Classes="fieldLabel" Margin="8,0,0,0"
+                           Text="{Binding ConfidencePercent, StringFormat='{}{0:F0}%'}"/>
+            </Grid>
+
+            <!-- MODEL CONFIGURATION (Collapsible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleConfigExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="▸" IsVisible="{Binding !IsConfigExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0"
+                                       Text="▾" IsVisible="{Binding IsConfigExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Model Configuration" FontSize="13"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            <TextBlock Grid.Column="3" Text="{Binding SelectedModelType}" FontSize="12"
+                                       Foreground="{DynamicResource ThemeTextDimmedBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel Spacing="12" IsVisible="{Binding IsConfigExpanded}">
+
+                        <!-- Model type + Training mode + Apply -->
+                        <Grid ColumnDefinitions="*,*,Auto" HorizontalAlignment="Stretch">
+                            <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,6,0">
+                                <TextBlock Text="Classifier" Classes="fieldLabel"/>
+                                <ComboBox ItemsSource="{Binding AvailableModelTypes}"
+                                          SelectedItem="{Binding SelectedModelType}"
+                                          HorizontalAlignment="Stretch"
+                                          Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                          Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4" Margin="6,0">
+                                <TextBlock Text="Training Mode" Classes="fieldLabel"/>
+                                <ComboBox ItemsSource="{Binding AvailableTrainingModes}"
+                                          SelectedItem="{Binding SelectedTrainingMode}"
+                                          HorizontalAlignment="Stretch"
+                                          Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                          Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <Button Grid.Column="2" Content="Apply"
+                                    Command="{Binding ApplyModelCommand}"
+                                    Background="{StaticResource CategoryMachineLearningBrush}"
+                                    Foreground="White" Padding="16,8" Margin="6,18,0,0"
+                                    CornerRadius="6" FontWeight="SemiBold" VerticalAlignment="Bottom"/>
+                        </Grid>
+
+                        <TextBlock Text="{Binding SelectedModelDescription}" Classes="hint"/>
+
+                        <!-- Online params: Learning Rate + Lambda -->
+                        <UniformGrid Columns="2" IsVisible="{Binding !IsBatchModel}">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="LEARNING RATE" Classes="sectionLabel"/>
+                                    <Slider Minimum="0.0001" Maximum="0.5" Value="{Binding LearningRate, Mode=TwoWay}" MinWidth="100"/>
+                                    <TextBlock Text="{Binding LearningRate, StringFormat='{}{0:F4}'}" FontSize="14"
+                                               FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="LAMBDA (λ)" Classes="sectionLabel"/>
+                                    <Slider Minimum="0" Maximum="1" Value="{Binding Lambda, Mode=TwoWay}" MinWidth="100"/>
+                                    <TextBlock Text="{Binding Lambda, StringFormat='{}{0:F4}'}" FontSize="14"
+                                               FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- RFF: Sigma + D -->
+                        <UniformGrid Columns="2" IsVisible="{Binding IsRffModel}">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="SIGMA (σ)" Classes="sectionLabel"/>
+                                    <Slider Minimum="0.01" Maximum="5" Value="{Binding Sigma, Mode=TwoWay}" MinWidth="100"/>
+                                    <TextBlock Text="{Binding Sigma, StringFormat='{}{0:F2}'}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="FEATURES (D)" Classes="sectionLabel"/>
+                                    <Slider Minimum="50" Maximum="1000" Value="{Binding FeatureDim, Mode=TwoWay}" TickFrequency="10" IsSnapToTickEnabled="True" MinWidth="100"/>
+                                    <TextBlock Text="{Binding FeatureDim}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- kNN: K + Distance weighting -->
+                        <UniformGrid Columns="2" IsVisible="{Binding IsKnnModel}">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="K (NEIGHBORS)" Classes="sectionLabel"/>
+                                    <Slider Minimum="1" Maximum="30" Value="{Binding K, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" MinWidth="100"/>
+                                    <TextBlock Text="{Binding K}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                <StackPanel Spacing="6">
+                                    <CheckBox Content="Weight by Distance" IsChecked="{Binding WeightByDistance}"
+                                              Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="0,8"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- Random Forest: Trees + MaxDepth + MinLeaf -->
+                        <UniformGrid Columns="3" IsVisible="{Binding IsForestModel}">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="TREES" Classes="sectionLabel"/>
+                                    <Slider Minimum="10" Maximum="500" Value="{Binding NumTrees, Mode=TwoWay}" TickFrequency="10" IsSnapToTickEnabled="True" MinWidth="80"/>
+                                    <TextBlock Text="{Binding NumTrees}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="MAX DEPTH" Classes="sectionLabel"/>
+                                    <Slider Minimum="2" Maximum="30" Value="{Binding MaxDepth, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" MinWidth="80"/>
+                                    <TextBlock Text="{Binding MaxDepth}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="MIN LEAF" Classes="sectionLabel"/>
+                                    <Slider Minimum="1" Maximum="20" Value="{Binding MinSamplesLeaf, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True" MinWidth="80"/>
+                                    <TextBlock Text="{Binding MinSamplesLeaf}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- LDA: Regularization -->
+                        <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12"
+                                IsVisible="{Binding IsBatchModel}">
+                            <StackPanel Spacing="6" IsVisible="{Binding !IsForestModel}">
+                                <TextBlock Text="REGULARIZATION" Classes="sectionLabel"/>
+                                <Slider Minimum="0.0000001" Maximum="0.01" Value="{Binding LdaRegularization, Mode=TwoWay}" MinWidth="200"/>
+                                <TextBlock Text="{Binding LdaRegularization, StringFormat='{}{0:E2}'}" FontSize="14"
+                                           FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Threshold: Rejection -->
+                        <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="12"
+                                IsVisible="{Binding IsThresholdModel}">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="REJECTION THRESHOLD" Classes="sectionLabel"/>
+                                <Slider Minimum="0" Maximum="1" Value="{Binding ConfidenceThreshold, Mode=TwoWay}" MinWidth="200"/>
+                                <TextBlock Text="{Binding ConfidenceThreshold, StringFormat='{}{0:F2}'}" FontSize="14"
+                                           FontWeight="Bold" Foreground="{DynamicResource ThemeTextPrimaryBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- STATS -->
+            <UniformGrid Columns="4" HorizontalAlignment="Stretch">
+                <Border Classes="cardSection" Padding="10,8" Margin="0,0,4,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="SAMPLES" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding SampleCount, StringFormat='{}{0:N0}'}" FontSize="16"
+                                   FontWeight="Bold" Foreground="{StaticResource StatusNormalBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Padding="10,8" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="SEGMENTS" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding SegmentCount}" FontSize="16"
+                                   FontWeight="Bold" Foreground="{StaticResource CategoryMachineLearningBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Padding="10,8" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="CONFIDENCE" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding ConfidencePercent, StringFormat='{}{0:F1}%'}" FontSize="16"
+                                   FontWeight="Bold" Foreground="{StaticResource CategoryMachineLearningBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Padding="10,8" Margin="4,0,0,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="PREDICTED" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding PredictedClassName}" FontSize="16"
+                                   FontWeight="Bold" Foreground="{StaticResource StatusNormalBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- BUTTONS -->
+            <UniformGrid Columns="2" HorizontalAlignment="Stretch">
+                <Button Content="Reset Model" Command="{Binding ResetModelCommand}"
+                        Background="{StaticResource CategoryMachineLearningBrush}" Foreground="White"
+                        Padding="12,10" Margin="0,0,4,0" CornerRadius="6"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"/>
+                <Button Content="Force Retrain" Command="{Binding ForceRetrainCommand}"
+                        Background="{StaticResource CategoryMachineLearningBrush}" Foreground="White"
+                        Padding="12,10" Margin="4,0,0,0" CornerRadius="6"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"
+                        IsVisible="{Binding IsBufferMode}"/>
+            </UniformGrid>
+
+            <!-- PROBABILITY BARS (Collapsible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleBarsExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*">
+                            <TextBlock Grid.Column="0" Text="▸" IsVisible="{Binding !IsBarsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="▾" IsVisible="{Binding IsBarsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Class Probabilities" FontSize="13"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </Grid>
+                    </Button>
+
+                    <ItemsControl ItemsSource="{Binding ProbabilityBars}" IsVisible="{Binding IsBarsExpanded}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ml:PredictionBarItem">
+                                <Grid ColumnDefinitions="80,*,40" Margin="0,2" Height="20">
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="10"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <ProgressBar Grid.Column="1" Minimum="0" Maximum="1"
+                                                 Value="{Binding Value}" Height="10" CornerRadius="4"
+                                                 VerticalAlignment="Center"
+                                                 Foreground="{Binding ColorHex, Converter={StaticResource StringToBrush}}"
+                                                 Background="{DynamicResource ThemeInputBackgroundBrush}"/>
+                                    <TextBlock Grid.Column="2" FontSize="10"
+                                               Text="{Binding Value, StringFormat={}{0:P0}}"
+                                               FontFamily="Cascadia Mono, Consolas, monospace"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- SCOPE + LEGEND -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="PROBABILITY OUTPUT" Classes="sectionLabel"/>
+
+                    <controls:ScopeLegendControl ItemsSource="{Binding ClassLegend}"/>
+
+                    <viz:VisualizationPanel Source="{Binding Viz}"
+                                            ScopeVisibleByDefault="True"
+                                            ShowScopeViewModeToggle="True"
+                                            MinHeight="180"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

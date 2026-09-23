@@ -1,0 +1,108 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:models="clr-namespace:MOSAIC.ViewModels"
+    x:Class="MOSAIC.Views.Cards.ClockCardView"
+    x:DataType="models:ClockViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+        <conv:RunningToImageConverter x:Key="BoolToStartStopImage"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Clock.Name}"/>
+                        <!-- Category badge -->
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="CLOCK" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- Running indicator -->
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding Running}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="RUNNING" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- Stopped indicator -->
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding !Running}"
+                                Background="{StaticResource StatusErrorBrush}">
+                            <TextBlock Text="STOPPED" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding Clock.FrequencyText}"/>
+                </StackPanel>
+
+                <!-- Play/Pause Button -->
+                <Button Grid.Column="1" 
+                        Command="{Binding ToggleCommand}"
+                        Width="44" Height="44"
+                        Margin="0,0,12,0"
+                        VerticalAlignment="Center"
+                        CornerRadius="22"
+                        Padding="0"
+                        Background="{DynamicResource ThemeSurfaceBrush}"
+                        BorderThickness="0">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}"/>
+                        </Style>
+                    </Button.Styles>
+                    <Image Width="22" Height="22"
+                           Source="{Binding Running, Converter={StaticResource BoolToStartStopImage}}"
+                           Stretch="Uniform"/>
+                </Button>
+
+                <!-- Status Indicator -->
+                <Border Grid.Column="2" 
+                        Background="{Binding Clock.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Clock.Status}" FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Clock Info Panel -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="2">
+                    <TextBlock Classes="sectionLabel" Text="TARGET RATE"/>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBox x:Name="RateTextBox"
+                                 Text="{Binding Clock.DesiredRate, Mode=TwoWay, StringFormat='{}{0:F0}'}"
+                                 FontSize="36" Foreground="{StaticResource CategoryFlowControlBrush}" FontWeight="Bold"
+                                 FontFamily="Consolas, Courier New, monospace"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Padding="4,0"
+                                 MinWidth="60"
+                                 VerticalAlignment="Center"
+                                 CaretBrush="{StaticResource CategoryFlowControlBrush}">
+                            <TextBox.Styles>
+                                <Style Selector="TextBox">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                                <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </TextBox.Styles>
+                        </TextBox>
+                        <TextBlock Text="Hz" FontSize="16" Foreground="{StaticResource CategoryFlowControlBrush}" FontWeight="SemiBold"
+                                   VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

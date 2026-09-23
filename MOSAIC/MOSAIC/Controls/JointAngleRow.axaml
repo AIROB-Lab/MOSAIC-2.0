@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             x:Class="MOSAIC.Controls.JointAngleRow">
+
+    <!-- label · progress bar (Value/Max) · degree read-out. For DOF/joint angle visualisation. -->
+    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <TextBlock Grid.Column="0" Classes="fieldLabel" Text="{Binding Label, ElementName=Root}" MinWidth="72"/>
+
+        <ProgressBar Grid.Column="1" Minimum="{Binding Minimum, ElementName=Root}"
+                     VerticalAlignment="Center" Height="6" CornerRadius="3"
+                     Maximum="{Binding Max, ElementName=Root}" Value="{Binding Value, ElementName=Root}"
+                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                     Foreground="{StaticResource CategoryDevicesBrush}"/>
+
+        <TextBlock Grid.Column="2" Width="48" TextAlignment="Right" VerticalAlignment="Center"
+                   FontSize="12" FontWeight="SemiBold" FontFamily="Consolas,monospace"
+                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                   Text="{Binding Value, ElementName=Root, StringFormat='{}{0:F0}°'}"/>
+    </Grid>
+</UserControl>

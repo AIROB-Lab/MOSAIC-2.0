@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto">
+	<uses-permission android:name="android.permission.INTERNET" />
+	<application android:label="MOSAIC" android:icon="@drawable/Icon" />
+
+	<!-- BLE permissions -->
+	<uses-permission android:name="android.permission.BLUETOOTH" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+	<!-- Android 12+ (API 31+) -->
+	<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+	<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+	<!-- Android 11 and below needs location for BLE scanning -->
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+	<!-- Declare BLE feature (not required, allows non-BLE devices to install) -->
+	<uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+	
+</manifest>

@@ -1,0 +1,33 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "sin1": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [4, 1.0, 2.0, 0.0]
+  },
+  "noise": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [4, 0.1, 50.0, 0.0]
+  },
+  "joiner": {
+    "Type": "Joiner",
+    "Inputs": ["sin1", "noise", "timer"],
+    "Params": ["timer:sin1"],
+    "DesiredRate": 200
+  },
+  "window": {
+    "Type": "SlidingWindow",
+    "Inputs": ["joiner"],
+    "Params": [100, 25, "Rectangular"],
+    "DesiredRate": 200
+  },
+  "ssc": {
+    "Type": "SlopeSignChanges",
+    "Inputs": ["window"],
+    "Params": [0.01]
+  }
+}

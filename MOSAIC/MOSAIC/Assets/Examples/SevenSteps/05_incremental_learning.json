@@ -1,0 +1,62 @@
+// ---------------------------------------------------------------------
+// Example 5: Incremental Machine Learning-Based Myocontrol
+// ---------------------------------------------------------------------
+// The same EMG -> ARV front end as Examples 2-4, but the learning changes
+// completely: there is NO TriggerBuffer and no "Train Now" button.
+//
+// In Example 4 the Trigger fed a buffer, the buffer accumulated labelled
+// segments, and you trained in one shot when you had enough. Here the Trigger
+// feeds the IncrementalPredictor directly and the model updates on every
+// sample that arrives while a label is held down. Press a label, hold it for a
+// second, release — the arm already responds. Press it again and the model
+// refines. Nothing to store, nothing to retrain.
+//
+// The trade-off is that you cannot inspect or re-fit the training set: there
+// is no dB list to look at. Use Example 4 when you want a reproducible model
+// from a fixed dataset, and this one when you want to teach the system live.
+//
+// Ported from the iM-Blocks cfg5_incremental_myocontrol.yaml. The same graph
+// also exists as MyoControl/MyoControlBlenderArm.json, which is the copy to
+// start from for real use; this one stays close to the tutorial chain so the
+// only difference from Example 4 is the learning stage.
+// ---------------------------------------------------------------------
+{
+  // ---- EMG acquisition and ARV preprocessing (identical to Examples 2-4) ----
+  "Clock":             { "Type": "Clock",       "DesiredRate": 200 },
+  "raw_EMG":           { "Type": "Myo",         "Inputs": [ "Clock" ] },
+  "amplified_raw_EMG": { "Type": "Function",    "Inputs": [ "raw_EMG" ],           "Params": [ "multiply", 5 ] },
+  "rectified_raw_EMG": { "Type": "Function",    "Inputs": [ "amplified_raw_EMG" ], "Params": [ "abs" ] },
+  "ARV_LPF":           { "Type": "FilterBlock", "Inputs": [ "rectified_raw_EMG" ], "Params": [ "Lowpass", "IIR", 2, 0, 2 ] },
+  "ARV":               { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 25 ] },
+
+  // ---- Trigger: 12-DOF labelled targets ----
+  // Unlike Example 4, this does not drive a buffer. Its output IS the ground
+  // truth, handed straight to the predictor while a label is held.
+  "capture_data":      { "Type": "Trigger", "Params": [
+    "rest:0;0;0;0;0;0;0;0;0;0;0;0",
+    "power:1;1;1;1;1;1;0;0;0;0;0;0",
+    "flex:0;0;0;0;0;0;1;0;0;0;0;0",
+    "extend:0;0;0;0;0;0;0;1;0;0;0;0",
+    "pron:0;0;0;0;0;0;0;0;1;0;0;0",
+    "sup:0;0;0;0;0;0;0;0;0;1;0;0"
+  ] },
+
+  // ---- Incremental predictor ----
+  // Inputs: [features, ground truth]. Learns online — no training step.
+  // Params: [modelType, inputDim, outputDim, lambda, sigma, featureDim]
+  //   inputDim  8  = the Myo's eight EMG channels
+  //   outputDim 12 = the 12 DOFs the Trigger labels above
+  "incr_learn":        { "Type": "IncrementalPredictor",
+    "Inputs": [ "ARV", "capture_data" ],
+    "Params": [ "RidgeRFF", 8, 12, 0.5, 1.0, 300 ] },
+  // Linear alternative — fewer parameters, allows basic action combination:
+  // "incr_learn":     { "Type": "IncrementalPredictor",
+  //                     "Inputs": [ "ARV", "capture_data" ],
+  //                     "Params": [ "Ridge", 8, 12 ] },
+
+  // ---- Map predictions to actuator targets ----
+  "controlAlgorithm":  { "Type": "ControlAlgorithm", "Inputs": [ "incr_learn" ], "Params": [ "algorithm:DirectControl" ] },
+
+  // ---- Final output: stream to the Blender virtual arm (host, port) ----
+  "blender_skin_arm_ctrl": { "Type": "BlenderArm", "Inputs": [ "controlAlgorithm" ], "Params": [ "localhost", 3334 ] }
+}

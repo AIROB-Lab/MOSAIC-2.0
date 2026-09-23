@@ -1,0 +1,82 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Tests"
+    x:Class="MOSAIC.Views.Cards.Tests.TACConfigView"
+    x:DataType="vm:TACViewModel"
+    x:CompileBindings="False">
+
+    <UserControl.Resources>
+        <converters:StatusToBoolConverter x:Key="BlockStatusToEnabled" />
+        <converters:StatusToVisConverter x:Key="BlockStatusToVis" />
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.fieldLabel">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel Spacing="12"
+                IsEnabled="{Binding Block.Status, Converter={StaticResource BlockStatusToEnabled}}"
+                Opacity="{Binding IsEnabled, RelativeSource={RelativeSource Self},
+              Converter={StaticResource BoolToOpacity}}">
+
+        <!-- Warning when running -->
+        <Border CornerRadius="6" Padding="8,5"
+                Background="Transparent"
+                BorderBrush="{StaticResource StatusWarningBrush}" BorderThickness="1"
+                IsVisible="{Binding Block.Status, Converter={StaticResource BlockStatusToVis},
+    ConverterParameter=Invert}">
+            <TextBlock Text="⚠ Stop the pipeline to edit configuration."
+                       FontSize="11" FontWeight="SemiBold"
+                       Foreground="{StaticResource StatusWarningBrush}"
+                       HorizontalAlignment="Center" />
+        </Border>
+
+        <!-- Stimulus Block Name -->
+        <StackPanel Spacing="4"
+                    IsEnabled="{Binding Block.Status, Converter={StaticResource BlockStatusToEnabled}}"
+                    Opacity="{Binding IsEnabled, RelativeSource={RelativeSource Self},
+      Converter={StaticResource BoolToOpacity}}">
+            <TextBlock Classes="fieldLabel" Text="Stimulus Block Name" />
+            <ComboBox ItemsSource="{Binding AvailableInputNames}"
+                      SelectedItem="{Binding StimulusBlockName, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch"
+                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                      FontSize="12" />
+        </StackPanel>
+
+        <!-- Dwell Time + Success Threshold -->
+        <Grid ColumnDefinitions="*,12,*"
+              IsEnabled="{Binding Block.Status, Converter={StaticResource BlockStatusToEnabled}}"
+              Opacity="{Binding IsEnabled, RelativeSource={RelativeSource Self},
+Converter={StaticResource BoolToOpacity}}">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Classes="fieldLabel" Text="Dwell Time (s)" />
+                <controls:SafeNumericUpDown Value="{Binding DwellTime, Mode=TwoWay}"
+                               Minimum="0.1" Maximum="30" Increment="0.1"
+                               FormatString="F1"
+                               Background="{DynamicResource ThemeInputBackgroundBrush}"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               FontSize="12" CornerRadius="6" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+                <TextBlock Classes="fieldLabel" Text="Success Threshold" />
+                <controls:SafeNumericUpDown Value="{Binding SuccessThreshold, Mode=TwoWay}"
+                               Minimum="0.01" Maximum="1" Increment="0.01"
+                               FormatString="F2"
+                               Background="{DynamicResource ThemeInputBackgroundBrush}"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               FontSize="12" CornerRadius="6" />
+            </StackPanel>
+        </Grid>
+
+    </StackPanel>
+</UserControl>

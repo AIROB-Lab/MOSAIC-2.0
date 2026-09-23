@@ -1,0 +1,152 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MOSAIC.ViewModels.Devices"
+             xmlns:scope="using:MOSAIC.Visualization.ScopeMonitor"
+             xmlns:converters="using:MOSAIC.Converters"
+             xmlns:muovi="clr-namespace:MOSAIC.ViewModels.Devices.Muovi"
+             x:Class="MOSAIC.Views.Cards.Devices.Muovi.MuoviCardView"
+             x:DataType="vm:MuoviViewModel">
+
+  <UserControl.Resources>
+    <converters:StringToBrushConverter x:Key="StringToBrush"/>
+    <converters:StatusTextToColorConverter x:Key="StatusTextToColor"/>
+  </UserControl.Resources>
+
+  <Border Classes="card">
+    <StackPanel Spacing="12">
+
+      <!-- Header -->
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Classes="cardTitle" Text="{Binding Name}" VerticalAlignment="Center"/>
+            <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+              <TextBlock Text="MUOVI" FontSize="10" FontWeight="Bold" Foreground="White"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Classes="cardSubtitle" Text="{Binding ModeDisplay}"/>
+            <TextBlock Classes="cardSubtitle" Text="·"/>
+            <TextBlock Classes="cardSubtitle" Text="{Binding ProbeList}"/>
+          </StackPanel>
+        </StackPanel>
+        <Border Grid.Column="1" CornerRadius="12" Padding="12,5" VerticalAlignment="Center"
+                Background="{Binding Block.StreamInfo.PipelineStatus, Converter={StaticResource StatusTextToColor}}">
+          <TextBlock Text="{Binding Block.StreamInfo.PipelineStatus}"
+                     FontSize="10" FontWeight="SemiBold" Foreground="White"/>
+        </Border>
+      </Grid>
+
+      <Border Classes="divider"/>
+
+      <!-- Configuration -->
+      <Border Classes="cardSection">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="sectionLabel" Text="CONFIGURATION"/>
+          <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="12">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="fieldLabel" Text="Signal Mode"/>
+            <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding SignalModes}"
+                      SelectedItem="{Binding SelectedSignalMode}" IsEnabled="{Binding CanConfigure}"
+                      HorizontalAlignment="Stretch" FontSize="12"
+                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="fieldLabel" Text="Stream IMU"/>
+            <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding StreamImu}"
+                          IsEnabled="{Binding CanConfigure}" OnContent="On" OffContent="Off"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- Stream Info -->
+      <Border Classes="cardSection">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+          <TextBlock Grid.Row="0" Grid.Column="0" Classes="fieldLabel" Text="Probes:"/>
+          <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Block.StreamInfo.ProbesConnected}"
+                     FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+          <TextBlock Grid.Row="1" Grid.Column="0" Classes="fieldLabel" Text="Channels:"/>
+          <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Block.OutputChannels}"
+                     FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+          <TextBlock Grid.Row="2" Grid.Column="0" Classes="fieldLabel" Text="Frequency:"/>
+          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Block.FrequencyText}"
+                     FontSize="12" Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+          <TextBlock Grid.Row="3" Grid.Column="0" Classes="fieldLabel" Text="Lost / Total:"/>
+          <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="{Binding Block.StreamInfo.PacketsLost}"
+                       FontSize="12" Foreground="{StaticResource StatusWarningBrush}" FontWeight="SemiBold"/>
+            <TextBlock Text="/" FontSize="12" Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+            <TextBlock Text="{Binding Block.StreamInfo.FramesCollected}"
+                       FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- Data Loss Warning -->
+      <Border CornerRadius="6" Padding="8,5" Background="Transparent"
+              BorderBrush="{StaticResource StatusErrorBrush}" BorderThickness="1"
+              IsVisible="{Binding Block.StreamInfo.DataLoss}">
+        <TextBlock Text="⚠ Data Loss Detected" FontSize="11" FontWeight="SemiBold"
+                   Foreground="{StaticResource StatusErrorBrush}" HorizontalAlignment="Center"/>
+      </Border>
+
+      <!-- EMG / EEG Scope -->
+      <Border Classes="cardSection" IsVisible="{Binding Block.HasEmg}">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="sectionLabel" Text="{Binding ModeDisplay}"/>
+          <ItemsControl ItemsSource="{Binding EmgChannelLabels}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="scope:ScopeLegendItem">
+                <Border Background="{StaticResource SemiTransparentBadgeBrush}" CornerRadius="3" Padding="5,2" Margin="2,1">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Ellipse Width="8" Height="8" VerticalAlignment="Center"
+                             Fill="{Binding Color, Converter={StaticResource StringToBrush}}"/>
+                    <TextBlock Text="{Binding Label}" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <scope:ScopeMonitorView Scope="{Binding Block.ScopeEmg}" MinHeight="350"
+                                  ShowViewModeToggle="True"/>
+        </StackPanel>
+      </Border>
+
+      <!-- IMU Scope -->
+      <Border Classes="cardSection" IsVisible="{Binding Block.HasImu}">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="sectionLabel" Text="IMU QUATERNION"/>
+          <ItemsControl ItemsSource="{Binding ImuChannelLabels}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="scope:ScopeLegendItem">
+                <Border Background="{StaticResource SemiTransparentBadgeBrush}" CornerRadius="3" Padding="5,2" Margin="2,1">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Ellipse Width="8" Height="8" VerticalAlignment="Center"
+                             Fill="{Binding Color, Converter={StaticResource StringToBrush}}"/>
+                    <TextBlock Text="{Binding Label}" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <scope:ScopeMonitorView Scope="{Binding Block.ScopeImu}" Height="150"
+                                  ShowViewModeToggle="True"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Start / Stop -->
+      <Button Command="{Binding ToggleStreamingCommand}" Content="{Binding ToggleLabel}"
+              HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+              VerticalContentAlignment="Center" Padding="0"
+              Height="38" CornerRadius="8" FontWeight="SemiBold" Foreground="White"
+              Background="{StaticResource CategoryDevicesBrush}"/>
+    </StackPanel>
+  </Border>
+</UserControl>

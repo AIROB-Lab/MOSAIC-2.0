@@ -1,0 +1,17 @@
+<Project>
+    <PropertyGroup Condition="'$(MSBuildProjectName)' == 'MOSAIC.Mobile'">
+        <MosaicMobileBuild>true</MosaicMobileBuild>
+        <AssemblyName>MOSAIC</AssemblyName>
+        <PackageId>MOSAIC.Mobile</PackageId>
+        <RootNamespace>MOSAIC</RootNamespace>
+    </PropertyGroup>
+
+    <!-- The Android and iOS heads reference MOSAIC.Mobile.csproj. Set the
+         paths before SDK imports so mobile restore/build products cannot overwrite
+         the desktop net10.0 assembly or its NuGet assets. -->
+    <PropertyGroup Condition="'$(MosaicMobileBuild)' == 'true'">
+        <BaseIntermediateOutputPath>obj/mobile/</BaseIntermediateOutputPath>
+        <BaseOutputPath>bin/mobile/</BaseOutputPath>
+        <DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**</DefaultItemExcludes>
+    </PropertyGroup>
+</Project>

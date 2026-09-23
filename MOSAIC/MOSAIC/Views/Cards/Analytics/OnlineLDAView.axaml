@@ -1,0 +1,159 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:analytics="clr-namespace:MOSAIC.ViewModels.Analytics"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:scatter3d="clr-namespace:MOSAIC.Visualization.Scatter3D"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+    xmlns:measure="using:LiveChartsCore.Measure"
+    x:Class="MOSAIC.Views.Cards.Analytics.OnlineLDAView"
+    x:DataType="analytics:OnlineLDAViewModel">
+
+    <UserControl.Resources>
+       <converters:StatusToColorConverter x:Key="StatusToColor"/>
+       <measure:Margin x:Key="ScatterMargin" Left="50" Top="20" Right="50" Bottom="50"/>
+    </UserControl.Resources>
+
+    <Border Classes="card" MinHeight="750">
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*" RowSpacing="12">
+
+            <!-- Header -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding OnlineLDA.Name}" VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategoryAnalyticsBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="LDA" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Classes="cardSubtitle" Text="{Binding OnlineLDA.FrequencyText}"/>
+                        <TextBlock Text="{Binding ClassCountText}" FontSize="12"
+                                  Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Capturing indicator -->
+                <Border Grid.Column="1" Background="{StaticResource CategoryAnalyticsBrush}"
+                        CornerRadius="14" Padding="14,6" Margin="0,0,12,0" VerticalAlignment="Center"
+                        IsVisible="{Binding OnlineLDA.IsCapturing}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="10" Height="10" Fill="White" VerticalAlignment="Center">
+                            <Ellipse.Styles>
+                                <Style Selector="Ellipse">
+                                    <Style.Animations>
+                                        <Animation Duration="0:0:0.8" IterationCount="Infinite">
+                                            <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                                            <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.3"/></KeyFrame>
+                                            <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                                        </Animation>
+                                    </Style.Animations>
+                                </Style>
+                            </Ellipse.Styles>
+                        </Ellipse>
+                        <TextBlock Text="{Binding OnlineLDA.CurrentClassName}" FontWeight="SemiBold"
+                                  Foreground="White" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Status badge -->
+                <Border Grid.Column="2"
+                        Background="{Binding OnlineLDA.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding OnlineLDA.Status}" FontWeight="SemiBold" Foreground="White" FontSize="11"
+                               TextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="1" Classes="divider"/>
+
+            <!-- Display points + view toggles + Clear All -->
+            <Border Grid.Row="2" Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                    <controls:NumericParameterRow Grid.Column="0" Label="Display Points:" Minimum="100" Maximum="5000"
+                                                  Increment="100" Value="{Binding MaxScatterPoints}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center"
+                                IsVisible="{Binding Is3D}">
+                        <TextBlock Classes="fieldLabel" Text="Show:"/>
+                        <CheckBox Content="3D" IsChecked="{Binding Show3DView}" FontSize="12"/>
+                        <CheckBox Content="2D" IsChecked="{Binding Show2DView}" FontSize="12"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" Content="Clear All" Command="{Binding ClearAllClustersCommand}"
+                            IsEnabled="{Binding HasClusters}"
+                            Background="{DynamicResource ThemeSurfaceBrush}"
+                            Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                            Padding="16,8" CornerRadius="6" FontSize="12" FontWeight="Bold"
+                            VerticalAlignment="Center">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover">
+                                <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}"/>
+                            </Style>
+                            <Style Selector="Button:disabled">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 3D Scatter (only when k=3, and not toggled off) -->
+            <Border Grid.Row="3" Classes="cardSection" Height="450" IsVisible="{Binding Show3DPane}">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                        <TextBlock Grid.Column="0" Text="3D Projection" FontSize="16" FontWeight="Bold"
+                                  Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                        <TextBlock Grid.Column="1" Text="drag to rotate" FontSize="11"
+                                  Foreground="{DynamicResource ThemeTextMutedBrush}" VerticalAlignment="Center"/>
+                    </Grid>
+                    <scatter3d:Scatter3DView Grid.Row="1" Scatter="{Binding Scatter3D}"/>
+                </Grid>
+            </Border>
+
+            <!-- 2D scatter (hidden when toggled off; the legend below keeps its own row either way) -->
+            <Border Grid.Row="4" Classes="cardSection" Height="450" IsVisible="{Binding Show2DPane}">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
+                        <TextBlock Grid.Column="0" Text="{Binding ChartTitle}" FontSize="16" FontWeight="Bold"
+                                  Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding SampleCountText}" FontSize="12"
+                                  Foreground="{DynamicResource ThemeTextSecondaryBrush}" Margin="16,0"/>
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,5" IsVisible="{Binding OnlineLDA.IsStable}">
+                            <TextBlock Text="STABLE" FontSize="11" FontWeight="Bold" Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                        </Border>
+                    </Grid>
+                    <lvc:CartesianChart Grid.Row="1" Series="{Binding ScatterSeries}"
+                                       XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
+                                       TooltipPosition="Hidden" ZoomMode="Both" DrawMargin="{StaticResource ScatterMargin}"/>
+                </Grid>
+            </Border>
+
+            <!-- Cluster legend -->
+            <Border Grid.Row="5" Classes="cardSection" IsVisible="{Binding HasClusters}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="CLASSES" FontSize="14" FontWeight="Bold"
+                              Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                    <controls:ClusterLegendControl ItemsSource="{Binding ClusterInfoList}"
+                                                   ClearClusterCommand="{Binding ClearClusterCommand}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="6" Classes="divider"/>
+
+            <!-- Class separability -->
+            <Border Grid.Row="7" Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="CLASS SEPARABILITY"/>
+                    <controls:MetricBarRow Label="LD1" Value="{Binding Ld1Separability}" Max="{Binding MaxSeparability}"/>
+                    <controls:MetricBarRow Label="LD2" Value="{Binding Ld2Separability}" Max="{Binding MaxSeparability}"/>
+                    <controls:MetricBarRow Label="LD3" Value="{Binding Ld3Separability}" Max="{Binding MaxSeparability}"
+                                           IsVisible="{Binding Is3D}"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,251 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.FlowControl.TriggerCardView"
+    x:DataType="vm:TriggerViewModel">
+
+    <UserControl.Resources>
+        <conv:BoolToColorConverterTrigger x:Key="BoolToColor" />
+    </UserControl.Resources>
+
+    <Border Classes="card">
+        <StackPanel Spacing="12">
+
+            <!-- Header: name, badges, and the READY / REC state indicator -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Name}" VerticalAlignment="Center" />
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="TRIGGER" FontSize="10" FontWeight="Bold" Foreground="White" />
+                        </Border>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2"
+                                VerticalAlignment="Center" IsVisible="{Binding OscillationMode}">
+                            <TextBlock Text="∿ OSC" FontSize="10" FontWeight="Bold" Foreground="White" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding OscillationStatusText}" />
+                </StackPanel>
+
+                <!-- Countdown (warming up before record actually starts) -->
+                <Border Grid.Column="1" Background="{StaticResource StatusWarningBrush}"
+                        CornerRadius="12" Padding="10,5" VerticalAlignment="Center" Margin="0,0,12,0"
+                        IsVisible="{Binding IsCountingDown}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="READY" FontSize="10" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding CountdownRemaining, StringFormat='{}{0}s'}"
+                                   FontSize="11" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- REC indicator -->
+                <Border Grid.Column="1" Background="{StaticResource StatusErrorBrush}"
+                        CornerRadius="12" Padding="10,5" VerticalAlignment="Center" Margin="0,0,12,0"
+                        IsVisible="{Binding IsCapturing}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse Width="8" Height="8" Fill="White" VerticalAlignment="Center">
+                            <Ellipse.Styles>
+                                <Style Selector="Ellipse">
+                                    <Style.Animations>
+                                        <Animation Duration="0:0:0.6" IterationCount="Infinite">
+                                            <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+                                            <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.2" /></KeyFrame>
+                                            <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+                                        </Animation>
+                                    </Style.Animations>
+                                </Style>
+                            </Ellipse.Styles>
+                        </Ellipse>
+                        <TextBlock Text="REC" FontSize="10" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider" />
+
+            <!-- Target action: pick the class to record, and (collapsed) edit the action vectors -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="TARGET ACTION" VerticalAlignment="Center" />
+                        <Border Grid.Column="1" CornerRadius="10" Padding="10,3"
+                                Background="{Binding IsCapturing, Converter={StaticResource BoolToColor}, ConverterParameter=#EF4444|#14B8A6}">
+                            <TextBlock Text="{Binding CurrentAction}" FontSize="11" FontWeight="Bold" Foreground="White" />
+                        </Border>
+                    </Grid>
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" Padding="8" MaxHeight="120">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding ActionButtons}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ActionButtonItem">
+                                        <!-- All state-dependent properties live in Button.Styles below.
+                                             Inline Background/Foreground/BorderBrush would beat the Style
+                                             setters in Avalonia's value precedence and break the .selected
+                                             highlight — so only style-independent properties stay inline. -->
+                                        <Button Content="{Binding Name}"
+                                                Classes.selected="{Binding IsSelected}"
+                                                Command="{Binding $parent[UserControl].((vm:TriggerViewModel)DataContext).SelectActionCommand}"
+                                                CommandParameter="{Binding Name}"
+                                                Margin="3" Padding="12,8" FontSize="11" FontWeight="SemiBold"
+                                                CornerRadius="6">
+                                            <Button.Styles>
+                                                <Style Selector="Button">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeInputBackgroundBrush}" />
+                                                    <Setter Property="Foreground" Value="{StaticResource CategoryFlowControlBrush}" />
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}" />
+                                                    <Setter Property="BorderThickness" Value="1" />
+                                                </Style>
+                                                <Style Selector="Button:pointerover">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSurfaceBrush}" />
+                                                    <Setter Property="BorderBrush" Value="{StaticResource CategoryFlowControlBrush}" />
+                                                </Style>
+                                                <Style Selector="Button.selected">
+                                                    <Setter Property="Background" Value="{StaticResource CategoryFlowControlBrush}" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="BorderBrush" Value="{StaticResource CategoryFlowControlBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                </Style>
+                                                <Style Selector="Button.selected:pointerover">
+                                                    <Setter Property="Background" Value="{StaticResource CategoryFlowControlBrush}" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="Opacity" Value="0.85" />
+                                                </Style>
+                                                <Style Selector="Button:disabled">
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </Style>
+                                            </Button.Styles>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Action definitions are edited from the ⚙ gear button in the card header (PopoutCardBase). -->
+                </StackPanel>
+            </Border>
+
+            <!-- Capture settings: timing + capture mode, grouped together -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="CAPTURE" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Classes="sectionLabel" Text="DURATION (s)" />
+                            <controls:SafeNumericUpDown Minimum="1" Maximum="120" Value="{Binding CaptureDuration}"
+                                           Increment="1" FormatString="0" IsEnabled="{Binding IsIdle}" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Classes="sectionLabel" Text="PRE-RECORD DELAY (s)" />
+                            <controls:SafeNumericUpDown Minimum="0" Maximum="10" Value="{Binding CountdownSeconds}"
+                                           Increment="1" FormatString="0" IsEnabled="{Binding IsIdle}" FontSize="12" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Classes="hint"
+                               Text="0 = start immediately; otherwise the trigger waits N seconds before recording so you can position the probe / your hand. Bars preview the movement during the countdown." />
+
+                    <Border Classes="divider" />
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <ToggleSwitch Grid.Column="0" IsChecked="{Binding OscillationMode, Mode=TwoWay}"
+                                      OnContent="Oscillating" OffContent="Classic"
+                                      IsEnabled="{Binding !IsCapturing}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Classes="sectionLabel" Text="CAPTURE MODE" />
+                            <TextBlock Classes="hint" Text="{Binding OscillationStatusText}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding OscillationMode}">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Classes="sectionLabel" Text="SWEEP FREQ (Hz)" />
+                            <controls:SafeNumericUpDown Minimum="0.05" Maximum="3.0" Value="{Binding OscillationFrequencyHz}"
+                                           Increment="0.05" FormatString="0.00" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Classes="sectionLabel" Text="TICK RATE (Hz)" />
+                            <controls:SafeNumericUpDown Minimum="10" Maximum="120" Value="{Binding OscillationTickRateHz}"
+                                           Increment="5" FormatString="0" FontSize="12" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Live activation: one bar per channel (preview during countdown, modulated during capture) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="LIVE ACTIVATION" />
+                        <TextBlock Grid.Column="1" Classes="hint"
+                                   Text="{Binding LiveBars.Count, StringFormat='{}{0} channels'}"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding LiveBars}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical" Spacing="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ChannelBar">
+                                <Grid ColumnDefinitions="40,*,46" ColumnSpacing="6">
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center"
+                                               FontSize="10" FontFamily="Cascadia Code,Consolas,monospace"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+                                    <ProgressBar Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Value}"
+                                                 Height="14" Foreground="{StaticResource CategoryFlowControlBrush}"
+                                                 Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="3" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Value, StringFormat='{}{0:F2}'}"
+                                               TextAlignment="Right" VerticalAlignment="Center" FontSize="10"
+                                               FontFamily="Cascadia Code,Consolas,monospace"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Record / Stop -->
+            <Button Command="{Binding StartCaptureCommand}" IsVisible="{Binding IsIdle}"
+                    Background="{StaticResource CategoryFlowControlBrush}" Foreground="White"
+                    FontSize="14" FontWeight="Bold" Padding="0,14" CornerRadius="8"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Ellipse Width="12" Height="12" Fill="{StaticResource StatusErrorBrush}" />
+                    <TextBlock Text="{Binding CurrentAction, StringFormat='Record: {0}'}" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button.Styles>
+                    <Style Selector="Button:pointerover"><Setter Property="Opacity" Value="0.8" /></Style>
+                </Button.Styles>
+            </Button>
+
+            <Button Command="{Binding StopCaptureCommand}" IsVisible="{Binding !IsIdle}"
+                    Background="{StaticResource StatusErrorBrush}" Foreground="White"
+                    FontSize="14" FontWeight="Bold" Padding="0,14" CornerRadius="8"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <Panel>
+                    <TextBlock Text="■ STOP RECORDING" IsVisible="{Binding IsCapturing}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Text="✕ CANCEL" IsVisible="{Binding IsCountingDown}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Panel>
+                <Button.Styles>
+                    <Style Selector="Button:pointerover"><Setter Property="Opacity" Value="0.8" /></Style>
+                </Button.Styles>
+            </Button>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,22 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "sin_gen": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "DesiredRate": 200,
+    "Params": [4, 1.0]
+  },
+  "lsl_out": {
+    "Type": "Lsl",
+    "Inputs": ["sin_gen"],
+    "Params": ["outlet", "MOSAIC_Test", "EMG", 200, 4]
+  },
+  "lsl_in": {
+    "Type": "Lsl",
+    "DesiredRate": 200,
+    "Params": ["inlet", "MOSAIC_Test", "EMG", 5.0, 64]
+  }
+}

@@ -1,0 +1,209 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    xmlns:devices="clr-namespace:MOSAIC.ViewModels.Devices"
+    x:Class="MOSAIC.Views.Cards.Devices.QuattrocentoCardView"
+    x:DataType="devices:QuattrocentoViewModel">
+
+  <UserControl.Resources>
+    <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    <converters:BoolToConnectTextConverter x:Key="BoolToConnectText"/>
+  </UserControl.Resources>
+
+  <Border Classes="card">
+
+    <StackPanel Spacing="12">
+
+      <!-- Header -->
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Classes="cardTitle" Text="{Binding Name}" VerticalAlignment="Center"/>
+            <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+              <TextBlock Text="QUATTROCENTO" FontSize="10" FontWeight="Bold" Foreground="White"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+          </StackPanel>
+          <TextBlock Classes="cardSubtitle" Text="{Binding Block.FrequencyText}"/>
+        </StackPanel>
+
+        <Border Grid.Column="1"
+                Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold" Foreground="White" FontSize="10"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+      </Grid>
+
+      <Border Classes="divider"/>
+
+      <!-- Configuration -->
+      <Border Classes="cardSection">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="sectionLabel" Text="CONFIGURATION"/>
+
+          <!-- Sample Rate -->
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <TextBlock Grid.Column="0" Classes="fieldLabel" Text="Sample Rate"
+                       VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1"
+                      ItemsSource="{Binding SamplingFrequencies}"
+                      SelectedItem="{Binding SelectedFrequency}"
+                      IsEnabled="{Binding CanConfigure}"
+                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                      HorizontalAlignment="Stretch" FontSize="12"/>
+          </Grid>
+
+          <!-- IN inputs -->
+          <StackPanel Spacing="4">
+            <TextBlock Classes="fieldLabel" Text="IN  (16 ch each)"/>
+            <ItemsControl ItemsSource="{Binding Block.InsCollection}"
+                          IsEnabled="{Binding CanConfigure}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <ToggleButton IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                Content="{Binding Label}"
+                                Margin="0,0,4,4" Padding="10,4" MinWidth="52"
+                                FontSize="11" FontWeight="SemiBold"/>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+          <!-- MULTIPLE IN inputs -->
+          <StackPanel Spacing="4">
+            <TextBlock Classes="fieldLabel" Text="MULTIPLE IN  (64 ch each)"/>
+            <ItemsControl ItemsSource="{Binding Block.MultsCollection}"
+                          IsEnabled="{Binding CanConfigure}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <ToggleButton IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                Content="{Binding Label}"
+                                Margin="0,0,4,4" Padding="10,4" MinWidth="68"
+                                FontSize="11" FontWeight="SemiBold"/>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+          <!-- AUX -->
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <TextBlock Grid.Column="0" Classes="fieldLabel" Text="AUX  (16 ch)"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch Grid.Column="1"
+                          IsChecked="{Binding Block.IsAuxEnabled, Mode=TwoWay}"
+                          IsEnabled="{Binding CanConfigure}"
+                          OnContent="Forward" OffContent="Off"/>
+          </Grid>
+
+          <!-- Decimator -->
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <TextBlock Grid.Column="0" Classes="fieldLabel" Text="Decimator"
+                       VerticalAlignment="Center"/>
+            <ToggleSwitch Grid.Column="1"
+                          IsChecked="{Binding DecimatorEnabled}"
+                          IsEnabled="{Binding CanConfigure}"
+                          OnContent="On" OffContent="Off"/>
+          </Grid>
+
+          <!-- Effective summary -->
+          <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="8,5">
+            <TextBlock Text="{Binding Block.EffectiveSummary}" FontSize="10"
+                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                       HorizontalAlignment="Center" TextWrapping="Wrap"/>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <!-- Stream Info -->
+      <Border Classes="cardSection"
+              IsVisible="{Binding Block.StreamInfo.IsStreaming}">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="sectionLabel" Text="STREAM INFO"/>
+          <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                RowSpacing="6" ColumnSpacing="8">
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="fieldLabel" Text="Signal Channels:"/>
+            <TextBlock Grid.Row="0" Grid.Column="1"
+                       Text="{Binding Block.StreamInfo.SignalChannelCount}"
+                       FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Classes="fieldLabel" Text="Frequency:"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Block.FrequencyText}"
+                       FontSize="12" Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Classes="fieldLabel" Text="Dropped / Total:"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="{Binding Block.StreamInfo.DroppedSamples}"
+                         FontSize="12" Foreground="{StaticResource StatusWarningBrush}" FontWeight="SemiBold"/>
+              <TextBlock Text="/" FontSize="12"
+                         Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+              <TextBlock Text="{Binding Block.StreamInfo.SamplesReceived}"
+                         FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Classes="fieldLabel" Text="Device Buffer:"/>
+            <TextBlock Grid.Row="3" Grid.Column="1"
+                       Text="{Binding Block.StreamInfo.BufferUsage}"
+                       FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- Data Loss Warning -->
+      <Border CornerRadius="6" Padding="8,5" Background="Transparent"
+              BorderBrush="{StaticResource StatusErrorBrush}" BorderThickness="1"
+              IsVisible="{Binding Block.StreamInfo.DataLoss}">
+        <TextBlock Text="⚠ Data Loss Detected" FontSize="11" FontWeight="SemiBold"
+                   Foreground="{StaticResource StatusErrorBrush}" HorizontalAlignment="Center"/>
+      </Border>
+
+      <!-- Viz Panel -->
+      <Border Classes="cardSection"
+              IsVisible="{Binding Block.StreamInfo.IsStreaming}">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="sectionLabel" Text="EMG SIGNAL"/>
+          <visualization:VisualizationPanel
+              Source="{Binding Block.Viz}"
+              ScopeVisibleByDefault="True"
+              ShowScopeViewModeToggle="True"
+              MinHeight="140"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Connect / Disconnect -->
+      <Button Command="{Binding ToggleStreamingCommand}"
+              Content="{Binding Block.StreamInfo.IsConnected, Converter={StaticResource BoolToConnectText}}"
+              Foreground="White" Height="38" CornerRadius="8"
+              FontWeight="SemiBold" MinWidth="100"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+        <Button.Styles>
+          <Style Selector="Button">
+            <Setter Property="Background" Value="{StaticResource CategoryDevicesBrush}"/>
+          </Style>
+          <Style Selector="Button[Tag=True]">
+            <Setter Property="Background" Value="{StaticResource StatusErrorBrush}"/>
+          </Style>
+        </Button.Styles>
+        <Button.Tag>
+          <Binding Path="Block.StreamInfo.IsConnected"/>
+        </Button.Tag>
+      </Button>
+
+    </StackPanel>
+  </Border>
+</UserControl>

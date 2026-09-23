@@ -1,0 +1,125 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:snapshot="clr-namespace:MOSAIC.Visualization.SnapshotMonitor"
+    xmlns:spectrogram="clr-namespace:MOSAIC.Visualization.SpectrogramMonitor"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.CrossCorrelationCardView"
+    x:DataType="vm:CrossCorrelationViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Padding="14" Margin="16" CornerRadius="14"
+            BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1"
+            Background="{DynamicResource ThemeCardGradient}">
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="X-CORR" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Block.UpdatesComputed, StringFormat='updates: {0:N0}'}"
+                               FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                </StackPanel>
+                <Border Grid.Column="1"
+                        Background="{Binding BlockStatus, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding BlockStatus}" FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Height="1" Background="{DynamicResource ThemeBorderBrush}" Opacity="0.5"/>
+
+            <TextBlock Text="{Binding Block.StatusMessage}" FontSize="11" TextWrapping="Wrap"
+                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+
+            <!-- Two rows keep channel selectors usable on narrow mobile screens. -->
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="8" ColumnSpacing="8"
+                  IsVisible="{Binding Block.UsesLagSummary}">
+                <TextBlock Text="Signal 1" VerticalAlignment="Center" Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding ChannelOptions}"
+                          SelectedItem="{Binding SelectedChannelOption1, Mode=TwoWay}" MinHeight="44"
+                          HorizontalAlignment="Stretch"/>
+                <TextBlock Grid.Row="1" Text="Signal 2" VerticalAlignment="Center" Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ChannelOptions}"
+                          SelectedItem="{Binding SelectedChannelOption2, Mode=TwoWay}" MinHeight="44"
+                          HorizontalAlignment="Stretch"/>
+            </Grid>
+
+            <!-- Flat-input warning (no longer silently plots zeros) -->
+            <Border Background="#33FF5252" CornerRadius="6" Padding="10,6"
+                    BorderBrush="#FF5252" BorderThickness="1"
+                    IsVisible="{Binding Block.InputFlat}">
+                <TextBlock Text="{Binding Block.StatusMessage}" FontSize="11" FontWeight="SemiBold"
+                           TextWrapping="Wrap" Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+            </Border>
+
+            <!-- Cross-correlation curve -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="10"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="CROSS-CORRELATION" FontSize="9" FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    <snapshot:SnapshotMonitorView Snapshot="{Binding Block.SnapXCorr}" MinHeight="160"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Cross-correlation correlogram: lag (vertical) x time (horizontal). -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="10"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="LAG OVER TIME" FontSize="9" FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    <spectrogram:SpectrogramMonitorView Spectrogram="{Binding Block.CorrelogramOverTime}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Normalized channel envelopes -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Border Grid.Column="0" Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="10"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="CH1 (PROCESSED)" FontSize="9" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                        <snapshot:SnapshotMonitorView Snapshot="{Binding Block.SnapCh1}" MinHeight="120"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="10"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="CH2 (PROCESSED)" FontSize="9" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                        <snapshot:SnapshotMonitorView Snapshot="{Binding Block.SnapCh2}" MinHeight="120"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Info: max-lag + input health -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                               Text="{Binding MaxLag, StringFormat='maxLag={0}'}"/>
+                    <TextBlock FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="input σ:  ch1={0:G3}   ch2={1:G3}">
+                                <Binding Path="Block.Ch1Std"/>
+                                <Binding Path="Block.Ch2Std"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

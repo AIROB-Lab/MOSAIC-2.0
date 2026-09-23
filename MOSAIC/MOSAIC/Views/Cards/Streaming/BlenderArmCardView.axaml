@@ -1,0 +1,202 @@
+﻿<cards:PopoutCardBase
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:cards="clr-namespace:MOSAIC.Views.Cards"
+    x:Class="MOSAIC.Views.Cards.Streaming.BlenderArmCardView"
+    x:DataType="vm:BlenderArmViewModel">
+
+    <cards:PopoutCardBase.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </cards:PopoutCardBase.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding BlenderArm.Name}"
+                                   Classes="cardTitle"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="BLENDER" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding BlenderArm.IsConnected}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="CONNECTED" FontSize="9" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}Blender → {0}:{1}  |  {2} msgs">
+                                <Binding Path="BlenderArm.HostIp"/>
+                                <Binding Path="BlenderArm.Port"/>
+                                <Binding Path="BlenderArm.MessageCount"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding BlenderArm.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding BlenderArm.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="CONNECTION" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Text="Host" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding BlenderArm.HostIp, Mode=TwoWay}"
+                                 FontSize="12" FontFamily="Cascadia Mono, Consolas, monospace"
+                                 IsEnabled="{Binding !BlenderArm.IsConnected}"/>
+                        <TextBlock Grid.Column="2" Text="Port" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="3"
+                                 Text="{Binding BlenderArm.Port, Mode=TwoWay}"
+                                 FontSize="12" FontFamily="Cascadia Mono, Consolas, monospace"
+                                 Width="70"
+                                 IsEnabled="{Binding !BlenderArm.IsConnected}"/>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Content="Connect" Command="{Binding ConnectCommand}"
+                                IsVisible="{Binding !BlenderArm.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"
+                                Background="{StaticResource StreamingSourcesBrush}" Foreground="White"/>
+                        <Button Content="Disconnect" Command="{Binding DisconnectCommand}"
+                                IsVisible="{Binding BlenderArm.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"
+                                Background="{StaticResource StatusErrorBrush}" Foreground="White"/>
+                        <Button Content="Reconnect" Command="{Binding ReconnectCommand}"
+                                IsVisible="{Binding BlenderArm.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="BLENDER COMMAND [th, th_rot, idx, mid, rng, lit, wfe, wur, wsp]"
+                               Classes="sectionLabel"/>
+
+                    <!-- Fingers [0..1] -->
+                    <Grid ColumnDefinitions="90,*,50" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                          RowSpacing="6" ColumnSpacing="8">
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Thumb Flex" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1"
+                                     Value="{Binding BlenderArm.ThumbFlexion}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.ThumbFlexion, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Thumb Rot" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="1"
+                                     Value="{Binding BlenderArm.ThumbRotation}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.ThumbRotation, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Index" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="1"
+                                     Value="{Binding BlenderArm.Index}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.Index, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Middle" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="1"
+                                     Value="{Binding BlenderArm.Middle}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.Middle, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Ring" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="1"
+                                     Value="{Binding BlenderArm.Ring}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.Ring, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Little" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="1"
+                                     Value="{Binding BlenderArm.Little}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="5" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.Little, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </Grid>
+
+                    <Border Classes="divider" Margin="0,2"/>
+
+                    <!-- Wrist [-1..1] -->
+                    <Grid ColumnDefinitions="90,*,50" RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="6" ColumnSpacing="8">
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Wrist F/E" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="0" Grid.Column="1" Minimum="-1" Maximum="1"
+                                     Value="{Binding BlenderArm.WristFlexExt}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.WristFlexExt, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Wrist U/R" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="1" Grid.Column="1" Minimum="-1" Maximum="1"
+                                     Value="{Binding BlenderArm.WristUlnRad}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.WristUlnRad, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Wrist S/P" Classes="fieldLabel"/>
+                        <ProgressBar Grid.Row="2" Grid.Column="1" Minimum="-1" Maximum="1"
+                                     Value="{Binding BlenderArm.WristSupPron}" Height="6" CornerRadius="3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" FontSize="10"
+                                   Text="{Binding BlenderArm.WristSupPron, StringFormat={}{0:F2}}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="LAST COMMAND" Classes="sectionLabel"/>
+                    <TextBlock Text="{Binding BlenderArm.LastCommand}"
+                               FontSize="11" FontFamily="Cascadia Mono, Consolas, monospace"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="OUTPUT STREAM" Classes="sectionLabel"/>
+                    <viz:VisualizationPanel
+                        Source="{Binding Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</cards:PopoutCardBase>

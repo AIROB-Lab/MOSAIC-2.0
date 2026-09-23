@@ -1,0 +1,40 @@
+﻿// -------------------------------------
+// Example 3: Capturing and Labeling EMG Clusters
+// -------------------------------------
+// - Same EMG -> ARV chain as Example 2 (200 Hz Myo, amplify, rectify, LP @ 2 Hz).
+// - ARV downsampled to 25 Hz for storage via a self-clocked Resampler.
+// - Trigger defines named target labels; user starts/stops capture from the UI.
+// - Buffer accumulates labeled (target, matrix) pairs into its in-memory dB list.
+//
+// Migration notes from the old YAML:
+//   - "Filter" -> "FilterBlock"; raw [b,a] coefficients are gone. The block
+//     designs the IIR/FIR internally from the spec, using the inherited Fs.
+//   - DecimatorTimer + Resampler -> single self-clocked Resampler (target rate
+//     in Params, breaks the rate-inheritance chain at its target rate).
+//   - Function "x:y" colon syntax -> separate Params elements.
+//   - Trigger label format unchanged: "name:v1;v2;..." (a 1-D "name:1" works).
+//   - The "-ARV" no-auto-subscribe prefix is dropped. Buffer.OnReceive already
+//     guards with tempFlag, so auto-subscription is safe; both inputs are listed
+//     normally, matching the IncrementalPredictor convention [data, trigger].
+//   - Myo Params[0] is now a NAME substring filter (case-insensitive Contains),
+//     not a MAC address. The MAC string below will only match if the device's
+//     BLE display name happens to contain it. Replace with a name fragment
+//     ("Myo", a custom rename, etc.) if you rely on this for selection.
+// -------------------------------------
+{
+  // EMG acquisition and ARV computation
+  "Clock":             { "Type": "Clock",       "DesiredRate": 200 },
+  "raw_EMG":           { "Type": "Myo",         "Inputs": [ "Clock" ],             "Params": [ "Myo" ] },
+  "amplified_raw_EMG": { "Type": "Function",    "Inputs": [ "raw_EMG" ],           "Params": [ "multiply", 5 ] },
+  "rectified_raw_EMG": { "Type": "Function",    "Inputs": [ "amplified_raw_EMG" ], "Params": [ "abs" ] },
+  "ARV_LPF":           { "Type": "FilterBlock", "Inputs": [ "rectified_raw_EMG" ], "Params": [ "Lowpass", "IIR", 2, 0, 2 ] },
+
+  // Downsample ARV to 25 Hz for storage
+  "ARV":               { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 25 ] },
+
+  // Label-based capture of ARV segments
+  "capture_data":      { "Type": "Trigger",                                        "Params": [ "rest:0", "flex_wrist:1", "extend_wrist:2" ] },
+
+  // Buffer stores labeled clusters as (target, matrix) pairs in its dB list
+  "cluster_storage":   { "Type": "TriggerBuffer",      "Inputs": [ "ARV", "capture_data" ] }
+}

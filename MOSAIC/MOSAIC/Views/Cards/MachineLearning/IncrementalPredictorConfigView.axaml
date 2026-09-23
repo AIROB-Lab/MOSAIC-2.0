@@ -1,0 +1,78 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:machineLearning="clr-namespace:MOSAIC.ViewModels.MachineLearning"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.MachineLearning.IncrementalPredictorConfigView"
+    x:DataType="machineLearning:IncrementalPredictorViewModel"
+    x:CompileBindings="False">
+
+    <UserControl.Resources>
+        <converters:StatusToBoolConverter x:Key="StatusToBool" />
+        <converters:StatusToVisConverter x:Key="StatusToVis" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.fieldLabel">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel Spacing="12"
+                IsEnabled="{Binding Block.Status, Converter={StaticResource StatusToBool}}">
+
+        <!-- Locked hint — shown when pipeline is running -->
+        <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="6"
+                IsVisible="{Binding Block.Status, Converter={StaticResource StatusToVis}}"
+                Padding="10,6"
+                BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+            <TextBlock Text="🔒 Stop the pipeline to edit these settings."
+                       FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+        </Border>
+
+        <!-- Name + Desired Rate -->
+        <Grid ColumnDefinitions="*,12,*">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Name" Classes="fieldLabel" />
+                <TextBox Text="{Binding Name, Mode=TwoWay}"
+                         Background="{DynamicResource ThemeInputBackgroundBrush}"
+                         Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                         FontSize="12" Padding="8,6" CornerRadius="6" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+                <TextBlock Text="Desired Rate (Hz)" Classes="fieldLabel" />
+                <controls:SafeNumericUpDown Value="{Binding DesiredRate, Mode=TwoWay}"
+                               Minimum="0" Maximum="10000" Increment="10"
+                               FormatString="0"
+                               Background="{DynamicResource ThemeInputBackgroundBrush}"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               FontSize="12" CornerRadius="6" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Input Dim + Output Dim -->
+        <Grid ColumnDefinitions="*,12,*">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Input Dimension" Classes="fieldLabel" />
+                <controls:SafeNumericUpDown Value="{Binding InputDimension, Mode=TwoWay}"
+                               Minimum="1" Maximum="4096" Increment="1"
+                               FormatString="0"
+                               Background="{DynamicResource ThemeInputBackgroundBrush}"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               FontSize="12" CornerRadius="6" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+                <TextBlock Text="Output Dimension" Classes="fieldLabel" />
+                <controls:SafeNumericUpDown Value="{Binding OutputDimension, Mode=TwoWay}"
+                               Minimum="1" Maximum="4096" Increment="1"
+                               FormatString="0"
+                               Background="{DynamicResource ThemeInputBackgroundBrush}"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               FontSize="12" CornerRadius="6" />
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>

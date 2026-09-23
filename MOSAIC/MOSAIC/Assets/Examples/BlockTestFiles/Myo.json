@@ -1,0 +1,36 @@
+﻿{
+  "timer": {
+  "Type": "ClockBlock",
+  "DesiredRate": 200
+},
+  "Myo": {
+    "Type": "Myo",
+    "Inputs": ["timer"]
+  },
+  "window": {
+    "Type": "SlidingWindow",
+    "Inputs": [
+      "Myo"
+    ],
+    "Params": [
+      256,
+      128,
+      "Rectangular"
+    ]
+  },
+
+  "FFT1": {
+    "Type": "FFT",
+    "Inputs": [
+      "window"
+    ],
+    "Params": [
+      "Rectangular",
+      "Magnitude",
+      1,
+      -120,
+      200,
+      200
+    ]
+  }
+}

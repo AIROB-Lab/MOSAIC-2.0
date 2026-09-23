@@ -1,0 +1,16 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 100
+  },
+  "sin1": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [8, 1.0, 0.5, 0.0]
+  },
+  "projector": {
+    "Type": "Projector",
+    "Inputs": ["sin1"],
+    "Params": ["4;5;6;0;1;2"]
+  }
+}

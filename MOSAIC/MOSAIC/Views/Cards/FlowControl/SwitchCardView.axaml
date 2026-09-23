@@ -1,0 +1,92 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:flowControl="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    x:Class="MOSAIC.Views.Cards.FlowControl.SwitchCardView"
+    x:DataType="flowControl:SwitchViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor" />
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Switch.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="SWITCH" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Switch.FrequencyText}" Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <!-- Status badge -->
+                <Border Grid.Column="1" 
+                        Background="{Binding Switch.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Switch.Status}" 
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Active Input Display with Toggle -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="ACTIVE INPUT" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding ActiveInputDisplay}"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource CategoryFlowControlBrush}"/>
+                    </StackPanel>
+
+                    <!-- Toggle Button -->
+                    <Button Grid.Column="1"
+                            Content="Toggle"
+                            Command="{Binding ToggleCommand}"
+                            Background="{StaticResource CategoryFlowControlBrush}"
+                            Foreground="White"
+                            Padding="20,12"
+                            CornerRadius="8"
+                            FontSize="13"
+                            FontWeight="Bold"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            VerticalAlignment="Center">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Toggle Switch Control -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="INPUT SELECTION" Classes="sectionLabel"/>
+                        <TextBlock Text="Switch between two input sources" FontSize="12"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="1" 
+                                  IsChecked="{Binding UseSecondInput, Mode=TwoWay}"
+                                  OnContent="Input 2" OffContent="Input 1"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

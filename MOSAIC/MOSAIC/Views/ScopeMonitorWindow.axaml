@@ -1,0 +1,89 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viz="clr-namespace:MOSAIC.Visualization"
+        x:Class="MOSAIC.Views.ScopeMonitorWindow"
+        Title="MOSAIC — Scope Monitor"
+        Width="900" Height="720"
+        MinWidth="360" MinHeight="300"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource ThemeCanvasBrush}">
+
+    <DockPanel>
+        <!-- Toolbar -->
+        <Grid DockPanel.Dock="Top" Margin="16,12,16,0" ColumnDefinitions="Auto,*,Auto">
+
+            <!-- Time-span selector -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <TextBlock Text="Time span" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                <ComboBox x:Name="SpanCombo"
+                          Width="90" FontSize="12"
+                          SelectionChanged="OnSpanChanged"
+                          ToolTip.Tip="How much signal history each scope shows">
+                    <ComboBoxItem Content="10 s" Tag="10"/>
+                    <ComboBoxItem Content="30 s" Tag="30"/>
+                    <ComboBoxItem Content="60 s" Tag="60"/>
+                    <ComboBoxItem Content="120 s" Tag="120"/>
+                </ComboBox>
+            </StackPanel>
+
+            <!-- Layout mode buttons -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                <!-- Flex (list) mode button -->
+                <Button x:Name="FlexBtn"
+                        Width="32" Height="32"
+                        Padding="6" BorderThickness="0"
+                        CornerRadius="6"
+                        Click="OnFlexClicked"
+                        ToolTip.Tip="List view (one column)">
+                    <Viewbox Width="16" Height="16">
+                        <Canvas Width="16" Height="16">
+                            <Rectangle Width="16" Height="3" Canvas.Top="1" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Rectangle Width="16" Height="3" Canvas.Top="6.5" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Rectangle Width="16" Height="3" Canvas.Top="12" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+
+                <!-- Grid mode button -->
+                <Button x:Name="GridBtn"
+                        Width="32" Height="32"
+                        Padding="6" BorderThickness="0"
+                        CornerRadius="6"
+                        Click="OnGridClicked"
+                        ToolTip.Tip="Grid view (multi-column)">
+                    <Viewbox Width="16" Height="16">
+                        <Canvas Width="16" Height="16">
+                            <Rectangle Width="7" Height="7" Canvas.Left="0" Canvas.Top="0" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Rectangle Width="7" Height="7" Canvas.Left="9" Canvas.Top="0" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Rectangle Width="7" Height="7" Canvas.Left="0" Canvas.Top="9" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Rectangle Width="7" Height="7" Canvas.Left="9" Canvas.Top="9" Fill="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Scope cards container (+ empty state) -->
+        <Grid>
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="CardContainer"
+                            Spacing="12"
+                            Margin="16"/>
+            </ScrollViewer>
+
+            <TextBlock x:Name="EmptyState"
+                       IsVisible="False"
+                       Text="No blocks with a live scope in this pipeline."
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontSize="14"
+                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+        </Grid>
+    </DockPanel>
+
+    <Window.Styles>
+        <Style Selector="Button#FlexBtn:pointerover, Button#GridBtn:pointerover">
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+    </Window.Styles>
+</Window>

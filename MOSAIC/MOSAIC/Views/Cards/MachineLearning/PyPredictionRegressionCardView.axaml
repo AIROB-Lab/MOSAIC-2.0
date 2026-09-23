@@ -1,0 +1,369 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.MachineLearning"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.MachineLearning.PyPredictorRegressionCardView"
+    x:DataType="vm:PyPredictorRegressionViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+        <converters:BoolToDoubleConverter x:Key="BipolarToMin" TrueValue="-1" FalseValue="0"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.training-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.5" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource CategoryMachineLearningBrush}"/>
+                        <Setter Property="Opacity" Value="1.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card"
+            Classes.training-pulse="{Binding IsBusy}">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Block.Name}"
+                                   Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryMachineLearningBrush}"
+                                CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="PY REGRESSION" FontSize="10" FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsBusy}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="TRAINING" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding Block.FrequencyText}" Classes="cardSubtitle"/>
+                        <TextBlock Text="|" Classes="cardSubtitle"/>
+                        <TextBlock Text="{Binding Status}" Classes="cardSubtitle"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="11" TextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="MODEL INFO" Classes="sectionLabel"/>
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Module"
+                                   Classes="fieldLabel"
+                                   Margin="0,0,12,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Block.ModulePath}"
+                                   FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                   FontFamily="Cascadia Mono, Consolas, monospace" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="In channels"
+                                   Classes="fieldLabel"
+                                   Margin="0,0,12,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Block.InChannels}"
+                                   FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Win / Fs"
+                                   Classes="fieldLabel"
+                                   Margin="0,0,12,4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" FontSize="12"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                            <Run Text="{Binding Block.WinLen}"/>
+                            <Run Text=" / "/>
+                            <Run Text="{Binding Block.Fs}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Predictions"
+                                   Classes="fieldLabel"
+                                   Margin="0,0,12,0"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1"
+                                   Text="{Binding Block.PredictionCount, StringFormat='{}{0:N0}'}"
+                                   FontSize="12" Foreground="{StaticResource StatusNormalBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="BUFFER" Classes="sectionLabel"/>
+                    <TextBlock Text="{Binding BufferSegmentCount, StringFormat='{}{0} segments'}"
+                               FontSize="18" FontWeight="Bold"
+                               Foreground="{StaticResource StatusWarningBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleOutputExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*">
+                            <TextBlock Grid.Column="0" Text="▸" IsVisible="{Binding !IsOutputExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="▾" IsVisible="{Binding IsOutputExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Live Output" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </Grid>
+                    </Button>
+
+                    <ItemsControl ItemsSource="{Binding OutputValues}"
+                                  IsVisible="{Binding IsOutputExpanded}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OutputValue">
+                                <Grid ColumnDefinitions="70,*,60" Margin="0,2" Height="18">
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="10"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <ProgressBar Grid.Column="1"
+                                                 Minimum="{Binding IsBipolar, Converter={StaticResource BipolarToMin}}"
+                                                 Maximum="1"
+                                                 Value="{Binding Value}" Height="8"
+                                                 CornerRadius="3" VerticalAlignment="Center"
+                                                 Foreground="{StaticResource CategoryMachineLearningBrush}"
+                                                 Background="{DynamicResource ThemeInputBackgroundBrush}"/>
+                                    <TextBlock Grid.Column="2" FontSize="10"
+                                               Text="{Binding Value, StringFormat={}{0:F3}}"
+                                               FontFamily="Cascadia Mono, Consolas, monospace"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="REGRESSION OUTPUT" Classes="sectionLabel"/>
+                    <viz:VisualizationPanel
+                        Source="{Binding Block.Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="180"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="RESET" Classes="sectionLabel"/>
+                    <UniformGrid Columns="3">
+                        <Button Content="Reset Model"
+                                Command="{Binding ResetModelCommand}"
+                                Background="{StaticResource StatusErrorBrush}"
+                                Foreground="White" Padding="8,8" CornerRadius="6" Margin="0,0,4,0"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="11" FontWeight="SemiBold"
+                                ToolTip.Tip="Random weights, clear all replay buffers and history"/>
+                        <Button Content="Reset to Checkpoint"
+                                Command="{Binding ResetToCheckpointCommand}"
+                                Background="{StaticResource StatusWarningBrush}"
+                                Foreground="White" Padding="8,8" CornerRadius="6" Margin="2,0,2,0"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="11" FontWeight="SemiBold"
+                                ToolTip.Tip="Reload weights from original .pt file"/>
+                        <Button Content="Reset Smoother"
+                                Command="{Binding ResetSmootherCommand}"
+                                Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1"
+                                Padding="8,8" CornerRadius="6" Margin="4,0,0,0"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="11" FontWeight="SemiBold"
+                                ToolTip.Tip="Clear EMA state, useful after pause"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleTrainingExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                            <TextBlock Grid.Column="0" Text="▸" IsVisible="{Binding !IsTrainingExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="▾" IsVisible="{Binding IsTrainingExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Training" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding BufferSegmentCount, StringFormat='{}{0} segments in buffer'}"
+                                       FontSize="12" Foreground="{DynamicResource ThemeTextDimmedBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel Spacing="12" IsVisible="{Binding IsTrainingExpanded}">
+
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Grid.Column="0" Text="Save path"
+                                       Classes="fieldLabel" Margin="0,0,12,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding SavePath}"
+                                     PlaceholderText="e.g. models/regression_model.pt"/>
+                        </Grid>
+
+                        <!-- Train params -->
+                        <UniformGrid Columns="2">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="EPOCHS" Classes="sectionLabel"/>
+                                    <Slider Minimum="1" Maximum="500" Value="{Binding TrainEpochs, Mode=TwoWay}"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Text="{Binding TrainEpochs}" FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="LEARNING RATE" Classes="sectionLabel"/>
+                                    <Slider Minimum="0.00001" Maximum="0.01"
+                                            Value="{Binding Lr, Mode=TwoWay}" TickFrequency="0.0001"/>
+                                    <TextBlock Text="{Binding Lr, StringFormat='{}{0:F4}'}"
+                                               FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- Anti-forgetting controls -->
+                        <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="INCREMENTAL LEARNING" Classes="sectionLabel"/>
+
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="Knowledge distillation"
+                                               FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding UseDistillation}"
+                                                  OnContent="" OffContent=""/>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="Joint fine-tune"
+                                               FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding JointFinetune}"
+                                                  OnContent="" OffContent=""/>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                    <TextBlock Grid.Column="0" Text="Replay ratio"
+                                               FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" Minimum="0" Maximum="1"
+                                            Value="{Binding ReplayRatio, Mode=TwoWay}"
+                                            TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding ReplayRatio, StringFormat='{}{0:F2}'}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center" Width="32" TextAlignment="Right"/>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                    <TextBlock Grid.Column="0" Text="Joint epochs"
+                                               FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <Slider Grid.Column="1" Minimum="1" Maximum="100"
+                                            Value="{Binding JointEpochs, Mode=TwoWay}"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding JointEpochs}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               VerticalAlignment="Center" Width="32" TextAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="Train from buffer"
+                                Command="{Binding TrainCommand}"
+                                Background="{StaticResource CategoryMachineLearningBrush}"
+                                Foreground="White" Padding="12,10" CornerRadius="6"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="12" FontWeight="SemiBold"/>
+
+                        <Border Classes="divider"/>
+
+                        <UniformGrid Columns="2">
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="0,0,4,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="FT EPOCHS" Classes="sectionLabel"/>
+                                    <Slider Minimum="1" Maximum="200" Value="{Binding FtEpochs, Mode=TwoWay}"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                    <TextBlock Text="{Binding FtEpochs}" FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="12" Margin="4,0,0,0">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="FT LEARNING RATE" Classes="sectionLabel"/>
+                                    <Slider Minimum="0.00001" Maximum="0.05"
+                                            Value="{Binding FtLr, Mode=TwoWay}" TickFrequency="0.001"/>
+                                    <TextBlock Text="{Binding FtLr, StringFormat='{}{0:F4}'}"
+                                               FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <Button Content="Fine-tune from buffer"
+                                Command="{Binding FineTuneCommand}"
+                                Background="{DynamicResource ThemeSectionBrush}"
+                                Foreground="{StaticResource CategoryMachineLearningBrush}"
+                                BorderBrush="{StaticResource CategoryMachineLearningBrush}"
+                                BorderThickness="1" Padding="12,10" CornerRadius="6"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="12" FontWeight="SemiBold"/>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

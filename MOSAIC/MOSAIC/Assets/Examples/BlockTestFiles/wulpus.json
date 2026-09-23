@@ -1,0 +1,29 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 30
+  },
+
+  "wulpusPy": {
+    "Type": "Wulpus",
+    "Inputs": ["timer"],
+    "Params": [
+      "Assets/WulpusConfigs/uss_config_hand_tests.json",
+      "Assets/WulpusConfigs/tx_rx_config_multiple_4.json",
+      2,
+      true
+    ]
+  },
+  "lowPass": {
+    "Type": "DepthFilter",
+    "Inputs": ["wulpusPy"],
+    "Params": [
+      [ "Highpass", "FIR", 0, 1000000, 4, 64, 4000000 ]
+    ]
+  },
+  "crop": {
+    "Type": "Crop",
+    "Inputs": ["wulpusPy"],
+    "Params": [10, 380]
+  }
+}

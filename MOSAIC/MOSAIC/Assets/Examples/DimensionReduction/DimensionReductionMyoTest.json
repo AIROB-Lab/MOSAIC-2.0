@@ -1,0 +1,61 @@
+﻿
+{
+  "Timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "Myo": {
+    "Type": "Myo",
+    "Inputs": ["Timer"]
+  },
+  "Amplifier": {
+    "Type": "Function",
+    "Inputs": ["Myo"],
+    "Params": ["multiply", 10]
+  },
+  "AbsoluteValue": {
+    "Type": "Function",
+    "Inputs": ["Amplifier"],
+    "Params": ["abs"]
+  },
+  "LowpassFilter": {
+    "Type": "FilterBlock",
+    "Inputs": ["AbsoluteValue"],
+    "Params": ["Lowpass", "IIR", 2, 0, 4, 64]
+  },
+  "TargetTrigger": {
+    "Type": "Trigger",
+    "Params": [
+      "rest:0;0;0",
+      "grasp:1;0;0",
+      "point:0;1;0",
+      "pinch:0;0;1"
+    ]
+  },
+  "SupervisedPCA": {
+    "Type": "SupervisedPCA",
+    "Inputs": ["LowpassFilter"],
+    "Params": [3, 0.2, 100, 500]
+  },
+  "OnlinePCA": {
+    "Type": "OnlinePCA",
+    "Inputs": ["LowpassFilter"],
+    "Params": [2, 0.2, 100, 500]
+  },
+  "OnlineLDA": {
+    "Type": "OnlineLDA",
+    "Inputs": ["LowpassFilter", "TargetTrigger"],
+    "Params": [3, 0.1, 100, 500, 1e-6]
+  },
+  "SupervisedICA": {
+    "Type": "SupervisedICA",
+    "Inputs": ["LowpassFilter"],
+    "Params": [2, 0.1, 50, 1000, 0]
+  },
+  "OnlineICA": {
+    "Type": "OnlineICA",
+    "Inputs": ["LowpassFilter"],
+    "Params": [3, 0.1, 50, 1000, 0, 500, 0, 1, 0.005]
+  }
+}
+

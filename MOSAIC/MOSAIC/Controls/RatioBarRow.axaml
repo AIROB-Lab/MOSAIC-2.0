@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             x:Class="MOSAIC.Controls.RatioBarRow">
+
+    <!-- label · proportional bar · percent. Value is a 0..1 ratio bound from the VM. -->
+    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+        <TextBlock Grid.Column="0" Text="{Binding Label, ElementName=Root}" Width="36"
+                   FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
+                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+
+        <ProgressBar Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Value, ElementName=Root}"
+                     Height="8" CornerRadius="4" VerticalAlignment="Center"
+                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                     Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+
+        <TextBlock Grid.Column="2" Text="{Binding Value, ElementName=Root, StringFormat='{}{0:P1}'}" Width="56"
+                   FontSize="13" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"
+                   Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+    </Grid>
+</UserControl>

@@ -1,0 +1,143 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Devices"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    x:Class="MOSAIC.Views.Cards.Devices.MccDaqBoardCardView"
+    x:DataType="vm:MccDaqBoardViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+        <StackPanel Spacing="12">
+
+            <!-- ── Title row ─────────────────────────────────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Block.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="MCC DAQ" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsReceiving}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="SCANNING" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Block.ConnectionStatus}" Classes="cardSubtitle" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- ── Acquisition ───────────────────────────────────────────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="ACQUISITION" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Text="Board" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <controls:SafeNumericUpDown Grid.Column="1"
+                                                    Value="{Binding Block.BoardNumber, Mode=TwoWay}"
+                                                    Minimum="0" Maximum="15" Increment="1"
+                                                    FontSize="12" Padding="6,2"
+                                                    IsEnabled="{Binding !Block.IsConnected}"
+                                                    ToolTip.Tip="InstaCal board number. Configure the board in InstaCal first."/>
+                        <Button Grid.Column="2" Content="⟳" Command="{Binding RefreshBoardsCommand}"
+                                FontSize="12" Padding="6,4" CornerRadius="4"
+                                ToolTip.Tip="Re-detect configured boards"/>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding AvailableBoards}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontSize="10"
+                                           FontFamily="Cascadia Mono, Consolas, monospace"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Text="Ch from" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <controls:SafeNumericUpDown Grid.Column="1"
+                                                    Value="{Binding Block.LowChannel, Mode=TwoWay}"
+                                                    Minimum="0" Maximum="255" Increment="1"
+                                                    FontSize="12" Padding="6,2"
+                                                    IsEnabled="{Binding !Block.IsConnected}"/>
+                        <TextBlock Grid.Column="2" Text="to" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <controls:SafeNumericUpDown Grid.Column="3"
+                                                    Value="{Binding Block.HighChannel, Mode=TwoWay}"
+                                                    Minimum="0" Maximum="255" Increment="1"
+                                                    FontSize="12" Padding="6,2"
+                                                    IsEnabled="{Binding !Block.IsConnected}"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Text="Scans/tick" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <controls:SafeNumericUpDown Grid.Column="1"
+                                                    Value="{Binding Block.ScansPerPacket, Mode=TwoWay}"
+                                                    Minimum="1" Maximum="10000" Increment="1"
+                                                    FontSize="12" Padding="6,2"
+                                                    IsEnabled="{Binding !Block.IsConnected}"/>
+                        <TextBlock Grid.Column="2" Text="Range" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="3"
+                                  ItemsSource="{Binding KnownRanges}"
+                                  SelectedItem="{Binding Block.RangeName, Mode=TwoWay}"
+                                  FontSize="12" HorizontalAlignment="Stretch"
+                                  IsEnabled="{Binding !Block.IsConnected}"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                    </Grid>
+
+                    <CheckBox Content="Legacy units (raw count ÷ 10000, as in iM-Blocks)"
+                              IsChecked="{Binding Block.UseLegacyScale, Mode=TwoWay}"
+                              FontSize="11"
+                              IsEnabled="{Binding !Block.IsConnected}"/>
+
+                    <TextBlock Text="{Binding ScanSummary}" Classes="fieldLabel" FontSize="10"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Content="Connect" Command="{Binding ConnectCommand}"
+                                IsVisible="{Binding !Block.IsConnected}"
+                                Background="{StaticResource CategoryDevicesBrush}" Foreground="White"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                        <Button Content="Disconnect" Command="{Binding DisconnectCommand}"
+                                IsVisible="{Binding Block.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                        <Button Content="Reconnect" Command="{Binding ReconnectCommand}"
+                                IsVisible="{Binding Block.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ── Output scope ──────────────────────────────────────────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="OUTPUT STREAM" Classes="sectionLabel"/>
+                    <viz:VisualizationPanel Source="{Binding Viz}"
+                                            ScopeVisibleByDefault="True"
+                                            ShowScopeViewModeToggle="True"
+                                            MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

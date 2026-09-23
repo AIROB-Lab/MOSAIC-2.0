@@ -1,0 +1,84 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    x:Class="MOSAIC.Views.Cards.FlowControl.TriggerConfigView"
+    x:DataType="vm:TriggerViewModel"
+    x:CompileBindings="False">
+
+    <StackPanel Spacing="10">
+        <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" Padding="8" MaxHeight="200">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding ActionEntries}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*,Auto,*,Auto" ColumnSpacing="6" Margin="0,3">
+                                <TextBox Grid.Column="0" Text="{Binding Name, Mode=TwoWay}"
+                                         Watermark="action name" FontSize="12"
+                                         Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                         Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                         Padding="8,5" CornerRadius="4" />
+                                <TextBlock Grid.Column="1" Text=":" FontSize="14" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           VerticalAlignment="Center" />
+                                <TextBox Grid.Column="2" Text="{Binding Values, Mode=TwoWay}"
+                                         Watermark="0;0;0;0;0;0" FontSize="12"
+                                         FontFamily="Cascadia Code,Consolas,monospace"
+                                         Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                         Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                         Padding="8,5" CornerRadius="4" />
+                                <Button Grid.Column="3" Content="✕"
+                                        Command="{Binding $parent[UserControl].((vm:TriggerViewModel)DataContext).RemoveActionEntryCommand}"
+                                        CommandParameter="{Binding}"
+                                        Padding="8,5" FontSize="11" CornerRadius="4"
+                                        Background="Transparent"
+                                        Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                        BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                        BorderThickness="1">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="{StaticResource StatusErrorBrush}" />
+                                            <Setter Property="Foreground" Value="White" />
+                                        </Style>
+                                    </Button.Styles>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <TextBlock Classes="hint" Text="Format: name : v1;v2;v3;…"
+                   FontFamily="Cascadia Code,Consolas,monospace" />
+
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Button Grid.Column="0" Content="+ Add action"
+                    Command="{Binding AddActionEntryCommand}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    FontSize="12" FontWeight="SemiBold" Padding="0,8" CornerRadius="6"
+                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                    Foreground="{StaticResource CategoryFlowControlBrush}"
+                    BorderBrush="{StaticResource CategoryFlowControlBrush}"
+                    BorderThickness="1">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="{StaticResource CategoryFlowControlBrush}" />
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                </Button.Styles>
+            </Button>
+
+            <Button Grid.Column="1" Content="✓ Apply"
+                    Command="{Binding ApplyJsonConfigCommand}"
+                    FontSize="12" FontWeight="Bold" Padding="20,8" CornerRadius="6"
+                    Background="{StaticResource CategoryFlowControlBrush}"
+                    Foreground="White" BorderThickness="0">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover"><Setter Property="Opacity" Value="0.8" /></Style>
+                    <Style Selector="Button:pressed"><Setter Property="Opacity" Value="0.6" /></Style>
+                </Button.Styles>
+            </Button>
+        </Grid>
+    </StackPanel>
+</UserControl>

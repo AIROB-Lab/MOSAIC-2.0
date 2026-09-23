@@ -1,0 +1,233 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:diag="clr-namespace:MOSAIC.Diagnostics"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels"
+    x:Class="MOSAIC.Views.LogPanelView"
+    x:DataType="vm:LogPanelViewModel"
+    x:CompileBindings="True">
+
+    <UserControl.Resources>
+        <conv:LogLevelToColorConverter x:Key="LogLevelToColor" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" Height="220">
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0"
+                Height="34"
+                Padding="12,0"
+                Background="{DynamicResource ThemeSurfaceBrush}"
+                BorderBrush="{DynamicResource ThemeBorderBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto">
+
+                <TextBlock Grid.Column="0"
+                           Classes="sectionLabel"
+                           Text="LOG"
+                           Margin="0,0,12,0"
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Center"/>
+                
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            Margin="0,0,8,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Classes="fieldLabel"
+                               Text="Show"
+                               VerticalAlignment="Center" />
+                    <ComboBox x:Name="LevelComboBox"
+                              Width="110"
+                              Height="26"
+                              VerticalAlignment="Center"
+                              ItemsSource="{Binding Levels}"
+                              SelectedItem="{Binding ViewLevel, Mode=TwoWay}"
+                              ToolTip.Tip="{Binding CaptureLevelText}" />
+                </StackPanel>
+
+                <ToggleButton Grid.Column="2"
+                              Content="Autoscroll"
+                              Height="26"
+                              Padding="8,0"
+                              Margin="0,0,8,0"
+                              FontSize="11"
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding AutoScroll, Mode=TwoWay}" 
+                              HorizontalContentAlignment="Center"
+                              VerticalContentAlignment="Center"/>
+
+                <Button Grid.Column="3"
+                        Content="Copy"
+                        Height="26"
+                        Padding="8,0"
+                        Margin="0,0,8,0"
+                        FontSize="11"
+                        VerticalAlignment="Center"
+                        Click="OnCopyClicked"
+                        ToolTip.Tip="Copy the visible rows to the clipboard" 
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"/>
+
+                <Button Grid.Column="4"
+                        Content="Open folder"
+                        Height="26"
+                        Padding="8,0"
+                        Margin="0,0,8,0"
+                        FontSize="11"
+                        VerticalAlignment="Center"
+                        Command="{Binding OpenLogFolderCommand}"
+                        ToolTip.Tip="{Binding LogFilePathText}"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"/>
+
+                <Button Grid.Column="5"
+                        Content="Clear"
+                        Height="26"
+                        Padding="8,0"
+                        Margin="0,0,8,0"
+                        FontSize="11"
+                        VerticalAlignment="Center"
+                        Command="{Binding ClearCommand}"
+                        ToolTip.Tip="Clear the panel. The log file is untouched." 
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"/>
+
+                <TextBlock Grid.Column="6"
+                           Classes="hint"
+                           VerticalAlignment="Center"
+                           Margin="8,0"
+                           TextWrapping="NoWrap"
+                           IsVisible="{Binding HasDropped}"
+                           Text="{Binding DroppedCount, StringFormat='{}{0} dropped'}"
+                           ToolTip.Tip="Messages the queue had to drop while it was full" />
+
+                <Button Grid.Column="7"
+                        x:Name="LogCloseButton"
+                        Content="&#x2715;"
+                        Width="26" Height="26"
+                        Padding="0"
+                        FontSize="12"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="{DynamicResource ThemeTextMutedBrush}"
+                        Click="OnCloseClicked"
+                        ToolTip.Tip="Hide the log" />
+            </Grid>
+        </Border>
+        
+        <Border Grid.Row="1"
+                Classes="logBanner"
+                Classes.stopped="{Binding IsWriterStopped}"
+                Padding="12,6"
+                IsVisible="{Binding HasLogFailure}"
+                Background="{DynamicResource ThemeSurfaceBrush}"
+                BorderThickness="0,0,0,2">
+            <Grid ColumnDefinitions="Auto,*">
+                <Ellipse Grid.Column="0"
+                         Width="10" Height="10"
+                         Margin="0,4,8,0"
+                         VerticalAlignment="Top"
+                         StrokeThickness="0" />
+
+                <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock FontSize="12"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               Text="{Binding LogFailureHeadline}" />
+                    <TextBlock Classes="hint"
+                               Text="{Binding LogFailureDetail}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <ListBox Grid.Row="2"
+                 x:Name="LogList"
+                 Background="{DynamicResource ThemeBackgroundAltBrush}"
+                 BorderThickness="0"
+                 Padding="0"
+                 ItemsSource="{Binding Entries}"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="diag:LogEntry">
+                    <Grid ColumnDefinitions="Auto,Auto,Auto,*" Height="18">
+                        <Ellipse Grid.Column="0"
+                                 Width="10" Height="10"
+                                 Margin="12,0,8,0"
+                                 VerticalAlignment="Center"
+                                 StrokeThickness="0"
+                                 Fill="{Binding Level, Converter={StaticResource LogLevelToColor}}" />
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding TimeText}"
+                                   Margin="0,0,8,0"
+                                   FontSize="11"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource ThemeTextMutedBrush}" />
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding Prefix}"
+                                   Margin="0,0,8,0"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding Message}"
+                                   Margin="0,0,12,0"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="MinHeight" Value="0" />
+                    <Setter Property="Background" Value="Transparent" />
+                </Style>
+                <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                    <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}" />
+                </Style>
+                <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                    <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}" />
+                </Style>
+            </ListBox.Styles>
+        </ListBox>
+    </Grid>
+
+    <UserControl.Styles>
+        <Style Selector="Border.logBanner">
+            <Setter Property="BorderBrush" Value="{DynamicResource StatusWarningBrush}" />
+        </Style>
+        <Style Selector="Border.logBanner Ellipse">
+            <Setter Property="Fill" Value="{DynamicResource StatusWarningBrush}" />
+        </Style>
+        <Style Selector="Border.logBanner.stopped">
+            <Setter Property="BorderBrush" Value="{DynamicResource StatusErrorBrush}" />
+        </Style>
+        <Style Selector="Border.logBanner.stopped Ellipse">
+            <Setter Property="Fill" Value="{DynamicResource StatusErrorBrush}" />
+        </Style>
+
+        <Style Selector="Button#LogCloseButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceHoverBrush}" />
+        </Style>
+    </UserControl.Styles>
+</UserControl>

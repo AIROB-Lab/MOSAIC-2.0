@@ -1,0 +1,194 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Dialogs"
+    xmlns:factory="clr-namespace:MOSAIC.Components.Factory"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    x:Class="MOSAIC.Views.Dialogs.AddBlockDialog"
+    x:CompileBindings="False"
+    Title="Add Block"
+    Width="440"
+    SizeToContent="Height"
+    CanResize="False"
+    WindowStartupLocation="CenterOwner"
+    Background="{DynamicResource ThemeBackgroundBrush}">
+
+    <Window.Resources>
+        <conv:BlockCategoryToBrushConverter x:Key="CategoryBrush" />
+    </Window.Resources>
+
+    <DockPanel Margin="0">
+
+        <!-- Title bar -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource ThemeAccentBrush}"
+                Height="50"
+                Padding="16,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Category color chip -->
+                <Border Grid.Column="0"
+                        Width="8"
+                        Height="24"
+                        CornerRadius="4"
+                        Margin="0,0,12,0"
+                        Background="{Binding Descriptor.Category, Converter={StaticResource CategoryBrush}}" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Descriptor.DisplayName}"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="White" />
+                    <TextBlock Text="{Binding Descriptor.Description}"
+                               FontSize="10"
+                               Opacity="0.75"
+                               Foreground="White"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Footer buttons -->
+        <Border DockPanel.Dock="Bottom"
+                BorderBrush="{DynamicResource ThemeBorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="16,12"
+                Background="{DynamicResource ThemeSurfaceBrush}">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <!-- Validation message -->
+                <TextBlock Grid.Column="0"
+                           Text="{Binding ValidationError}"
+                           Foreground="{DynamicResource StatusErrorBrush}"
+                           FontSize="11"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap" />
+
+                <Button Grid.Column="1"
+                        Content="Cancel"
+                        Margin="0,0,8,0"
+                        Padding="16,8"
+                        Click="OnCancelClicked"
+                        Background="{DynamicResource ThemeSurfaceHoverBrush}"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}"
+                        Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+
+                <Button Grid.Column="2"
+                        x:Name="AddButton"
+                        Content="Add Block"
+                        Padding="16,8"
+                        IsEnabled="{Binding CanAdd}"
+                        Click="OnAddClicked"
+                        Background="{DynamicResource ThemeAccentBrush}"
+                        BorderThickness="0"
+                        Foreground="White"
+                        FontWeight="SemiBold" />
+            </Grid>
+        </Border>
+
+        <!-- Form body -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,0,0">
+            <StackPanel Margin="16,16,16,0" Spacing="12">
+
+                <!-- Name -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Block Name"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+                    <TextBox Text="{Binding BlockName, Mode=TwoWay}"
+                             FontSize="13"
+                             Height="34"
+                             VerticalContentAlignment="Center"
+                             Background="{DynamicResource ThemeInputBackgroundBrush}"
+                             BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                             BorderThickness="1"
+                             CornerRadius="4"
+                             Padding="8,0" />
+                </StackPanel>
+
+                <!-- Desired Rate -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Desired Rate (Hz)  — optional"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+                    <TextBox Text="{Binding DesiredRateText, Mode=TwoWay}"
+                             Watermark="inherit from upstream"
+                             FontSize="13"
+                             Height="34"
+                             VerticalContentAlignment="Center"
+                             Background="{DynamicResource ThemeInputBackgroundBrush}"
+                             BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                             BorderThickness="1"
+                             CornerRadius="4"
+                             Padding="8,0" />
+                </StackPanel>
+
+                <!-- Recording. Just a switch: the destination is the app-wide folder set in the
+                     header, so adding a block from the palette never asks for a path. -->
+                <StackPanel Spacing="2">
+                    <CheckBox Content="Record output to CSV"
+                              IsChecked="{Binding Record, Mode=TwoWay}"
+                              IsEnabled="{Binding CanRecord}"
+                              FontSize="12" />
+                    <TextBlock Text="{Binding RecordHint}"
+                               FontSize="10"
+                               Margin="26,0,0,0"
+                               Opacity="0.75"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+                </StackPanel>
+
+                <!-- Params -->
+                <StackPanel Spacing="4"
+                            IsVisible="{Binding HasParams}">
+                    <TextBlock Text="Parameters"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+
+                    <ItemsControl ItemsSource="{Binding ParamFields}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Label on top + full-width field, matching the Name / Rate rows above.
+                                     Hidden when this param is conditional and not currently applicable. -->
+                                <StackPanel Spacing="4" Margin="0,0,0,8"
+                                            IsVisible="{Binding IsVisible}">
+                                    <TextBlock Text="{Binding Hint.Name}"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+
+                                    <!-- ComboBox for Enum params -->
+                                    <ComboBox ItemsSource="{Binding Choices}"
+                                              SelectedItem="{Binding Value, Mode=TwoWay}"
+                                              IsVisible="{Binding IsEnum}"
+                                              HorizontalAlignment="Stretch"
+                                              FontSize="13"
+                                              Height="34"
+                                              Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                              BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                              BorderThickness="1" />
+
+                                    <!-- TextBox for non-Enum params -->
+                                    <TextBox Text="{Binding Value, Mode=TwoWay}"
+                                             IsVisible="{Binding IsEnum, Converter={x:Static BoolConverters.Not}}"
+                                             FontSize="13"
+                                             Height="34"
+                                             VerticalContentAlignment="Center"
+                                             Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                             BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                             BorderThickness="1"
+                                             CornerRadius="4"
+                                             Padding="8,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <Border Height="8" />
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

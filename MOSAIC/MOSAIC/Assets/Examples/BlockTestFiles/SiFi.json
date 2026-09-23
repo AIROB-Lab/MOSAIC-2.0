@@ -1,0 +1,23 @@
+﻿{
+  "Sifi": {
+    "Type": "SiFi",
+    "DesiredRate": 65,
+    "Params": ["AA:BB:CC:DD:EE:FF", "sifibridge"]
+  },
+  "window": {
+    "Type": "SlidingWindow",
+    "Inputs": ["Sifi"],
+    "Params": [128, 32, "Hamming"],
+    "DesiredRate": 0
+  },
+  "LowpassFilter": {
+    "Type": "FilterBlock",
+    "Inputs": ["window"],
+    "Params": ["Lowpass", "IIR", 2, 0, 4, 64]
+  },
+  "FFT1": {
+    "Type": "FFT",
+    "Inputs": ["window"],
+    "Params": ["Rectangular", "Magnitude", 1, -120, 200, 200]
+  }
+}

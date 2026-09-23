@@ -1,0 +1,82 @@
+{
+  "Timer": {
+    "Type": "Clock",
+    "DesiredRate": 200
+  },
+
+  "Myo": {
+    "Type": "Myo",
+    "DesiredRate": 200,
+    "Inputs": [ "Timer" ]
+  },
+
+  "Amplifier": {
+    "Type": "Function",
+    "DesiredRate": 200,
+    "Inputs": [ "Myo" ],
+    "Params": [ "multiply", 5 ]
+  },
+
+  "Rectifier": {
+    "Type": "Function",
+    "DesiredRate": 200,
+    "Inputs": ["Amplifier"],
+    "Params": ["abs"]
+  },
+
+  "ARV_LPF": {
+    "Type": "FilterBlock",
+    "DesiredRate": 200,
+    "Inputs": ["Rectifier"],
+    "Params": ["Lowpass","IIR",0.8, 200,2,64]
+  },
+
+  "ARV": {
+    "Type": "Resampler",
+    "DesiredRate": 50,
+    "Inputs": [ "ARV_LPF" ],
+    "Params": [50]
+  },
+
+  "Trigger": {
+    "Type": "Trigger",
+    "Params": [
+      "rest:0",
+      "extend:-1",
+      "flex:1"
+    ]
+  },
+  "Predictor": {
+    "Type": "IncrementalPredictor",
+    "DesiredRate": 50,
+    "Inputs": ["ARV","Trigger"],
+    "Params": ["Ridge", 8,1, 0.5, 1, 300]
+  },
+
+  "ForwardToBlender": {
+    "Type": "UDPControlClient",
+    "DesiredRate": 50,
+    "Inputs": ["Predictor"],
+    "Params": [ 3338, "float", "172.27.7.236", 3338, 6.0, 1.0 ] 
+  },
+
+  "MotorStatusReceiver": {
+    "Type": "UDPClient",
+    "DesiredRate": 500,
+    "Params": [ 3336, "double" ]
+  },
+
+  "MotorStatusResampled": {
+    "Type": "Resampler",
+    "DesiredRate": 100,
+    "Inputs": [ "MotorStatusReceiver" ],
+    "Params": [ 100 ]
+  },
+
+  "MotorStatusDisplay": {
+    "Type": "Function",
+    "DesiredRate": 500,
+    "Inputs": ["MotorStatusReceiver"],
+    "Params": ["multiply",6998.6]
+  }
+}

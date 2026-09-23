@@ -1,0 +1,149 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MOSAIC.ViewModels"
+             xmlns:conv="clr-namespace:MOSAIC.Converters"
+             xmlns:controls="clr-namespace:MOSAIC.Controls"
+             x:Class="MOSAIC.Views.Cards.FlowControl.ControlAlgorithmCardView"
+             x:DataType="vm:ControlAlgorithmViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Control Algorithm" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="CONTROL" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding FrequencyText}" Classes="cardSubtitle"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Algorithm Selection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="ALGORITHM SELECTION" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <TextBlock Grid.Column="0"
+                                   Text="Algorithm:"
+                                   Classes="fieldLabel"/>
+                        
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding AvailableAlgorithms}"
+                                  SelectedItem="{Binding SelectedAlgorithm}"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                  HorizontalAlignment="Stretch"/>
+                    </Grid>
+                    
+                    <TextBlock Text="{Binding AlgorithmDescription}"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- DL Deadband Tuning (only visible when DLControl is active) -->
+            <Border Classes="cardSection"
+                    IsVisible="{Binding IsDLControl}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="DEADBAND TUNING" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <!-- Finger Deadband -->
+                        <Border Grid.Column="0"
+                                Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="FINGER" FontSize="9" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <controls:SafeNumericUpDown Value="{Binding FingerDeadband}"
+                                               Minimum="0" Maximum="0.5"
+                                               Increment="0.01"
+                                               FormatString="F2"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               Background="{DynamicResource ThemeSectionBrush}"
+                                               BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                               HorizontalAlignment="Stretch"
+                                               HorizontalContentAlignment="Center"
+                                               FontSize="13" FontWeight="SemiBold"/>
+                                <TextBlock Text="activation threshold"
+                                           FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Wrist Deadband -->
+                        <Border Grid.Column="1"
+                                Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="WRIST" FontSize="9" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <controls:SafeNumericUpDown Value="{Binding WristDeadband}"
+                                               Minimum="0" Maximum="0.5"
+                                               Increment="0.01"
+                                               FormatString="F2"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               Background="{DynamicResource ThemeSectionBrush}"
+                                               BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                               HorizontalAlignment="Stretch"
+                                               HorizontalContentAlignment="Center"
+                                               FontSize="13" FontWeight="SemiBold"/>
+                                <TextBlock Text="neutral snap zone"
+                                           FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Reset Controls -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Text="DOA VALUES" Classes="sectionLabel"/>
+                        <TextBlock Text="Reset all Degree of Activation values" Classes="hint"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Content="Reset DOA"
+                            Command="{Binding ResetCommand}"
+                            Background="{StaticResource StatusErrorBrush}"
+                            Foreground="White"
+                            Padding="16,8"
+                            CornerRadius="6"
+                            FontSize="11"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

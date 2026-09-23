@@ -1,0 +1,130 @@
+// BodyRig 2 — SEVEN sensors: the full rig the lab protocol is written for.
+//
+//   sensor13Reading ─┐
+//   sensor70Reading  │
+//   sensor72Reading  ├─> quats ─> bodyRig      (5-segment chain)
+//   sensor73Reading  │
+//   sensor92Reading ─┘
+//
+// Probes 13, 18, 70, 72, 73, 74 and 92. Each ESP node streams to UDP port "11" + its device
+// number, so: 11013, 11018, 11070, 11072, 11073, 11074, 11092.
+//
+// SEVEN IS THE NUMBER THAT MATTERS. Both shipped kinematic models finally fit:
+//   double_hand — torso root with two symmetric 3-segment arms, binding slots 0..6. Needs all
+//                 seven; with six, whichever segment held S6 never moved.
+//   bimanual    — same root, three branches, binding 0,1,2,3,4,4,6 (slot 5 deliberately unused,
+//                 segments 4 and 5 sharing one IMU).
+// Both live in Assets/BodyRigCalibrationFiles, which the card opens on by default: pick one in
+// CALIBRATION and press Load. This file deliberately leaves the folder and profile params empty
+// so that default applies rather than hard-coding one machine's path.
+//
+// Placement for double_hand (protocol Task 3): chest, both upper arms, both forearms, both
+// hands, USB ports facing away from the core when the limbs are outstretched.
+//
+// FIREWALL — the inbound rule "BodyRig sensors UDP 11000-11255" covers every port here, 11074
+// included, so nothing needs adding. If a powered node goes quiet, check that rule still exists
+// before suspecting the code: without it the socket binds fine and receives nothing, which reads
+// exactly like a bug in MOSAIC.
+//
+// WHY THE JOINER: BodyRig accepts exactly one input, so the probes have to be merged into a
+// single concatenated quaternion vector first. The Joiner republishes whenever its TIMER SOURCE
+// arrives. sensor18ROT paces here because 18 is the fastest node measured (~216 Hz vs ~105 Hz
+// for 92; the rest unmeasured). Pacing on the fastest repeats a slower node's last value rather
+// than dropping frames — pick a slower pacer if you would rather have fewer, fresher frames.
+//
+// SLOT ORDER IS THE JOINER'S "Inputs" ORDER, NOT THE DEVICE NUMBERS.
+// Declared ascending by device number, so the rig sees:
+//     group 0 = sensor13ROT -> S0      group 4 = sensor73ROT -> S4
+//     group 1 = sensor18ROT -> S1      group 5 = sensor74ROT -> S5
+//     group 2 = sensor70ROT -> S2      group 6 = sensor92ROT -> S6
+//     group 3 = sensor72ROT -> S3
+// Bind a segment to S0..S6 — never to 13 or 92. The card labels each slot with the node behind
+// it ("S5 · #74") in the chain strip, the bind dropdown and the sensor status line, so the
+// mapping does not have to be written down; reordering the Inputs below updates it on reload.
+//
+// IF A NODE DOES NOT COME UP, the rig stays at 0 Hz on purpose. A source that has never
+// delivered contributes no group, which would shorten the joined vector and slide every later
+// node into a slot belonging to someone else — the torso ending up driven by an arm IMU, with
+// the card still reporting itself healthy. The Joiner therefore publishes complete records
+// only, and logs which node it is waiting for. Power the missing node on, or remove it from
+// the Joiner's Inputs and drop the segment count to match.
+//
+// A node that dies AFTER it has streamed once is different and does not stall anything: its
+// last value stands in, the vector keeps its shape, and that segment simply holds its pose.
+//
+// WIRE FORMAT (confirmed by capture, 2026-08-19): 52-byte packets = 13 float32,
+//   [0..3] quaternion w,x,y,z   [4..6] accel   [7..9] gyro   [10..12] mag
+// The rig streams continuously; CommandSender only selects WHICH streams it sends.
+{
+  "ControlSender": {
+    "Type": "CommandSender",
+    "Params": ["192.168.0.255", 11000]
+  },
+
+  "sensor13Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11013, "float"]
+  },
+  "sensor13ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor13Reading"],
+    "Params": ["0;1;2;3"]
+  },
+  
+  "sensor70Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11070, "float"]
+  },
+  "sensor70ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor70Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "sensor72Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11072, "float"]
+  },
+  "sensor72ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor72Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "sensor73Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11073, "float"]
+  },
+  "sensor73ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor73Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "sensor92Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11092, "float"]
+  },
+  "sensor92ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor92Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "quats": {
+    "Type": "Joiner",
+    "Inputs": ["sensor13ROT", "sensor70ROT", "sensor72ROT", "sensor73ROT", "sensor92ROT"],
+    "Params": ["timerBlockName:sensor72ROT"]
+  },
+
+  "bodyRig": {
+    "Type": "BodyRig",
+    "Inputs": ["quats"],
+    "Params": ["", 5, ""]
+  }
+}

@@ -1,0 +1,87 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- BLOCK CATEGORY COLORS (Theme-Independent)                               -->
+    <!-- These colors remain the same in both Dark and Light themes              -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- ~1~ FlowControl - Teal/Cyan: data flow, routing @1@ -->
+    <!-- <Color x:Key="CategoryFlowControl">#14B8A6</Color> -->
+    <!-- <SolidColorBrush x:Key="CategoryFlowControlBrush" Color="#14B8A6"/> -->
+    <!-- -->
+    <!-- ~1~ SignalProcessing - Purple: transformation, processing @1@ -->
+    <!-- <Color x:Key="CategorySignalProcessing">#8B5CF6</Color> -->
+    <!-- <SolidColorBrush x:Key="CategorySignalProcessingBrush" Color="#8B5CF6"/> -->
+    <!-- -->
+    <!-- ~1~ Analytics - Pink: analysis, insights @1@ -->
+    <!-- <Color x:Key="CategoryAnalytics">#EC4899</Color> -->
+    <!-- <SolidColorBrush x:Key="CategoryAnalyticsBrush" Color="#EC4899"/> -->
+    <!-- -->
+    <!-- ~1~ MachineLearning - Indigo: AI, intelligence @1@ -->
+    <!-- <Color x:Key="CategoryMachineLearning">#6366F1</Color> -->
+    <!-- <SolidColorBrush x:Key="CategoryMachineLearningBrush" Color="#6366F1"/> -->
+    <!-- -->
+    <!-- ~1~ Devices - Orange: hardware, connectivity @1@ -->
+    <!-- <Color x:Key="CategoryDevices">#F97316</Color> -->
+    <!-- <SolidColorBrush x:Key="CategoryDevicesBrush" Color="#F97316"/> -->
+    <!-- -->
+    <!-- ~1~ Sources - Amber/Yellow: signal generation, data sources @1@ -->
+    <!-- <Color x:Key="CategorySources">#EAB308</Color> -->
+    <!-- <SolidColorBrush x:Key="StreamingSourcesBrush" Color="#EAB308"/> -->
+    
+    <!-- FlowControl - Teal/Cyan: data flow, routing -->
+    <Color x:Key="CategoryFlowControl">#14B8A6</Color>
+    <SolidColorBrush x:Key="CategoryFlowControlBrush" Color="#14B8A6"/>
+
+    <!-- SignalProcessing - Purple: transformation, processing -->
+    <Color x:Key="CategorySignalProcessing">#8B5CF6</Color>
+    <SolidColorBrush x:Key="CategorySignalProcessingBrush" Color="#8B5CF6"/>
+
+    <!-- Analytics - Pink: analysis, insights -->
+    <Color x:Key="CategoryAnalytics">#EC4899</Color>
+    <SolidColorBrush x:Key="CategoryAnalyticsBrush" Color="#EC4899"/>
+
+    <!-- MachineLearning - Indigo: AI, intelligence -->
+    <Color x:Key="CategoryMachineLearning">#6366F1</Color>
+    <SolidColorBrush x:Key="CategoryMachineLearningBrush" Color="#6366F1"/>
+
+    <!-- Tests - Rose/Magenta: assessment, evaluation -->
+    <Color x:Key="CategoryTests">#E11D74</Color>
+    <SolidColorBrush x:Key="CategoryTestsBrush" Color="#E11D74"/>
+
+    <!-- Devices - Sky Blue: hardware, connectivity -->
+    <Color x:Key="CategoryDevices">#0EA5E9</Color>
+    <SolidColorBrush x:Key="CategoryDevicesBrush" Color="#0EA5E9"/>
+
+    <!-- Sources - Amber: signal generation, data sources -->
+    <Color x:Key="CategorySources">#F59E0B</Color>
+    <SolidColorBrush x:Key="StreamingSourcesBrush" Color="#F59E0B"/>
+
+    
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- STATUS COLORS (Theme-Independent)                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    
+    <Color x:Key="StatusNormal">#22C55E</Color>
+    <SolidColorBrush x:Key="StatusNormalBrush" Color="#22C55E"/>
+    
+    <Color x:Key="StatusWarning">#F59E0B</Color>
+    <SolidColorBrush x:Key="StatusWarningBrush" Color="#F59E0B"/>
+    
+    <Color x:Key="StatusError">#EF4444</Color>
+    <SolidColorBrush x:Key="StatusErrorBrush" Color="#EF4444"/>
+    
+    <Color x:Key="StatusIdle">#6B7280</Color>
+    <SolidColorBrush x:Key="StatusIdleBrush" Color="#6B7280"/>
+    
+    <SolidColorBrush x:Key="CategoryStreamingBrush" Color="#F59E0B"/>
+
+    <!-- Inline badge background (matches ThemeAccentMuted); referenced by some device cards. -->
+    <SolidColorBrush x:Key="ThemeBadgeBrush" Color="#1E3A5F"/>
+
+    <!-- Translucent overlay for legend chips — replaces the hardcoded #22FFFFFF across 8+ files. -->
+    <SolidColorBrush x:Key="SemiTransparentBadgeBrush" Color="#22FFFFFF"/>
+
+</ResourceDictionary>

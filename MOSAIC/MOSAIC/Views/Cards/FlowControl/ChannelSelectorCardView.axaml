@@ -1,0 +1,171 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:flowControl="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    xmlns:scope="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.FlowControl.ChannelSelectorCardView"
+    x:DataType="flowControl:ChannelSelectorViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding ChannelSelector.Name}" Classes="cardTitle"/>
+                        <!-- Category badge - FlowControl -->
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="SELECTOR" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="{Binding ChannelSelector.FrequencyText}" Classes="cardSubtitle"/>
+                        <TextBlock Text="•" FontSize="11" Foreground="{DynamicResource ThemeTextDimmedBrush}"/>
+                        <TextBlock Text="{Binding SelectionSummary}" Classes="cardSubtitle"
+                                   Foreground="{StaticResource CategoryFlowControlBrush}" FontWeight="Medium"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding ChannelSelector.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ChannelSelector.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Channel Selection Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+
+                    <!-- Section Header with Actions -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="CHANNEL SELECTION" Classes="sectionLabel"
+                                   VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                            <Button Content="All" Command="{Binding SelectAllCommand}"
+                                    Background="{StaticResource CategoryFlowControlBrush}" Foreground="White"
+                                    Padding="8,3" CornerRadius="4"
+                                    FontSize="10" FontWeight="SemiBold"
+                                    ToolTip.Tip="Select all channels"/>
+                            <Button Content="None" Command="{Binding DeselectAllCommand}"
+                                    Background="{DynamicResource ThemeSurfaceBrush}"
+                                    Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                    Padding="8,3" CornerRadius="4"
+                                    FontSize="10" FontWeight="SemiBold"
+                                    ToolTip.Tip="Deselect all channels"/>
+                            <Button Content="Invert" Command="{Binding InvertSelectionCommand}"
+                                    Background="{DynamicResource ThemeSurfaceBrush}"
+                                    Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                    Padding="8,3" CornerRadius="4"
+                                    FontSize="10" FontWeight="SemiBold"
+                                    ToolTip.Tip="Invert selection"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Channel Grid with Colors -->
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" Padding="8" MinHeight="50">
+                        <ScrollViewer MaxHeight="100" 
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Channels}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- Channel pill with color indicator -->
+                                        <Border Background="{Binding BackgroundBrush}"
+                                                BorderBrush="#000000"
+                                                BorderThickness="1"
+                                                CornerRadius="4" 
+                                                Padding="6,4" 
+                                                Margin="2" 
+                                                Cursor="Hand"
+                                                PointerPressed="OnChannelClicked"
+                                                ToolTip.Tip="{Binding DisplayName}">
+                                            <!-- Use a Grid to layer shadow text behind main text -->
+                                            <Grid>
+                                                <!-- Shadow/outline (slightly offset dark text) -->
+                                                <TextBlock Text="{Binding ShortLabel}"
+                                                           FontSize="11" 
+                                                           FontWeight="Bold"
+                                                           Foreground="#000000"
+                                                           Opacity="0.7"
+                                                           HorizontalAlignment="Center"
+                                                           MinWidth="16"
+                                                           TextAlignment="Center"
+                                                           Margin="1,1,0,0"/>
+                                                <!-- Main text -->
+                                                <TextBlock Text="{Binding ShortLabel}"
+                                                           FontSize="11" 
+                                                           FontWeight="Bold"
+                                                           Foreground="{Binding ForegroundBrush}"
+                                                           HorizontalAlignment="Center"
+                                                           MinWidth="16"
+                                                           TextAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                    
+                    <!-- Legend hint -->
+                    <TextBlock Text="Click channel to toggle • Border color matches scope line"
+                               Classes="hint" HorizontalAlignment="Center"/>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Output Mode Section -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Text="OUTPUT MODE" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding OutputModeText}" FontSize="12"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ChannelSelector.OutputDimension, StringFormat='→ {0} ch'}"
+                               FontSize="11" Foreground="{StaticResource CategoryFlowControlBrush}" FontWeight="Medium"
+                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                    <ToggleSwitch Grid.Column="2"
+                                  IsChecked="{Binding ChannelSelector.DeleteChannel}"
+                                  OnContent="Remove" OffContent="Zero"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Scope Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="OUTPUT SIGNAL" Classes="sectionLabel"/>
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" ClipToBounds="False" MinHeight="200">
+                        <visualization:VisualizationPanel Source="{Binding ChannelSelector.Viz}" ScopeVisibleByDefault="True" 
+                                                ShowScopeViewModeToggle="True" MinHeight="200"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Drop-in: dense, smaller, more faded dots; NO background -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+	 id="Layer_1" x="0px" y="0px"
+	 width="576" height="576"
+	 viewBox="0 0 288.001 288"
+	 xml:space="preserve">
+  <defs>
+    <!-- Dense spacing (4.8), slightly smaller dots (r=0.6), more fade via lower opacity -->
+	  <pattern id="dense-dots" patternUnits="userSpaceOnUse" width="4.8" height="4.8">
+      <circle cx="2.4" cy="2.4" r="0.6" fill="#444444" fill-opacity="0.35"/>
+    </pattern>
+  </defs>
+
+	<!-- Transparent background; only the dot pattern renders -->
+	<rect x="0" y="0" width="288.001" height="288" fill="url(#dense-dots)"/>
+</svg>

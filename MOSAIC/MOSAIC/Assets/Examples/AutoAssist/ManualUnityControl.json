@@ -1,0 +1,17 @@
+﻿{
+  "Clock":         
+    { 
+      "Type": "Clock",                 
+      "DesiredRate": 30
+    },
+  "ManualControl": 
+    { 
+      "Type": "ManualControl",         
+      "Inputs": ["Clock"]
+    },
+  "UdpToUnity": {
+    "Type": "UDPStreamlinedSender",
+    "Inputs": ["ManualControl"],
+    "Params": ["localhost", 11000, "mode:fingers"]
+  }
+}

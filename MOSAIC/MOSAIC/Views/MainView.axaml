@@ -1,0 +1,355 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:v="clr-namespace:MOSAIC.Views"
+    xmlns:palette="clr-namespace:MOSAIC.Views.Palette"
+    xmlns:sel="clr-namespace:MOSAIC.Selector"
+    xmlns:primitives="clr-namespace:Avalonia.Controls.Primitives;assembly=Avalonia.Controls"
+    xmlns:g="clr-namespace:MOSAIC.Views"
+    x:Class="MOSAIC.Views.MainView"
+    x:Name="Root"
+    x:CompileBindings="False">
+
+    <UserControl.Resources>
+        <sel:BlockTemplateSelector x:Key="BlockSelector" />
+    </UserControl.Resources>
+
+    <Panel>
+    <SplitView x:Name="Drawer"
+               IsPaneOpen="False"
+               DisplayMode="Inline"
+               OpenPaneLength="600"
+               CompactPaneLength="0"
+               PanePlacement="Left">
+
+        <!-- Drawer (left) -->
+        <SplitView.Pane>
+            <DockPanel Background="{DynamicResource ThemeBackgroundAltBrush}" LastChildFill="True">
+
+                <!-- Header -->
+                <Border Background="{DynamicResource ThemeAccentBrush}" Height="50" DockPanel.Dock="Top" Padding="16,0">
+                    <TextBlock Text="Blocks Overview" 
+                               VerticalAlignment="Center" 
+                               FontSize="15" 
+                               FontWeight="SemiBold"
+                               Foreground="White" />
+                </Border>
+
+                <!-- Resize Grip -->
+                <primitives:Thumb x:Name="ResizeGrip"
+                                  DockPanel.Dock="Right"
+                                  Width="6"
+                                  Cursor="SizeWestEast"
+                                  ZIndex="1"
+                                  DragDelta="OnResizeDragDelta">
+                    <primitives:Thumb.Template>
+                        <ControlTemplate>
+                            <Border Background="{TemplateBinding Background}">
+                                <Grid>
+                                    <Border HorizontalAlignment="Left"
+                                            Width="1"
+                                            Background="{DynamicResource ThemeBorderBrush}" />
+
+                                    <StackPanel x:Name="GripStack"
+                                                Orientation="Vertical"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Spacing="3"
+                                                Opacity="0.5">
+                                        <Border Width="2" Height="16" Background="{DynamicResource ThemeTextMutedBrush}" CornerRadius="1" />
+                                        <Border Width="2" Height="16" Background="{DynamicResource ThemeTextMutedBrush}" CornerRadius="1" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </primitives:Thumb.Template>
+                </primitives:Thumb>
+
+                <!-- Block List -->
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Blocks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <v:ExpanderItem HorizontalAlignment="Stretch"
+                                                ContentTemplate="{StaticResource BlockSelector}"
+                                                DeleteRequested="OnBlockDeleteRequested" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </SplitView.Pane>
+
+
+
+        <!-- Main content wrapped in right SplitView -->
+        <SplitView x:Name="RightDrawer"
+                   IsPaneOpen="False"
+                   DisplayMode="Inline"
+                   OpenPaneLength="600"
+                   CompactPaneLength="0"
+                   PanePlacement="Right">
+
+            <!-- Right Drawer Pane -->
+            <SplitView.Pane>
+                <Grid>
+                    <!-- New block palette + search; drag a block onto the canvas to add it. -->
+                    <palette:BlockPaletteView CloseRequested="OnBuildingComponentsCloseRequested" />
+
+                    <!-- Old add-block panel kept present but hidden so MainView's code-behind
+                         references to BuildingComponents still resolve; replaced properly in step 6. -->
+                    <v:BuildingComponentsPanel x:Name="BuildingComponents"
+                                               IsVisible="False"
+                                               Blocks="{Binding #Root.Blocks}"
+                                               Vertices="{Binding #Root.Vertices}"
+                                               GraphCanvas="{Binding #Graph}"
+                                               CloseRequested="OnBuildingComponentsCloseRequested"
+                                               ResizeDrag="OnBuildingComponentsResizeDrag" />
+                </Grid>
+            </SplitView.Pane>
+
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <!-- Header -->
+                <Border x:Name="DesktopHeader"
+                        Grid.Row="0" Background="{DynamicResource ThemeAccentBrush}" Height="50">
+                    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto">
+
+                        <!-- Hamburger Menu -->
+                        <Button Grid.Column="0"
+                                Width="50" Height="50"
+                                Click="OnHamburgerClicked"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Center">
+                            <!-- Hamburger Icon (3 lines) -->
+                            <StackPanel Spacing="4" Width="20">
+                                <Border Height="2" Background="White" CornerRadius="1"/>
+                                <Border Height="2" Background="White" CornerRadius="1"/>
+                                <Border Height="2" Background="White" CornerRadius="1"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Open Config Button (folder icon) -->
+                        <Button x:Name="OpenConfigButton"
+                                Grid.Column="1"
+                                Width="44" Height="44"
+                                Margin="0,0,4,0"
+                                Click="OnOpenConfigClicked"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                ToolTip.Tip="Open config file"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Center">
+                            <Viewbox Width="20" Height="20">
+                                <Path Fill="White"
+                                      Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"/>
+                            </Viewbox>
+                        </Button>
+
+                        <!-- Recording folder. Picked once here; every block whose settings menu has
+                             recording switched on writes into a timestamped session under it, so a
+                             path is never typed per block. -->
+                        <Button x:Name="RecordingFolderButton"
+                                Grid.Column="2"
+                                Height="34"
+                                Margin="4,0,8,0"
+                                Padding="10,0"
+                                VerticalAlignment="Center"
+                                Click="OnRecordingFolderClicked"
+                                BorderThickness="1"
+                                BorderBrush="#55FFFFFF"
+                                Background="Transparent"
+                                Foreground="White">
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Ellipse x:Name="RecordingFolderDot"
+                                         Width="10" Height="10"
+                                         Fill="White" Opacity="0.45" />
+                                <TextBlock x:Name="RecordingFolderText"
+                                           Text="Set recording folder…"
+                                           FontSize="12"
+                                           MaxWidth="180"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Logo -->
+                        <TextBlock Grid.Column="3"
+                                   Text="MOSAIC"
+                                   VerticalAlignment="Center"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   LetterSpacing="2"/>
+
+                        <!-- Grid Style Selector -->
+                        <ComboBox x:Name="GridStyleComboBox"
+                                  Grid.Column="4"
+                                  Width="120"
+                                  Margin="0,0,8,0"
+                                  VerticalAlignment="Center"
+                                  SelectedIndex="0"
+                                  SelectionChanged="OnGridStyleChanged">
+                            <ComboBoxItem Content="Dots"/>
+                            <ComboBoxItem Content="Lines"/>
+                            <ComboBoxItem Content="Crosshairs"/>
+                            <ComboBoxItem Content="None"/>
+                        </ComboBox>
+
+                        <!-- Theme Toggle (Sun/Moon) -->
+                        <Button x:Name="ThemeToggleButton"
+                                Grid.Column="5"
+                                Width="44" Height="44"
+                                Margin="0,0,8,0"
+                                Click="OnThemeToggleClicked"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                ToolTip.Tip="Toggle theme"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Center">
+                            <Panel>
+                                <!-- Moon Icon (visible in Dark mode) -->
+                                <Viewbox x:Name="MoonIcon" Width="20" Height="20">
+                                    <Path Fill="White"
+                                          Data="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                                </Viewbox>
+
+                                <!-- Sun Icon (visible in Light mode, hidden by default) -->
+                                <Viewbox x:Name="SunIcon" Width="20" Height="20" IsVisible="False">
+                                    <Canvas Width="240" Height="240">
+                                        <Path Fill="White"
+                                              Data="M58.57,25.81c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8l9.88,17.1c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8L58.57,25.81L58.57,25.81z M120,51.17c19.01,0,36.21,7.7,48.67,20.16 C181.12,83.79,188.83,101,188.83,120c0,19.01-7.7,36.21-20.16,48.67c-12.46,12.46-29.66,20.16-48.67,20.16 c-19.01,0-36.21-7.7-48.67-20.16C58.88,156.21,51.17,139.01,51.17,120c0-19.01,7.7-36.21,20.16-48.67 C83.79,58.88,101,51.17,120,51.17L120,51.17z M158.27,81.73c-9.79-9.79-23.32-15.85-38.27-15.85c-14.95,0-28.48,6.06-38.27,15.85 c-9.79,9.79-15.85,23.32-15.85,38.27c0,14.95,6.06,28.48,15.85,38.27c9.79,9.79,23.32,15.85,38.27,15.85 c14.95,0,28.48-6.06,38.27-15.85c9.79-9.79,15.85-23.32,15.85-38.27C174.12,105.05,168.06,91.52,158.27,81.73L158.27,81.73z M113.88,7.71c0-4.26,3.45-7.71,7.71-7.71c4.26,0,7.71,3.45,7.71,7.71v19.75c0,4.26-3.45,7.71-7.71,7.71 c-4.26,0-7.71-3.45-7.71-7.71V7.71L113.88,7.71z M170.87,19.72c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48 l-9.88,17.1c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48L170.87,19.72L170.87,19.72z M214.19,58.57 c3.67-2.13,8.38-0.87,10.51,2.8c2.13,3.67,0.88,8.38-2.8,10.51l-17.1,9.88c-3.67,2.13-8.38,0.87-10.51-2.8 c-2.13-3.67-0.88-8.38,2.8-10.51L214.19,58.57L214.19,58.57z M232.29,113.88c4.26,0,7.71,3.45,7.71,7.71 c0,4.26-3.45,7.71-7.71,7.71h-19.75c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71H232.29L232.29,113.88z M220.28,170.87 c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83l-17.1-9.88c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83L220.28,170.87L220.28,170.87z M181.43,214.19c2.13,3.67,0.87,8.38-2.8,10.51 c-3.67,2.13-8.38,0.88-10.51-2.8l-9.88-17.1c-2.13-3.67-0.87-8.38,2.8-10.51c3.67-2.13,8.38-0.88,10.51,2.8L181.43,214.19 L181.43,214.19z M126.12,232.29c0,4.26-3.45,7.71-7.71,7.71c-4.26,0-7.71-3.45-7.71-7.71v-19.75c0-4.26,3.45-7.71,7.71-7.71 c4.26,0,7.71,3.45,7.71,7.71V232.29L126.12,232.29z M69.13,220.28c-2.11,3.67-6.8,4.94-10.48,2.83c-3.67-2.11-4.94-6.8-2.83-10.48 l9.88-17.1c2.11-3.67,6.8-4.94,10.48-2.83c3.67,2.11,4.94,6.8,2.83,10.48L69.13,220.28L69.13,220.28z M25.81,181.43 c-3.67,2.13-8.38,0.87-10.51-2.8c-2.13-3.67-0.88-8.38,2.8-10.51l17.1-9.88c3.67-2.13,8.38-0.87,10.51,2.8 c2.13,3.67,0.88,8.38-2.8,10.51L25.81,181.43L25.81,181.43z M7.71,126.12c-4.26,0-7.71-3.45-7.71-7.71c0-4.26,3.45-7.71,7.71-7.71 h19.75c4.26,0,7.71,3.45,7.71,7.71c0,4.26-3.45,7.71-7.71,7.71H7.71L7.71,126.12z M19.72,69.13c-3.67-2.11-4.94-6.8-2.83-10.48 c2.11-3.67,6.8-4.94,10.48-2.83l17.1,9.88c3.67,2.11,4.94,6.8,2.83,10.48c-2.11,3.67-6.8,4.94-10.48,2.83L19.72,69.13L19.72,69.13z"/>
+                                    </Canvas>
+                                </Viewbox>
+                            </Panel>
+                        </Button>
+
+                        <!-- Log Panel Toggle -->
+                        <Button x:Name="LogToggleButton"
+                                Grid.Column="6"
+                                Width="44" Height="44"
+                                Margin="0,0,8,0"
+                                Click="OnLogToggleClicked"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                ToolTip.Tip="Show log"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Center">
+                            <Viewbox Width="20" Height="20">
+                                <Path Fill="White"
+                                      Data="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,9H18V11H6V9M6,13H15V15H6V13Z"/>
+                            </Viewbox>
+                        </Button>
+
+                        <!-- Right Drawer Toggle -->
+                        <Button x:Name="RightDrawerButton"
+                                Grid.Column="7"
+                                Width="44" Height="44"
+                                Margin="0,0,8,0"
+                                Click="OnRightDrawerClicked"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                ToolTip.Tip="Toggle right panel"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Center">
+                            <Viewbox Width="22" Height="22">
+                                <Canvas Width="122.88" Height="103.91">
+                                    <Path Fill="White"
+                                          Data="M49.74,0h23.39c7.28,0,13.23,5.95,13.23,13.23v7.06h-8.43V13.2c0-2.55-2.09-4.63-4.63-4.63H49.58 c-2.55,0-4.63,2.09-4.63,4.63v7.09h-8.43v-7.06C36.51,5.95,42.47,0,49.74,0L49.74,0z M11.75,22.79h3.87v81.12h-3.87 C5.29,103.91,0,98.62,0,92.15V34.54C0,28.08,5.29,22.79,11.75,22.79L11.75,22.79z M62.9,48.12c-1.14-0.44-2.31-0.68-3.52-0.68 c-1.82,0-3.32,0.58-4.49,1.74L44.76,59.3l1.06,1.06l-3.85,3.87l-6.47-6.48l3.85-3.85l1.19,1.17l10.07-10.07 c1.39-1.38,2.87-2.06,4.46-2.06C57.74,42.95,60.35,44.67,62.9,48.12L62.9,48.12L62.9,48.12z M74.01,62.82l-5.06,5.06l11.47,10.94 l-4.91,4.92c-4.32-4.09-7.12-7.03-11.29-11.13L53.88,82.95c-1.82-1.82-2.85-2.85-4.67-4.67l9.81-9.81L48.63,57.6l4.66-4.66 c3.8,3.1,7.59,6.81,11.02,10.24L69.49,58c-0.41-1.06-1.02-2.6-1.02-3.8c0-6.8,6.37-10.97,12.55-8.81 c-10.16,5.82,0.8,14.94,6.06,6.56c1.53,5.9-2.83,11.92-9.2,11.93C76.65,63.87,75.09,63.24,74.01,62.82L74.01,62.82z M20.75,22.79 h4.33h0.42h70.34h0.42h5.88v81.12h-5.88h-0.42H25.49h-0.42h-4.33V22.79L20.75,22.79z M107.26,22.79h3.87 c6.46,0,11.75,5.29,11.75,11.75v57.61c0,6.46-5.29,11.75-11.75,11.75h-3.87V22.79L107.26,22.79z"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+
+                    </Grid>
+                </Border>
+
+                <!-- Graph fills remaining space -->
+                <g:GraphCanvas Grid.Row="1"
+                               x:Name="Graph"
+                               Background="{DynamicResource ThemeCanvasBrush}"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Stretch"
+                               Vertices="{Binding Vertices}" />
+
+                <!-- Log strip. It lives inside the right drawer's content grid so that opening
+                     either drawer shrinks it rather than covering it — both SplitViews are Inline. -->
+                <v:LogPanelView Grid.Row="2"
+                                x:Name="LogPanel"
+                                IsVisible="False"
+                                CloseRequested="OnLogPanelCloseRequested" />
+            </Grid>
+
+        </SplitView>
+
+    </SplitView>
+
+    <!-- Scope Monitor FAB -->
+    <Button x:Name="MonitorFab"
+            Width="52" Height="52"
+            CornerRadius="26"
+            Padding="0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Margin="0,0,24,24"
+            Click="OnMonitorFabClicked"
+            Background="{DynamicResource ThemeAccentBrush}"
+            BorderThickness="0"
+            ToolTip.Tip="Open Scope Monitor"
+            IsVisible="False"
+            ZIndex="100">
+        <Viewbox Width="26" Height="26">
+            <Canvas Width="118" Height="79">
+                <Path Fill="White"
+                      Data="M99.61,0V21.93l-1,0c-.87,0-1.74.05-2.59.13V3.56H3.56v50H73.17a26.37,26.37,0,0,0,1.39,4.39,26,26,0,0,0,5.34,8.18H65.52v6.66h10v6.34H23.92V72.75H34.59V66.09H0V0ZM98.8,29a19.18,19.18,0,0,1,16.42,29l7.42,8.08a.92.92,0,0,1-.06,1.3l-5.44,5a.93.93,0,0,1-1.3-.06l-7.09-7.81a19.08,19.08,0,0,1-10,2.79,19.06,19.06,0,0,1-7.33-1.46l0,0a19.17,19.17,0,0,1-10.34-25l0,0A19.23,19.23,0,0,1,91.47,30.45,19.05,19.05,0,0,1,98.8,29Zm10.77,8.3a15.31,15.31,0,0,0-24.9,5l0,0a15.35,15.35,0,0,0-1.14,5.81A15.1,15.1,0,0,0,84.67,54,15.26,15.26,0,0,0,88,59a15.49,15.49,0,0,0,5,3.32l0,0A15.3,15.3,0,0,0,112.93,54l0,0a15.27,15.27,0,0,0-3.34-16.61l0-.05Zm-33.11-3H74.89a1.4,1.4,0,0,1-1.38-1.17l-2.2-11L68.15,33.65a1.39,1.39,0,0,1-1.7,1,1.37,1.37,0,0,1-.9-.77L62.44,27l-2.26,5.54a1.39,1.39,0,0,1-1.29.87H54.81a1.4,1.4,0,0,1-1.32-.94L51.26,27l-3.1,6.85a1.39,1.39,0,0,1-2.64-.3L42.39,22.1l-4.5,22.57a1.4,1.4,0,0,1-2.73,0L30.58,30.47l-1,2.51a1.39,1.39,0,0,1-1.29.87H11.74a1.4,1.4,0,1,1,0-2.79H27.35l2.09-5.22a1.39,1.39,0,0,1,2.61.09L36.2,38.86l4.61-23.09a1.41,1.41,0,0,1,1-1.07,1.38,1.38,0,0,1,1.7,1L47.21,29.2l2.84-6.27a1.36,1.36,0,0,1,.76-.73,1.38,1.38,0,0,1,1.81.77l3.13,7.66H58L61.08,23a1.36,1.36,0,0,1,.72-.75,1.39,1.39,0,0,1,1.84.7l2.85,6.28,3.66-13.41a1.39,1.39,0,0,1,2.74,0L76,31.52h2.41a27.09,27.09,0,0,0-2,2.79Zm-30,23.06h6.58a1.25,1.25,0,0,1,1.26,1.26h0a1.27,1.27,0,0,1-1.26,1.26H46.49a1.27,1.27,0,0,1-1.26-1.26h0a1.26,1.26,0,0,1,1.26-1.26Zm11.38,0h1.21a1.26,1.26,0,0,1,1.27,1.26h0a1.27,1.27,0,0,1-1.27,1.26H57.87a1.27,1.27,0,0,1-1.26-1.26h0a1.26,1.26,0,0,1,1.26-1.26Zm-17.34,0h1.21A1.25,1.25,0,0,1,43,58.63h0a1.26,1.26,0,0,1-1.26,1.26H40.53a1.27,1.27,0,0,1-1.26-1.26h0a1.26,1.26,0,0,1,1.26-1.26Z"/>
+            </Canvas>
+        </Viewbox>
+    </Button>
+    </Panel>
+
+    <UserControl.Styles>
+        <!-- Resize grip styles -->
+        <Style Selector="primitives|Thumb#ResizeGrip">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="primitives|Thumb#ResizeGrip:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeBorderBrush}" />
+        </Style>
+        <Style Selector="primitives|Thumb#ResizeGrip:pointerover /template/ StackPanel#GripStack">
+            <Setter Property="Opacity" Value="0.85" />
+        </Style>
+        <Style Selector="primitives|Thumb#ResizeGrip:pressed">
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentMutedBrush}" />
+        </Style>
+        <Style Selector="primitives|Thumb#ResizeGrip:pressed /template/ StackPanel#GripStack">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+        
+        <!-- Theme toggle button hover -->
+        <Style Selector="Button#ThemeToggleButton:pointerover">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+        </Style>
+        <!-- Open config button hover -->
+        <Style Selector="Button#OpenConfigButton:pointerover">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+        </Style>
+        <!-- Log toggle button hover -->
+        <Style Selector="Button#LogToggleButton:pointerover">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+        </Style>
+        <!-- Right drawer button hover -->
+        <Style Selector="Button#RightDrawerButton:pointerover">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+        </Style>
+        <!-- Monitor FAB: no hover/pressed effects -->
+        <Style Selector="Button#MonitorFab:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}"/>
+        </Style>
+        <Style Selector="Button#MonitorFab:pressed">
+            <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

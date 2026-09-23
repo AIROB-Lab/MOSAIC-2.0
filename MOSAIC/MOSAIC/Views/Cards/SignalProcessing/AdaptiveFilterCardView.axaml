@@ -1,0 +1,185 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="clr-namespace:MOSAIC.Models"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.AdaptiveFilterCardView"
+    x:DataType="vm:AdaptiveFilterViewModel">
+
+    <UserControl.Resources>
+       <conv:StatusToColorConverter x:Key="StatusToColor" />
+    </UserControl.Resources>
+
+    <Border Classes="card" MinHeight="400">
+
+       <Grid RowDefinitions="Auto,Auto,*" ColumnDefinitions="*" RowSpacing="12">
+
+          <!-- Header Section -->
+          <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+             <StackPanel Grid.Column="0" Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                   <TextBlock Text="{Binding AdaptiveFilter.Name}"
+                             Classes="cardTitle"/>
+                   <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                      <TextBlock Text="FILTER" FontSize="10" FontWeight="Bold" Foreground="White"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                   </Border>
+                </StackPanel>
+                <TextBlock Text="{Binding AdaptiveFilter.FrequencyText}"
+                          Classes="cardSubtitle"/>
+             </StackPanel>
+             
+             <Border Grid.Column="1" 
+                     Background="{Binding AdaptiveFilter.Status, Converter={StaticResource StatusToColor}}"
+                     CornerRadius="14"
+                     Padding="14,6"
+                     VerticalAlignment="Center">
+                <TextBlock Text="{Binding AdaptiveFilter.Status}" 
+                          FontWeight="SemiBold" 
+                          Foreground="White" 
+                          FontSize="11"
+                          TextAlignment="Center"/>
+             </Border>
+          </Grid>
+
+          <Border Grid.Row="1" Classes="divider"/>
+
+          <!-- Controls Section -->
+          <ScrollViewer Grid.Row="2" 
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
+             <StackPanel Spacing="12" Margin="0,4,0,0">
+
+                <!-- Cutoff Frequency Display -->
+                <Border Classes="cardSection">
+                   <StackPanel Spacing="4">
+                      <TextBlock Text="CUTOFF FREQUENCY" Classes="sectionLabel"/>
+                      <TextBlock Text="{Binding AdaptiveFilter.CutoffFrequency, StringFormat='{}{0:F1} Hz'}"
+                                FontSize="24"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                   </StackPanel>
+                </Border>
+
+                <!-- Parameter Controls -->
+                <Border Classes="cardSection">
+                   <StackPanel Spacing="16">
+
+                      <TextBlock Text="PARAMETERS" Classes="sectionLabel"/>
+                      
+                      <!-- Alpha Slider -->
+                      <StackPanel Spacing="8">
+                         <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                      Text="Derivative Memory Coefficient"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6"
+                                    Padding="10,4"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                    BorderThickness="1">
+                               <TextBlock Text="{Binding AdaptiveFilter.Alpha, StringFormat='{}{0:F1}/10'}"
+                                         FontSize="12"
+                                         FontWeight="Bold"
+                                         Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                            </Border>
+                         </Grid>
+                         <Slider Minimum="0" Maximum="10" 
+                                 Value="{Binding AdaptiveFilter.Alpha}"
+                                 TickFrequency="1"
+                                 IsSnapToTickEnabled="False"
+                                 HorizontalAlignment="Stretch"/>
+                      </StackPanel>
+
+                      <!-- Offset Slider -->
+                      <StackPanel Spacing="8">
+                         <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                      Text="Offset"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6"
+                                    Padding="10,4"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                    BorderThickness="1">
+                               <TextBlock Text="{Binding AdaptiveFilter.Offset, StringFormat='{}{0:F2}'}"
+                                         FontSize="12"
+                                         FontWeight="Bold"
+                                         Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                            </Border>
+                         </Grid>
+                         <Slider Minimum="-5" Maximum="5" 
+                                 Value="{Binding AdaptiveFilter.Offset}"
+                                 TickFrequency="0.5"
+                                 IsSnapToTickEnabled="False"
+                                 HorizontalAlignment="Stretch"/>
+                      </StackPanel>
+
+                      <!-- Magnitude Slider -->
+                      <StackPanel Spacing="8">
+                         <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                      Text="Magnitude Contribution"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6"
+                                    Padding="10,4"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                    BorderThickness="1">
+                               <TextBlock Text="{Binding AdaptiveFilter.Magnitude, StringFormat='{}{0:F1} dB'}"
+                                         FontSize="12"
+                                         FontWeight="Bold"
+                                         Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                            </Border>
+                         </Grid>
+                         <Slider Minimum="-40" Maximum="0" 
+                                 Value="{Binding AdaptiveFilter.Magnitude}"
+                                 TickFrequency="5"
+                                 IsSnapToTickEnabled="False"
+                                 HorizontalAlignment="Stretch"/>
+                      </StackPanel>
+
+                      <!-- Derivative Slider -->
+                      <StackPanel Spacing="8">
+                         <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0"
+                                      Text="Derivative Contribution"
+                                      FontSize="13"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6"
+                                    Padding="10,4"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                    BorderThickness="1">
+                               <TextBlock Text="{Binding AdaptiveFilter.Deriviate, StringFormat='{}{0:F1}'}"
+                                         FontSize="12"
+                                         FontWeight="Bold"
+                                         Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                            </Border>
+                         </Grid>
+                         <Slider Minimum="0" Maximum="40" 
+                                 Value="{Binding AdaptiveFilter.Deriviate}"
+                                 TickFrequency="5"
+                                 IsSnapToTickEnabled="False"
+                                 HorizontalAlignment="Stretch"/>
+                      </StackPanel>
+
+                   </StackPanel>
+                </Border>
+             </StackPanel>
+          </ScrollViewer>
+       </Grid>
+    </Border>
+</UserControl>

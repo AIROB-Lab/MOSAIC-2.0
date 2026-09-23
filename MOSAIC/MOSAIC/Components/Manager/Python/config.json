@@ -1,0 +1,16 @@
+﻿{
+  "pythonDllByOS": {
+    "windows": "%MOSAIC_PYTHON_DLL%",
+    "linux": "%MOSAIC_PYTHON_DLL%",
+    "osx": "%MOSAIC_PYTHON_DLL%"
+  },
+
+  "sitePackagesByOS": {
+    "windows": "%MOSAIC_PYTHON_SITE_PACKAGES%",
+    "linux": "%MOSAIC_PYTHON_SITE_PACKAGES%",
+    "osx": "%MOSAIC_PYTHON_SITE_PACKAGES%"
+  },
+
+  "loadScriptsPath": "%MOSAIC_PYTHON_SCRIPTS%"
+}
+

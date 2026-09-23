@@ -1,0 +1,69 @@
+﻿<UserControl
+    x:Class="MOSAIC.Views.GraphCanvas"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="clr-namespace:MOSAIC.Views"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450">
+
+    <Border x:Name="Root" 
+            Background="{DynamicResource ThemeCanvasBrush}" 
+            ClipToBounds="True">
+        <Panel ClipToBounds="True">
+            
+            <!-- Programmatic grid background -->
+            <views:GridPatternControl x:Name="GridPattern"
+                                      IsHitTestVisible="False"
+                                      GridSize="40"
+                                      DotSize="2"/>
+
+            <Canvas x:Name="PanHost">
+                <Canvas x:Name="RootCanvas" Background="Transparent"/>
+            </Canvas>
+            
+            <!-- Rubber-band selection rectangle -->
+            <Border x:Name="SelectionRect"
+                    IsVisible="False"
+                    IsHitTestVisible="False"
+                    Background="#1868A8F0"
+                    BorderBrush="#6868A8F0"
+                    BorderThickness="1"
+                    CornerRadius="2"/>
+            
+            <!-- ═══ Floating toolbar for group actions ═══ -->
+            <Border x:Name="GroupToolbar"
+                    IsVisible="False"
+                    IsHitTestVisible="True"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16"
+                    Background="{DynamicResource ThemeSurfaceBrush}"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="4,4"
+                    BoxShadow="0 4 16 0 #40000000">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="GroupBtn"
+                            Content="Group Selected"
+                            FontSize="11" FontWeight="SemiBold"
+                            Padding="12,6"
+                            CornerRadius="6"
+                            Background="{DynamicResource ThemeAccentBrush}"
+                            Foreground="White"
+                            Click="OnGroupClicked"/>
+                    <Button x:Name="UngroupBtn"
+                            Content="Ungroup"
+                            FontSize="11" FontWeight="SemiBold"
+                            Padding="12,6"
+                            CornerRadius="6"
+                            IsVisible="False"
+                            Click="OnUngroupClicked"/>
+                </StackPanel>
+            </Border>
+        </Panel>
+    </Border>
+</UserControl>

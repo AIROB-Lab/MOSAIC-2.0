@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="595.275591pt" height="243.779528pt" viewBox="0 0 595.275591 243.779528" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-09-11T16:35:27.471321</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.9.4, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 243.779528 
+L 595.275591 243.779528 
+L 595.275591 0 
+L 0 0 
+z
+" style="fill: #1f1f23"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 22.677165 147.401575 
+L 130.393701 147.401575 
+Q 136.062992 147.401575 136.062992 141.732283 
+L 136.062992 90.708661 
+Q 136.062992 85.03937 130.393701 85.03937 
+L 22.677165 85.03937 
+Q 17.007874 85.03937 17.007874 90.708661 
+L 17.007874 141.732283 
+Q 17.007874 147.401575 22.677165 147.401575 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #292b30; stroke: #42c8ff; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 170.07874 147.401575 
+L 277.795276 147.401575 
+Q 283.464567 147.401575 283.464567 141.732283 
+L 283.464567 90.708661 
+Q 283.464567 85.03937 277.795276 85.03937 
+L 170.07874 85.03937 
+Q 164.409449 85.03937 164.409449 90.708661 
+L 164.409449 141.732283 
+Q 164.409449 147.401575 170.07874 147.401575 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #292b30; stroke: #42c8ff; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 317.480315 147.401575 
+L 425.19685 147.401575 
+Q 430.866142 147.401575 430.866142 141.732283 
+L 430.866142 90.708661 
+Q 430.866142 85.03937 425.19685 85.03937 
+L 317.480315 85.03937 
+Q 311.811024 85.03937 311.811024 90.708661 
+L 311.811024 141.732283 
+Q 311.811024 147.401575 317.480315 147.401575 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #292b30; stroke: #42c8ff; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 138.059563 116.220472 
+Q 150.23577 116.220472 161.293944 116.220472 
+" clip-path="url(#pa0c718dbd8)" style="fill: none; stroke: #f0bc66; stroke-linecap: round"/>
+    <path d="M 157.693944 114.420472 
+L 161.293944 116.220472 
+L 157.693944 118.020472 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #f0bc66; stroke: #f0bc66; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 285.461137 116.220472 
+Q 297.637345 116.220472 308.695519 116.220472 
+" clip-path="url(#pa0c718dbd8)" style="fill: none; stroke: #f0bc66; stroke-linecap: round"/>
+    <path d="M 305.095519 114.420472 
+L 308.695519 116.220472 
+L 305.095519 118.020472 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #f0bc66; stroke: #f0bc66; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 473.385827 104.88189 
+L 572.598425 104.88189 
+Q 578.267717 104.88189 578.267717 99.212598 
+L 578.267717 53.858268 
+Q 578.267717 48.188976 572.598425 48.188976 
+L 473.385827 48.188976 
+Q 467.716535 48.188976 467.716535 53.858268 
+L 467.716535 99.212598 
+Q 467.716535 104.88189 473.385827 104.88189 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #292b30; stroke: #42c8ff; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 473.385827 187.086614 
+L 572.598425 187.086614 
+Q 578.267717 187.086614 578.267717 181.417323 
+L 578.267717 136.062992 
+Q 578.267717 130.393701 572.598425 130.393701 
+L 473.385827 130.393701 
+Q 467.716535 130.393701 467.716535 136.062992 
+L 467.716535 181.417323 
+Q 467.716535 187.086614 473.385827 187.086614 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #292b30; stroke: #42c8ff; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 432.226889 114.755052 
+Q 449.290469 96.378889 465.593281 78.822015 
+" clip-path="url(#pa0c718dbd8)" style="fill: none; stroke: #f0bc66; stroke-linecap: round"/>
+    <path d="M 461.824629 80.235259 
+L 465.593281 78.822015 
+L 464.462685 82.684883 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #f0bc66; stroke: #f0bc66; stroke-linecap: round"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 432.177408 117.733471 
+Q 449.292977 137.482205 465.676312 156.386053 
+" clip-path="url(#pa0c718dbd8)" style="fill: none; stroke: #f0bc66; stroke-linecap: round"/>
+    <path d="M 464.678802 152.486697 
+L 465.676312 156.386053 
+L 461.958321 154.844447 
+z
+" clip-path="url(#pa0c718dbd8)" style="fill: #f0bc66; stroke: #f0bc66; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="fill: #e1e1e1; font: 700 11px 'DejaVu Sans', Arial, sans-serif; text-anchor: start" x="17.007874" y="22.834863" transform="rotate(-0 17.007874 22.834863)">Signal processing: follow each output</text>
+   </g>
+   <g id="text_2">
+    <text style="fill: #b9c4d2; font: 8px 'DejaVu Sans', Arial, sans-serif; text-anchor: start" x="17.007874" y="44.727185" transform="rotate(-0 17.007874 44.727185)">Clock supplies 256 ticks/s to Signal. One channel; arbitrary amplitude units.</text>
+   </g>
+   <g id="text_3">
+    <text style="fill: #e1e1e1; font: 700 9px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="76.535433" y="104.495525" transform="rotate(-0 76.535433 104.495525)">Signal</text>
+   </g>
+   <g id="text_4">
+    <text style="fill: #b9c4d2; font: 7.2px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="76.535433" y="132.380451" transform="rotate(-0 76.535433 132.380451)">8 Hz sine</text>
+   </g>
+   <g id="text_5">
+    <text style="fill: #e1e1e1; font: 700 9px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="223.937008" y="104.530682" transform="rotate(-0 223.937008 104.530682)">Filtered</text>
+   </g>
+   <g id="text_6">
+    <text style="fill: #b9c4d2; font: 7.2px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="223.937008" y="132.380451" transform="rotate(-0 223.937008 132.380451)">32 Hz low-pass</text>
+   </g>
+   <g id="text_7">
+    <text style="fill: #e1e1e1; font: 700 9px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="371.338583" y="104.530682" transform="rotate(-0 371.338583 104.530682)">Window</text>
+   </g>
+   <g id="text_8">
+    <text style="fill: #b9c4d2; font: 7.2px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="371.338583" y="132.380451" transform="rotate(-0 371.338583 132.380451)">256 rows; stride 64</text>
+   </g>
+   <g id="text_9">
+    <text style="fill: #e1e1e1; font: 700 9px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="522.992126" y="67.680288" transform="rotate(-0 522.992126 67.680288)">MAV</text>
+   </g>
+   <g id="text_10">
+    <text style="fill: #b9c4d2; font: 7.2px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="522.992126" y="89.860766" transform="rotate(-0 522.992126 89.860766)">Mean absolute value</text>
+   </g>
+   <g id="text_11">
+    <text style="fill: #e1e1e1; font: 700 9px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="522.992126" y="149.885012" transform="rotate(-0 522.992126 149.885012)">Spectrum</text>
+   </g>
+   <g id="text_12">
+    <text style="fill: #b9c4d2; font: 7.2px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="522.992126" y="172.06549" transform="rotate(-0 522.992126 172.06549)">Normalized FFT</text>
+   </g>
+   <g id="text_13">
+    <text style="fill: #42c8ff; font: 8px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="76.535433" y="169.451594" transform="rotate(-0 76.535433 169.451594)">Vector [1]</text>
+   </g>
+   <g id="text_14">
+    <text style="fill: #e1e1e1; font: 7.5px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="76.535433" y="186.3215" transform="rotate(-0 76.535433 186.3215)">256 outputs/s</text>
+   </g>
+   <g id="text_15">
+    <text style="fill: #42c8ff; font: 8px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="223.937008" y="169.451594" transform="rotate(-0 223.937008 169.451594)">Vector [1]</text>
+   </g>
+   <g id="text_16">
+    <text style="fill: #e1e1e1; font: 7.5px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="223.937008" y="186.3215" transform="rotate(-0 223.937008 186.3215)">256 outputs/s</text>
+   </g>
+   <g id="text_17">
+    <text style="fill: #42c8ff; font: 8px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="371.338583" y="169.451594" transform="rotate(-0 371.338583 169.451594)">Matrix [256 × 1]</text>
+   </g>
+   <g id="text_18">
+    <text style="fill: #e1e1e1; font: 7.5px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="371.338583" y="186.3215" transform="rotate(-0 371.338583 186.3215)">4 outputs/s</text>
+   </g>
+   <g id="text_19">
+    <text style="fill: #f0bc66; font: 7px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="522.992126" y="120.986681" transform="rotate(-0 522.992126 120.986681)">Vector [1] · 4/s</text>
+   </g>
+   <g id="text_20">
+    <text style="fill: #f0bc66; font: 7px 'DejaVu Sans', Arial, sans-serif; text-anchor: middle" x="522.992126" y="206.026051" transform="rotate(-0 522.992126 206.026051)">129 bins × 1 · 4/s</text>
+   </g>
+   <g id="text_21">
+    <text style="fill: #b9c4d2; font: 7.6px 'DejaVu Sans', Arial, sans-serif; text-anchor: start" x="17.007874" y="228.868779" transform="rotate(-0 17.007874 228.868779)">Window rows are time samples. MAV values are features. Spectrum rows are frequency bins.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pa0c718dbd8">
+   <rect x="0" y="0" width="595.275591" height="243.779528"/>
+  </clipPath>
+ </defs>
+</svg>

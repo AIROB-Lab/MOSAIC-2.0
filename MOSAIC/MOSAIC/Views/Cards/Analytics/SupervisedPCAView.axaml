@@ -1,0 +1,153 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:analytics="clr-namespace:MOSAIC.ViewModels.Analytics"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:scatter3d="clr-namespace:MOSAIC.Visualization.Scatter3D"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+    xmlns:measure="using:LiveChartsCore.Measure"
+    x:Class="MOSAIC.Views.Cards.Analytics.SupervisedPCAView"
+    x:DataType="analytics:SupervisedPCAViewModel">
+
+    <UserControl.Resources>
+       <converters:StatusToColorConverter x:Key="StatusToColor"/>
+       <measure:Margin x:Key="ScatterMargin" Left="50" Top="20" Right="50" Bottom="50"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*" RowSpacing="12">
+
+            <!-- Row 0: Header + Status -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                    <TextBlock Classes="cardTitle" Text="{Binding SupervisedPCA.Name}" VerticalAlignment="Center"/>
+                    <Border Background="{StaticResource CategoryAnalyticsBrush}" CornerRadius="4" Padding="6,2">
+                        <TextBlock Text="PCA" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                    <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="4" Padding="6,2"
+                            IsVisible="{Binding SupervisedPCA.IsStable}">
+                        <TextBlock Text="STABLE" FontSize="10" FontWeight="Bold"
+                                  Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                    </Border>
+                    <TextBlock Text="{Binding SampleCountText}" FontSize="12" VerticalAlignment="Center"
+                              Foreground="{DynamicResource ThemeTextSecondaryBrush}" Margin="8,0,0,0"/>
+                </StackPanel>
+                <Border Grid.Column="1" Background="{Binding SupervisedPCA.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SupervisedPCA.Status}" FontWeight="SemiBold" Foreground="White" FontSize="11"/>
+                </Border>
+            </Grid>
+
+            <!-- Row 1: Capture controls -->
+            <Border Grid.Row="1" Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                    <TextBox Grid.Column="0" Text="{Binding LabelInput}"
+                            Watermark="label (e.g., 'rest', 'fist', 'open')" FontSize="12" Padding="8,6"
+                            IsEnabled="{Binding !SupervisedPCA.IsCapturing}"
+                            Background="{DynamicResource ThemeInputBackgroundBrush}"
+                            Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                            BorderBrush="{DynamicResource ThemeInputBorderBrush}" CornerRadius="4"/>
+                    <Button Grid.Column="1" Content="Capture" Command="{Binding StartCaptureCommand}"
+                            IsEnabled="{Binding !SupervisedPCA.IsCapturing}"
+                            Background="{StaticResource CategoryAnalyticsBrush}" Foreground="White"
+                            Padding="12,6" CornerRadius="4" FontSize="12" FontWeight="Bold"/>
+                    <Button Grid.Column="2" Content="Stop" Command="{Binding StopCaptureCommand}"
+                            IsEnabled="{Binding SupervisedPCA.IsCapturing}"
+                            Background="{StaticResource StatusErrorBrush}" Foreground="White"
+                            Padding="12,6" CornerRadius="4" FontSize="12" FontWeight="Bold"/>
+                    <Button Grid.Column="3" Content="Clear All" Command="{Binding ClearAllClustersCommand}"
+                            IsEnabled="{Binding HasClusters}"
+                            Background="Transparent" Foreground="{StaticResource StatusErrorBrush}"
+                            Padding="8,6" FontSize="11"/>
+                    <controls:SafeNumericUpDown Grid.Column="4" Value="{Binding MaxScatterPoints}" Minimum="100" Maximum="5000"
+                                   Increment="100" FormatString="0" Width="140" FontSize="12" Padding="6,4"
+                                   VerticalAlignment="Center" ToolTip.Tip="Display points"
+                                   Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                   BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+                </Grid>
+            </Border>
+
+            <!-- Row 2: Capture status bar -->
+            <Border Grid.Row="2" Background="{StaticResource CategoryAnalyticsBrush}" CornerRadius="6" Padding="10,6"
+                   IsVisible="{Binding SupervisedPCA.IsCapturing}">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Ellipse Width="10" Height="10" Fill="White" VerticalAlignment="Center">
+                        <Ellipse.Styles>
+                            <Style Selector="Ellipse">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:0.8" IterationCount="Infinite">
+                                        <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                                        <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.3"/></KeyFrame>
+                                        <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </Ellipse.Styles>
+                    </Ellipse>
+                    <TextBlock FontSize="13" FontWeight="Bold" Foreground="White">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="Capturing '{0}' — {1} points">
+                                <Binding Path="SupervisedPCA.CurrentLabel"/>
+                                <Binding Path="SupervisedPCA.CurrentCaptureCount"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Row 3: Cluster legend -->
+            <Border Grid.Row="3" Classes="cardSection" IsVisible="{Binding HasClusters}">
+                <controls:ClusterLegendControl ItemsSource="{Binding ClusterInfoList}"
+                                               ClearClusterCommand="{Binding ClearClusterCommand}"/>
+            </Border>
+
+            <!-- Row 4: Projection panes — toggle each on/off; at least one stays shown -->
+            <Grid Grid.Row="4" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="14" HorizontalAlignment="Right"
+                            IsVisible="{Binding Is3D}">
+                    <TextBlock Classes="fieldLabel" Text="Show:"/>
+                    <CheckBox Content="3D" IsChecked="{Binding Show3DView}" FontSize="12"/>
+                    <CheckBox Content="2D" IsChecked="{Binding Show2DView}" FontSize="12"/>
+                </StackPanel>
+
+                <!-- 3D projection -->
+                <Border Grid.Row="1" Classes="cardSection" IsVisible="{Binding Show3DPane}">
+                    <Grid RowDefinitions="Auto,Auto">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                            <TextBlock Grid.Column="0" Text="3D Projection" FontSize="14" FontWeight="Bold"
+                                      Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                            <TextBlock Grid.Column="1" Text="drag to rotate" FontSize="10"
+                                      Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                        </Grid>
+                        <scatter3d:Scatter3DView Grid.Row="1" Scatter="{Binding Scatter3D}"/>
+                    </Grid>
+                </Border>
+
+                <!-- 2D scatter -->
+                <Border Grid.Row="2" Classes="cardSection" Height="420" IsVisible="{Binding Show2DPane}">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock Grid.Row="0" Text="{Binding ChartTitle}" FontSize="14" FontWeight="Bold"
+                                  Foreground="{StaticResource CategoryAnalyticsBrush}" Margin="0,0,0,4"/>
+                        <lvc:CartesianChart Grid.Row="1" Series="{Binding ScatterSeries}"
+                                           XAxes="{Binding XAxes}" YAxes="{Binding YAxes}"
+                                           TooltipPosition="Hidden" ZoomMode="Both"
+                                           DrawMargin="{StaticResource ScatterMargin}"/>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Row 5: Explained variance -->
+            <Border Grid.Row="5" Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="EXPLAINED VARIANCE"/>
+                    <controls:RatioBarRow Label="PC1" Value="{Binding Pc1Variance}"/>
+                    <controls:RatioBarRow Label="PC2" Value="{Binding Pc2Variance}"/>
+                    <controls:RatioBarRow Label="PC3" Value="{Binding Pc3Variance}" IsVisible="{Binding Is3D}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

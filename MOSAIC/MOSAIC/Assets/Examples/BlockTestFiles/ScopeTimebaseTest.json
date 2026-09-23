@@ -1,0 +1,37 @@
+// -------------------------------------------------------------------------
+// Scope time-base check — no hardware required
+// -------------------------------------------------------------------------
+// Both generators produce the SAME 1 Hz sine. The only difference is how it
+// is delivered:
+//
+//   perSample  ScansPerPacket = 1   → one Vector per tick,   100 rows/s
+//   packetised ScansPerPacket = 10  → a 10-row Matrix/tick, 1000 rows/s
+//
+// WHAT TO LOOK FOR
+//   Open the scope on each block. Both traces must show the SAME number of
+//   cycles across the window, and that number must equal the window length in
+//   seconds — a 1 Hz sine over the default 10 s window is 10 cycles.
+//
+//   If "packetised" shows more cycles than "perSample", the scope is being
+//   given the tick rate instead of the sample rate and the packet path has
+//   regressed. The ratio you see is exactly the error factor.
+//
+//   The sine phase runs continuously across packet boundaries, so any kink,
+//   flat step or repeated segment in the packetised trace means rows are
+//   being dropped, duplicated or reordered rather than merely mistimed.
+//
+//   Watch the y-axis too: it should settle once and then glide, never step.
+//
+// Set "Path" on a block to also dump its rows to CSV and check them offline.
+// -------------------------------------------------------------------------
+{
+  "Clock":      { "Type": "Clock", "DesiredRate": 100 },
+
+  // Params: [ Components, Amplitude, Frequency, Phase, PhaseStep, ScansPerPacket ]
+  "perSample":  { "Type": "SinGenerator", "Inputs": [ "Clock" ], "Params": [ 4, 1.0, 1.0, 0.0, 0.5, 1 ] },
+  "packetised": { "Type": "SinGenerator", "Inputs": [ "Clock" ], "Params": [ 4, 1.0, 1.0, 0.0, 0.5, 10 ] },
+
+  // A window over the packetised stream, so the sliding-window scope is exercised too:
+  // it plots pre-window input rows, so it must agree with "packetised" cycle for cycle.
+  "windowed":   { "Type": "SlidingWindow", "Inputs": [ "packetised" ], "Params": [ 200, 100, "Rectangular" ] }
+}

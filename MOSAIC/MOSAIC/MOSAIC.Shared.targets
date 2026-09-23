@@ -1,0 +1,264 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework Condition="'$(MosaicMobileBuild)' == 'true' OR !$([MSBuild]::IsOSPlatform('Windows'))">net10.0</TargetFramework>
+        <TargetFrameworks Condition="'$(MosaicMobileBuild)' != 'true' AND $([MSBuild]::IsOSPlatform('Windows'))">net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <IsDesktopTfm Condition="'$(TargetFramework)' == 'net10.0' OR $(TargetFramework.StartsWith('net10.0-windows'))">true</IsDesktopTfm>
+        <EnableWindowsDevices Condition="'$(MosaicMobileBuild)' == 'true'">false</EnableWindowsDevices>
+        <EnableWindowsDevices Condition="'$(EnableWindowsDevices)' == ''">$(IsDesktopTfm)</EnableWindowsDevices>
+        <EnableDelsys Condition="'$(EnableDelsys)' == ''">false</EnableDelsys>
+        <EnableMccDaq Condition="'$(EnableMccDaq)' == ''">false</EnableMccDaq>
+        <EnableLsl    Condition="'$(EnableLsl)' == ''">false</EnableLsl>
+    </PropertyGroup>
+
+    <!-- Native Apple APIs require an Apple target, not merely a Mac build host.
+         The iOS head links the backend and registers it with the shared manager. -->
+    <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) OR $(TargetFramework.Contains('-macos')) OR $(TargetFramework.Contains('-maccatalyst'))">
+        <DefineConstants>$(DefineConstants);APPLE_BLE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <DefineConstants>$(DefineConstants);LINUX_BLE</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <PackageReference Include="Tmds.DBus" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\*.png;Assets\*.svg;Assets\*.ico" />
+        <None Remove="Assets\BodyRigCalibrationFiles\**;Assets\Examples\**" />
+        <None Include="Assets\BodyRigCalibrationFiles\**" Exclude="Assets\BodyRigCalibrationFiles\**\*.md" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Assets\Examples\**" CopyToOutputDirectory="PreserveNewest" />
+        <None Remove="Components\Manager\Python\config.json;Components\Manager\Python\configWulpus.json" />
+        <None Include="Components\Manager\Python\config.json;Components\Manager\Python\configWulpus.json"
+              Link="Python\%(Filename)%(Extension)"
+              CopyToOutputDirectory="PreserveNewest" />
+
+        <!-- Wulpus USS and TX/RX presets. Chosen through a file picker at run time, so they have to
+             be real files on disk next to the app, not embedded resources. -->
+        <None Remove="Assets\WulpusConfigs\**" />
+        <None Include="Assets\WulpusConfigs\**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+    <PropertyGroup>
+        <DefineConstants Condition="'$(EnableDelsys)' == 'true'">$(DefineConstants);ENABLE_DELSYS</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(EnableDelsys)' != 'true'">
+        <Compile Remove="Components\Devices\Delsys\**\*.cs" />
+        <Compile Remove="Models\Devices\Delsys.cs" />
+        <Compile Remove="ViewModels\Devices\DelsysViewModel.cs" />
+        <AvaloniaXaml Remove="Views\Cards\Devices\DelsysCardView.axaml" />
+        <Compile Remove="Views\Cards\Devices\DelsysCardView.axaml.cs" />
+    </ItemGroup>
+    <PropertyGroup>
+        <MccDaqAssembly Condition="'$(MccDaqAssembly)' == ''">$(MSBuildThisFileDirectory)Assets\MccDaq\MccDaq.dll</MccDaqAssembly>
+        <LslRuntime Condition="'$(LslRuntime)' == ''">$(MSBuildThisFileDirectory)Assets\LSLLib\runtimes\win-x64\lsl.dll</LslRuntime>
+        <DefineConstants Condition="'$(EnableMccDaq)' == 'true'">$(DefineConstants);ENABLE_MCCDAQ</DefineConstants>
+    </PropertyGroup>
+
+    <Target Name="ValidateOptionalDeviceBinaries" BeforeTargets="ResolveReferences">
+        <Error Condition="'$(EnableMccDaq)' == 'true' AND !Exists('$(MccDaqAssembly)')"
+               Text="MCC DAQ support was enabled, but MccDaq.dll was not found at '$(MccDaqAssembly)'. Install MCC DAQ Software and set MccDaqAssembly, or copy the DLL to the documented Assets path." />
+        <Error Condition="'$(EnableLsl)' == 'true' AND !Exists('$(LslRuntime)')"
+               Text="LSL runtime bundling was enabled, but lsl.dll was not found at '$(LslRuntime)'. Download liblsl and set LslRuntime, or copy the DLL to the documented Assets path." />
+    </Target>
+
+    <ItemGroup Condition="'$(EnableMccDaq)' == 'true'">
+        <Reference Include="MccDaq">
+            <HintPath>$(MccDaqAssembly)</HintPath>
+            <Private>true</Private>
+        </Reference>
+    </ItemGroup>
+
+    <!-- Exclude legacy WinForms FlowControl folder -->
+    <ItemGroup>
+        <Compile Remove="FlowControl\**" />
+        <None Remove="FlowControl\**" />
+        <EmbeddedResource Remove="FlowControl\**" />
+        <Compile Update="Views\Cards\FlowControl\BufferCardView.axaml.cs">
+            <DependentUpon>BufferCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\FlowControl\ClockCardView.axaml.cs">
+            <DependentUpon>ClockCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\FlowControl\JoinerCardView.axaml.cs">
+            <DependentUpon>JoinerCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\FlowControl\ControlAlgorithmCardView.axaml.cs">
+            <DependentUpon>ControlAlgorithmCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\SignalProcessing\ResamplerCardView.axaml.cs">
+            <DependentUpon>ResamplerCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Streaming\SinGeneratorCardView.axaml.cs">
+            <DependentUpon>SinGeneratorCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Streaming\LSLCardView.axaml.cs">
+            <DependentUpon>LSL.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Devices\WulpusCardView.axaml.cs">
+            <DependentUpon>WulpusCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\SignalProcessing\DepthFilterCardView.axaml.cs">
+            <DependentUpon>DepthFilterCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\SignalProcessing\CropCardView.axaml.cs">
+            <DependentUpon>CropCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\FlowControl\Matrix2VectorCardView.axaml.cs">
+            <DependentUpon>Matrix2VectorCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\MachineLearning\ClassifierCardView.axaml.cs">
+            <DependentUpon>ClassifierCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Devices\BodyRigCardView.axaml.cs">
+            <DependentUpon>BodyRigCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Devices\CommandSenderCardView.axaml.cs">
+            <DependentUpon>CommandSenderCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Devices\QuattrocentoCardView.axaml.cs">
+            <DependentUpon>MuoviSingleProbeCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Analytics\SupervisedUmapCardView.axaml.cs">
+            <DependentUpon>SupervisedUmapCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\FlowControl\ManualControlCardView.axaml.cs">
+            <DependentUpon>ManualControlCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\MachineLearning\BatchPredictorView.axaml.cs">
+            <DependentUpon>BatchPredictorView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\MachineLearning\USPredictorCardView.axaml.cs">
+            <DependentUpon>USPredictorCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Streaming\MockUltraSoundCardView.axaml.cs">
+            <DependentUpon>MockUltraSoundCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\FlowControl\StreamTriggerCardView.axaml.cs">
+            <DependentUpon>StreamTriggerCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Palette\BlockPaletteView.axaml.cs">
+            <DependentUpon>BlockPaletteView.axaml</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <!-- Cross-platform packages -->
+    <ItemGroup>
+        <PackageReference Include="Avalonia" />
+        <PackageReference Include="Avalonia.Desktop" Condition="'$(MosaicMobileBuild)' != 'true'" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="Avalonia.Fonts.Inter" />
+        <PackageReference Include="CommunityToolkit.Mvvm" />
+        <PackageReference Include="DelsysAPI" Condition="'$(MosaicMobileBuild)' != 'true' AND '$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="FftFlat" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" />
+        <PackageReference Include="Material.Avalonia" />
+        <PackageReference Include="MathNet.Numerics" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <!-- ROS uses JSON independently of the optional Delsys package. -->
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="ScottPlot" />
+        <PackageReference Include="ScottPlot.Avalonia" />
+        <PackageReference Include="Svg.Controls.Skia.Avalonia" />
+        <PackageReference Include="System.Resources.Extensions" />
+        <PackageReference Include="System.IO.Ports" />
+    </ItemGroup>
+
+    <!-- Desktop-only packages: mobile builds exclude their implementations too. -->
+    <ItemGroup Condition="'$(EnableDelsys)' == 'true' AND '$(MosaicMobileBuild)' != 'true' AND ('$(TargetFramework)' == 'net10.0' OR $(TargetFramework.StartsWith('net10.0-windows')))">
+        <PackageReference Include="Delsys.Drivers" ExcludeAssets="compile;contentfiles" PrivateAssets="compile;contentfiles;analyzers;build" />
+        <PackageReference Include="Delsys.Signals" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(MosaicMobileBuild)' != 'true' AND ('$(TargetFramework)' == 'net10.0' OR $(TargetFramework.StartsWith('net10.0-windows')))">
+        <PackageReference Include="FFTW.NET" />
+        <PackageReference Include="python" />
+        <PackageReference Include="pythonnet" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="MOSAIC.Android" />
+        <InternalsVisibleTo Include="MOSAIC.Desktop" />
+        <InternalsVisibleTo Include="MOSAIC.iOS" />
+        <InternalsVisibleTo Include="MOSAIC.Tests" />
+        <Folder Include="Assets\Icons\" />
+        <Folder Include="Resources\Images\" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="'$(EnableLsl)' == 'true'">
+        <None Include="$(LslRuntime)" CopyToOutputDirectory="PreserveNewest" Link="runtimes\win-x64\native\lsl.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Views\GraphVertexView.axaml.cs">
+            <DependentUpon>GraphVertexView.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="Views\Cards\Devices\HannesHandCardView.axaml.cs">
+            <DependentUpon>TemplateCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\SignalProcessing\AdaptiveFilterCardView.axaml.cs">
+            <DependentUpon>AdaptiveFilterCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\SignalProcessing\FilterCardView.axaml.cs">
+            <DependentUpon>FilterCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\SignalProcessing\FunctionCardView.axaml.cs">
+            <DependentUpon>FunctionCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\Devices\HannesHandCardView.axaml.cs">
+            <DependentUpon>TemplateCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\GraphVertexView.axaml.cs">
+            <DependentUpon>GraphVertexView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Remove="Components\Learning\RidgeRegression.cs" />
+        <Compile Update="Views\Cards\FlowControl\TriggerCardView.axaml.cs">
+            <DependentUpon>TemplateCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\MachineLearning\IncrementalPredictorView.axaml.cs">
+            <DependentUpon>IncrementalPredictorView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Cards\MachineLearning\HybridPredictorView.axaml.cs">
+            <DependentUpon>TemplateCardView.axaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+    <Import Project="MobileProfile.targets" Condition="'$(MosaicMobileBuild)' == 'true'" />
+</Project>

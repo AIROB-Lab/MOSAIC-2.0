@@ -1,0 +1,68 @@
+// ---------------------------------------------------------------------
+// Stepwise myocontrol — the other control paradigm
+// ---------------------------------------------------------------------
+// Every other MyoControl example in this folder uses DirectControl: each DOF
+// is driven straight from its predicted value, so several joints move at once
+// and the hand follows a continuous blend of whatever the model outputs.
+//
+// StepwiseControl instead picks ONE action at a time and steps the hand into
+// it. That is far easier to use reliably when the model is imperfect — a
+// slightly wrong prediction picks the same posture rather than smearing across
+// several — at the cost of not being able to combine postures.
+//
+// Two things change together, and both are required:
+//   - "algorithm:StepwiseControl" on the ControlAlgorithm block
+//   - a THIRTEENTH DOF, "open", on both the Trigger vectors and the
+//     predictor's outputDim. Direct control has no use for an explicit open
+//     command because relaxing all DOFs already opens the hand; stepwise needs
+//     it as a state it can step INTO.
+//
+// Built on the two-armband front end from MyoControlTwoArmbands.json, matching
+// the original. The 16-channel input is not what makes this stepwise — swap in
+// a single Myo and inputDim 8 and the control paradigm is unchanged.
+//
+// Ported from the iM-Blocks cfg11_2Myo_stepwiseControl.yaml. The single-source
+// variant there (cfg9) is the same paradigm with a Muovi in place of the two
+// armbands, so it is not reproduced separately.
+// ---------------------------------------------------------------------
+{
+  "Clock":             { "Type": "Clock", "DesiredRate": 200 },
+
+  // ---- Two armbands joined into 16 channels ----
+  "raw_EMG_lower":     { "Type": "Myo", "Inputs": [ "Clock" ] },
+  "raw_EMG_upper":     { "Type": "Myo", "Inputs": [ "Clock" ] },
+  "joined_EMG":        { "Type": "Joiner",
+    "Inputs": [ "raw_EMG_lower", "raw_EMG_upper" ],
+    "Params": [ "timer:raw_EMG_lower" ] },
+
+  // ---- ARV preprocessing ----
+  "amplified_raw_EMG": { "Type": "Function",    "Inputs": [ "joined_EMG" ],        "Params": [ "multiply", 5 ] },
+  "rectified_raw_EMG": { "Type": "Function",    "Inputs": [ "amplified_raw_EMG" ], "Params": [ "abs" ] },
+  "ARV_LPF":           { "Type": "FilterBlock", "Inputs": [ "rectified_raw_EMG" ], "Params": [ "Lowpass", "IIR", 2, 0, 0.3 ] },
+  "ARV":               { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 25 ] },
+
+  // ---- Ground truth: 13 DOFs — note the trailing "open" column ----
+  // [ th_flex, th_rot, index, middle, ring, little,
+  //   wr_flex, wr_ext, wr_pron, wr_sup, wr_ulnar, wr_radial, open ]
+  "ground_truth":      { "Type": "Trigger", "Params": [
+    "rest:0;0;0;0;0;0;0;0;0;0;0;0;0",
+    "power:1;1;1;1;1;1;0;0;0;0;0;0;0",
+    "flex:0;0;0;0;0;0;1;0;0;0;0;0;0",
+    "extend:0;0;0;0;0;0;0;1;0;0;0;0;0",
+    "pron:0;0;0;0;0;0;0;0;1;0;0;0;0",
+    "sup:0;0;0;0;0;0;0;0;0;1;0;0;0",
+    "open:0;0;0;0;0;0;0;0;0;0;0;0;1"
+  ] },
+
+  // ---- outputDim is 13 here, not 12 — it must match the Trigger vectors ----
+  "incr_learn_prediction": { "Type": "IncrementalPredictor",
+    "Inputs": [ "ARV", "ground_truth" ],
+    "Params": [ "Ridge", 16, 13 ] },
+
+  // ---- The paradigm switch ----
+  "controlAlgorithm":  { "Type": "ControlAlgorithm", "Inputs": [ "incr_learn_prediction" ], "Params": [ "algorithm:StepwiseControl" ] },
+
+  // ---- Outputs ----
+  "blender_skin_arm_ctrl": { "Type": "BlenderArm", "Inputs": [ "controlAlgorithm" ], "Params": [ "localhost", 3334 ] }
+  // ,"hannes_hand":      { "Type": "HannesHand", "Inputs": [ "controlAlgorithm" ], "DesiredRate": 200 }
+}

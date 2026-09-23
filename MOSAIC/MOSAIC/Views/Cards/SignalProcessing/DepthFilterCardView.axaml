@@ -1,0 +1,251 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:heatmap="clr-namespace:MOSAIC.Visualization.Heatmap"
+    xmlns:snapshot="clr-namespace:MOSAIC.Visualization.SnapshotMonitor"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.DepthFilterCardView"
+    x:DataType="vm:DepthFilterViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding DepthFilter.Name}"
+                                   Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="DEPTH FILTER" FontSize="10" FontWeight="Bold"
+                                       Foreground="White" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding DepthFilter.FilterDescription}" Classes="cardSubtitle"
+                               Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Enabled" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <ToggleSwitch IsChecked="{Binding DepthFilter.IsEnabled, Mode=TwoWay}"
+                                  OnContent="" OffContent=""/>
+                </StackPanel>
+
+                <Border Grid.Column="2"
+                        Background="{Binding DepthFilter.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding DepthFilter.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="A-MODE" Classes="sectionLabel"/>
+                    <snapshot:SnapshotMonitorView
+                        Snapshot="{Binding DepthFilter.Snapshot}"
+                        MinHeight="180"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="B-MODE" Classes="sectionLabel"/>
+                    <heatmap:HeatMapView
+                        Heatmap="{Binding DepthFilter.Heatmap}"
+                        ShowSizeTrack="True"
+                        MinHeight="160"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="FILTER TYPE" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+                        <Button Grid.Column="0" Content="Lowpass" Command="{Binding SetLowpassCommand}"
+                                Background="{Binding DepthFilter.FilterType, Converter={x:Static vm:FilterConverters.FilterTypeToBackground}, ConverterParameter=Lowpass}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Grid.Column="1" Content="Highpass" Command="{Binding SetHighpassCommand}"
+                                Background="{Binding DepthFilter.FilterType, Converter={x:Static vm:FilterConverters.FilterTypeToBackground}, ConverterParameter=Highpass}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Grid.Column="2" Content="Bandpass" Command="{Binding SetBandpassCommand}"
+                                Background="{Binding DepthFilter.FilterType, Converter={x:Static vm:FilterConverters.FilterTypeToBackground}, ConverterParameter=Bandpass}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Grid.Column="3" Content="Bandstop" Command="{Binding SetBandstopCommand}"
+                                Background="{Binding DepthFilter.FilterType, Converter={x:Static vm:FilterConverters.FilterTypeToBackground}, ConverterParameter=Bandstop}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="IMPLEMENTATION" Classes="sectionLabel" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding Implementations}"
+                                      SelectedItem="{Binding DepthFilter.Implementation, Mode=TwoWay}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="DEPTH SAMPLE RATE" Classes="sectionLabel" Margin="0,0,0,4"/>
+                            <controls:SafeNumericUpDown Value="{Binding DepthFilter.DepthSampleRate, Mode=TwoWay}"
+                                           Minimum="1" Maximum="100000000" Increment="100"
+                                           FormatString="F0"
+                                           Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                           BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                           CornerRadius="6" Padding="8,4" MinHeight="32"
+                                           HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="CUTOFF FREQUENCIES" Classes="sectionLabel"/>
+
+                    <!-- Low cutoff: slider + editable text -->
+                    <StackPanel Spacing="4">
+                        <Grid ColumnDefinitions="55,*,140" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding IsBandFilter, Converter={x:Static vm:FilterConverters.BoolToLowLabel}}"
+                                       Classes="fieldLabel"
+                                       VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1"
+                                    Minimum="{Binding MinCutoff}" Maximum="{Binding MaxCutoff}"
+                                    Value="{Binding DepthFilter.CutoffLow, Mode=TwoWay}"/>
+                            <Border Grid.Column="2"
+                                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                    BorderThickness="1" CornerRadius="4" Padding="8,4">
+                                <controls:SafeNumericUpDown Value="{Binding DepthFilter.CutoffLow, Mode=TwoWay}"
+                                               Minimum="0.1" Maximum="500000"
+                                               Increment="1" FormatString="F1"
+                                               ShowButtonSpinner="False"
+                                               Background="Transparent"
+                                               BorderThickness="0"
+                                               Padding="0" MinHeight="0"
+                                               FontSize="13" FontWeight="Bold"
+                                               Foreground="{StaticResource CategorySignalProcessingBrush}"
+                                               HorizontalContentAlignment="Center"
+                                               VerticalContentAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- High cutoff (Bandpass/Bandstop only) -->
+                    <StackPanel Spacing="4" IsVisible="{Binding IsBandFilter}">
+                        <Grid ColumnDefinitions="55,*,140" ColumnSpacing="8">
+                            <TextBlock Grid.Column="0" Text="High:" Classes="fieldLabel"
+                                       VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1"
+                                    Minimum="{Binding MinCutoff}" Maximum="{Binding MaxCutoff}"
+                                    Value="{Binding DepthFilter.CutoffHigh, Mode=TwoWay}"/>
+                            <Border Grid.Column="2"
+                                    Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    BorderBrush="{DynamicResource ThemeInputBorderBrush}"
+                                    BorderThickness="1" CornerRadius="4" Padding="8,4">
+                                <controls:SafeNumericUpDown Value="{Binding DepthFilter.CutoffHigh, Mode=TwoWay}"
+                                               Minimum="0.1" Maximum="500000"
+                                               Increment="1" FormatString="F1"
+                                               ShowButtonSpinner="False"
+                                               Background="Transparent"
+                                               BorderThickness="0"
+                                               Padding="0" MinHeight="0"
+                                               FontSize="13" FontWeight="Bold"
+                                               Foreground="{StaticResource CategorySignalProcessingBrush}"
+                                               HorizontalContentAlignment="Right"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <!-- IIR Order -->
+                    <StackPanel Grid.Column="0" Spacing="4" IsVisible="{Binding !IsFir}">
+                        <TextBlock Text="ORDER (IIR)" Classes="sectionLabel"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Slider Grid.Column="0" Minimum="1" Maximum="10"
+                                    Value="{Binding DepthFilter.Order, Mode=TwoWay}"
+                                    TickFrequency="1" IsSnapToTickEnabled="True"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding DepthFilter.Order}"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       Width="30" TextAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Higher = sharper cutoff, more ringing" FontSize="9"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- FIR Taps -->
+                    <StackPanel Grid.Column="0" Spacing="4" IsVisible="{Binding IsFir}">
+                        <TextBlock Text="TAPS (FIR)" Classes="sectionLabel"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Slider Grid.Column="0" Minimum="8" Maximum="256"
+                                    Value="{Binding DepthFilter.FirTaps, Mode=TwoWay}"
+                                    TickFrequency="8" IsSnapToTickEnabled="True"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding DepthFilter.FirTaps}"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       Width="40" TextAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="Higher = sharper cutoff, more samples needed" FontSize="9"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- Frame counter -->
+                    <StackPanel Grid.Column="1" Spacing="4">
+                        <TextBlock Text="FRAMES PROCESSED" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding DepthFilter.FramesProcessed, StringFormat='{}{0:N0}'}"
+                                   FontSize="18" FontWeight="Bold"
+                                   Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="● Parameters changed — press Apply"
+                           FontSize="10" FontStyle="Italic"
+                           Foreground="{StaticResource StatusWarningBrush}"
+                           IsVisible="{Binding DepthFilter.NeedsApply}"
+                           Margin="4,0"/>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Content="Apply Changes"
+                            Command="{Binding ApplyFilterCommand}"
+                            Background="{StaticResource CategorySignalProcessingBrush}" Foreground="White"
+                            Padding="12,10" CornerRadius="5"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            FontWeight="SemiBold"/>
+                    <Button Grid.Column="1" Content="Reset Filter"
+                            Command="{Binding ResetFilterCommand}"
+                            Background="{DynamicResource ThemeSurfaceBrush}"
+                            Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                            Padding="12,10" CornerRadius="5"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            FontWeight="SemiBold"/>
+                </Grid>
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</UserControl>

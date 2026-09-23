@@ -1,0 +1,65 @@
+﻿
+{
+  "Timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 2000
+  },
+  "MuoviSingle": {
+    "Type": "MuoviSingleProbe",
+    "Inputs": ["Timer"],
+    "DesiredRate": 2000
+  },
+  "Bandpass": {
+    "Type": "FilterBlock",
+    "Inputs": ["MuoviSingle"],
+    "Params": ["Bandpass", "IIR", 20, 450, 4, 64]
+  },
+  "50Hz": {
+  "Type": "FilterBlock",
+  "Inputs": ["Bandpass"],
+  "Params": ["Bandstop", "IIR", 48, 52, 4, 64]
+  },
+  "Amplifier": {
+    "Type": "Function",
+    "Inputs": ["50Hz"],
+    "Params": ["multiply", 100]
+  },
+  "AbsoluteValue": {
+    "Type": "Function",
+    "Inputs": ["Amplifier"],
+    "Params": ["abs"]
+  },
+  "LowpassFilter": {
+    "Type": "FilterBlock",
+    "Inputs": ["AbsoluteValue"],
+    "Params": ["Lowpass", "IIR", 2, 0, 4, 64]
+  },
+  
+  "window": {
+    "Type": "SlidingWindow",
+    "Inputs": [
+      "LowpassFilter"
+    ],
+    "Params": [
+      100,
+      25,
+      "Rectangular"
+    ],
+    "DesiredRate": 2000
+  },
+  "rms": {
+    "Type": "MetricExtractor",
+    "Inputs": [
+      "window"
+    ],
+    "Params": [
+      "RMS"
+    ]
+  },
+  "SupervisedPCA": {
+    "Type": "SupervisedPCA",
+    "Inputs": ["rms"],
+    "Params": [3, 0.2, 100, 500]
+  }
+}
+

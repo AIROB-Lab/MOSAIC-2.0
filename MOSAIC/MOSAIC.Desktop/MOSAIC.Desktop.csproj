@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+
+        <TargetFrameworks>net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net10.0-macos</TargetFrameworks>
+
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' != 'net10.0-macos'">
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-macos'">
+        <OutputType>Exe</OutputType>
+        <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+        <DefineConstants>$(DefineConstants);APPLE_BLE</DefineConstants>
+        <ApplicationId>companyName.MOSAIC.Desktop</ApplicationId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Desktop" />
+        <!-- Same asset trim as MOSAIC.csproj: the drivers are native DLLs shipped under lib\, which
+             the reference resolver otherwise reads as assemblies (MSB3246). Runtime copy is kept. -->
+        <PackageReference Include="Delsys.Drivers" ExcludeAssets="compile;contentfiles" Condition="'$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="Delsys.Signals" Condition="'$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="DelsysAPI" Condition="'$(EnableDelsys)' == 'true'" />
+        <PackageReference Include="FftFlat" />
+        <PackageReference Include="FFTW.NET" />
+        <PackageReference Include="InTheHand.Net.Bluetooth" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" />
+        <PackageReference Include="python" />
+        <PackageReference Include="pythonnet" />
+        <PackageReference Include="ScottPlot" />
+        <PackageReference Include="ScottPlot.Avalonia" />
+        <PackageReference Include="Svg.Controls.Skia.Avalonia" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MOSAIC\MOSAIC.csproj">
+            <AdditionalProperties Condition="'$(TargetFramework)' == 'net10.0-macos'">EnableWindowsDevices=false</AdditionalProperties>
+        </ProjectReference>
+    </ItemGroup>
+
+    <!-- CoreBluetooth is compiled in the Apple head, just as it is for iOS. -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-macos'">
+        <Compile Include="..\MOSAIC\Components\Manager\BLE\AppleBackend.cs"
+                 Link="Components\Manager\BLE\AppleBackend.cs" />
+        <PackageReference Update="Delsys.Drivers;python"
+                          ExcludeAssets="all" PrivateAssets="all" />
+    </ItemGroup>
+
+    <!-- These shared files are opened relative to AppContext.BaseDirectory. -->
+    <Target Name="IncludeMacDesktopData" BeforeTargets="_ComputePublishLocation"
+            Condition="'$(TargetFramework)' == 'net10.0-macos'">
+        <ItemGroup>
+            <ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
+                                   Condition="$([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').StartsWith('Assets/')) OR $([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').StartsWith('Assets\')) OR $([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').StartsWith('Python/')) OR $([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').StartsWith('Python\'))"
+                                   PublishFolderType="Assembly"
+                                   TargetPath="%(ResolvedFileToPublish.RelativePath)" />
+        </ItemGroup>
+    </Target>
+</Project>

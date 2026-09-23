@@ -1,0 +1,212 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    x:Class="MOSAIC.Views.Cards.Streaming.ROSCardView"
+    x:DataType="vm:ROSViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.connected-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:2.0" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StreamingSourcesBrush}"/>
+                        <Setter Property="Opacity" Value="1.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card"
+            Classes.connected-pulse="{Binding IsConnected}">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Block.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}"
+                                CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="ROS" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                Background="{DynamicResource ThemeSectionBrush}"
+                                BorderBrush="{StaticResource StreamingSourcesBrush}"
+                                BorderThickness="1">
+                            <TextBlock Text="{Binding Block.Action}" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource StreamingSourcesBrush}"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsConnected}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="LIVE" FontSize="9" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Block.FrequencyText}" Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="11" TextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <UniformGrid Columns="2" HorizontalAlignment="Stretch">
+                <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="6"
+                        Padding="10,8" Margin="0,0,4,0"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="STATUS" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding ConnectionStatus}" FontSize="13" FontWeight="Bold"
+                                   Foreground="{StaticResource StreamingSourcesBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="6"
+                        Padding="10,8" Margin="4,0,0,0"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="MESSAGES" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding MessageCount, StringFormat='{}{0:N0}'}"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{StaticResource StatusNormalBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Classes="cardSection"
+                    IsVisible="{Binding Block.IsSubscriber}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="LAST VALUES" Classes="sectionLabel"/>
+                    <TextBlock Text="{Binding LastValue}"
+                               FontSize="11" FontFamily="Cascadia Mono, Consolas, monospace"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+
+                    <!-- Expander toggle -->
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleSettingsExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*">
+                            <TextBlock Grid.Column="0" Text="▸" IsVisible="{Binding !IsSettingsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="▾" IsVisible="{Binding IsSettingsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Connection Settings" FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel Spacing="10" IsVisible="{Binding IsSettingsExpanded}">
+
+                        <!-- IP Address -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="IP Address" Classes="fieldLabel"/>
+                            <TextBox Grid.Column="1" Text="{Binding EditIpAddress}"
+                                     PlaceholderText="e.g. 192.168.1.100"
+                                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                     Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                     FontFamily="Cascadia Mono, Consolas, monospace"/>
+                        </Grid>
+
+                        <!-- Action -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="Action" Classes="fieldLabel"/>
+                            <ComboBox Grid.Column="1"
+                                      SelectedItem="{Binding EditAction, Mode=TwoWay}"
+                                      ItemsSource="{x:Static vm:ROSViewModel.ActionOptions}"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                      HorizontalAlignment="Stretch"/>
+                        </Grid>
+
+                        <!-- Topic -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="Topic" Classes="fieldLabel"/>
+                            <TextBox Grid.Column="1" Text="{Binding EditTopic}"
+                                     PlaceholderText="e.g. emg_data"
+                                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                     Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                     FontFamily="Cascadia Mono, Consolas, monospace"/>
+                        </Grid>
+
+                        <!-- Message Type -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="Msg Type" Classes="fieldLabel"/>
+                            <TextBox Grid.Column="1" Text="{Binding EditMessageType}"
+                                     PlaceholderText="e.g. std_msgs/Float64MultiArray"
+                                     Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                     Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                     FontFamily="Cascadia Mono, Consolas, monospace"/>
+                        </Grid>
+
+                        <!-- Num Channels -->
+                        <Grid ColumnDefinitions="90,*,Auto">
+                            <TextBlock Grid.Column="0" Text="Channels" Classes="fieldLabel"/>
+                            <Slider Grid.Column="1"
+                                    Minimum="1" Maximum="256"
+                                    Value="{Binding EditNumChannels, Mode=TwoWay}"
+                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                    VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding EditNumChannels}"
+                                       FontSize="13" FontWeight="Bold" Width="32"
+                                       TextAlignment="Right"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Apply button -->
+                        <Button Content="Apply &amp; Reconnect"
+                                Command="{Binding ApplyAndReconnectCommand}"
+                                Background="{StaticResource StreamingSourcesBrush}"
+                                Foreground="White"
+                                Padding="12,10" CornerRadius="6"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="12" FontWeight="SemiBold"/>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Button Content="Reconnect"
+                    Command="{Binding ReconnectCommand}"
+                    Background="{DynamicResource ThemeSectionBrush}"
+                    Foreground="{StaticResource StreamingSourcesBrush}"
+                    BorderBrush="{StaticResource StreamingSourcesBrush}"
+                    BorderThickness="1"
+                    Padding="12,8" CornerRadius="6"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    FontSize="12" FontWeight="SemiBold"/>
+
+        </StackPanel>
+    </Border>
+</UserControl>

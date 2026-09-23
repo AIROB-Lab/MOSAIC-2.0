@@ -1,0 +1,117 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:flowControl="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    x:Class="MOSAIC.Views.Cards.FlowControl.StimTriggerCardView"
+    x:DataType="flowControl:StimTriggerViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor" />
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding StimTrigger.Name}"/>
+                        <!-- Category badge - FlowControl -->
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="TRIGGER" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding StimTrigger.FrequencyText}"/>
+                </StackPanel>
+
+                <!-- Status badge -->
+                <Border Grid.Column="1"
+                        Background="{Binding StimTrigger.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StimTrigger.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Info Section -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="FUNCTION"/>
+                        <TextBlock Text="Stimulus → Buffer Trigger" FontSize="12"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <!-- Rate display -->
+                    <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                            CornerRadius="6" Padding="12,8">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="sectionLabel" Text="RATE"
+                                       HorizontalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="2">
+                                <TextBlock Text="{Binding StimTrigger.DesiredRate, StringFormat={}{0:F0}}" 
+                                           FontSize="14" Foreground="{StaticResource CategoryFlowControlBrush}" 
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Hz" FontSize="10" 
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                           VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Capture State Indicator -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="CAPTURE STATE"/>
+                        <TextBlock Text="{Binding CaptureStateText}"
+                                   FontSize="14" Foreground="{DynamicResource ThemeTextPrimaryBrush}" 
+                                   FontWeight="SemiBold"/>
+                    </StackPanel>
+                    
+                    <!-- Active indicator (only visible when capturing) -->
+                    <Border Grid.Column="1" 
+                            Background="{StaticResource CategoryFlowControlBrush}"
+                            CornerRadius="8" Padding="14,8" VerticalAlignment="Center"
+                            IsVisible="{Binding IsCapturing}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="10" Height="10" Fill="White" VerticalAlignment="Center">
+                                <Ellipse.Styles>
+                                    <Style Selector="Ellipse">
+                                        <Style.Animations>
+                                            <Animation Duration="0:0:0.6" IterationCount="Infinite">
+                                                <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                                                <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.3"/></KeyFrame>
+                                                <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Ellipse.Styles>
+                            </Ellipse>
+                            <TextBlock Text="CAPTURING" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Description -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="DESCRIPTION"/>
+                    <TextBlock Text="Converts Stimulus capture events into Buffer start/stop commands. Outputs target vector during capture, null on exit."
+                               FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                               TextWrapping="Wrap" LineHeight="18"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

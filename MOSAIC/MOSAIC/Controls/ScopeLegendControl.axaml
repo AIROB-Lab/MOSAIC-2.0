@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:MOSAIC.Converters"
+             xmlns:scope="using:MOSAIC.Visualization.ScopeMonitor"
+             x:Name="Root"
+             x:Class="MOSAIC.Controls.ScopeLegendControl">
+
+    <UserControl.Resources>
+        <converters:StringToBrushConverter x:Key="StringToBrush"/>
+    </UserControl.Resources>
+
+    <!-- Wrap of channel chips (colour dot + label) for a scope. ItemsSource is a collection of
+         ScopeLegendItem(Label, Color-hex). Replaces the copy-pasted #22FFFFFF legend blocks. -->
+    <ItemsControl ItemsSource="{Binding ItemsSource, ElementName=Root}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="scope:ScopeLegendItem">
+                <Border Background="{StaticResource SemiTransparentBadgeBrush}" CornerRadius="3" Padding="5,2" Margin="2,1">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Ellipse Width="8" Height="8" VerticalAlignment="Center"
+                                 Fill="{Binding Color, Converter={StaticResource StringToBrush}}"/>
+                        <TextBlock Text="{Binding Label}" FontSize="11"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

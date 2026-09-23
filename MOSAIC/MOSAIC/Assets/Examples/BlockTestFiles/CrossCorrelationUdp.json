@@ -1,0 +1,31 @@
+{
+  "UDPClient_2": {
+    "Type": "UDPClient",
+    "DesiredRate": 50,
+    "Params": [4210, "uint16"]
+  },
+  "CC": {
+    "Type": "CrossCorrelation",
+    "DesiredRate": 50,
+    "Inputs": ["UDPClient_2"],
+    "Params": ["Lags:1:36", 1000, 1, 4, "LowPass:3", "HighPass:70", "MovMedian:5"]
+  },
+  "Projector": {
+    "Type": "Projector",
+    "DesiredRate": 200,
+    "Inputs": ["CC"],
+    "Params": ["1"]
+  },
+  "Function": {
+    "Type": "Function",
+    "DesiredRate": 50,
+    "Inputs": ["Projector"],
+    "Params": ["multiply", 1.5]
+  },
+  "Function_1": {
+    "Type": "Function",
+    "DesiredRate": 50,
+    "Inputs": ["Function"],
+    "Params": ["power", 2]
+  }
+}

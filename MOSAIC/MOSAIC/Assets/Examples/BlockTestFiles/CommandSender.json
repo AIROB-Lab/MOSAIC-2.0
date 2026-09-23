@@ -1,0 +1,14 @@
+﻿{
+  "ESP-Control": {
+  "Type": "CommandSender",
+  "Params": [
+    "192.168.1.255",
+    10015
+  ]
+},
+  "MotorStatusReceiver": {
+    "Type": "UDPClient",
+    "DesiredRate": 1000,
+    "Params": [11015, "float"]
+  }
+}

@@ -1,0 +1,65 @@
+﻿// ---------------------------------------------------------------------
+// Example 4: Batch Machine Learning-Based Myocontrol System
+// ---------------------------------------------------------------------
+// - Acquire and preprocess sEMG signals into ARV features (same chain as Ex. 2 & 3).
+// - Use a Trigger to label clusters with multi-DOF target vectors.
+// - Store labeled (label, target, data) segments in a TriggerBuffer.
+// - Train a BatchPredictor manually via its "Train Now" button — the predictor
+//   reads everything currently in TriggerBuffer.dB and fits the regressor on it.
+// - Switch between the learned predictions and a test sinusoid.
+// - Map predictions to actuator targets and stream to a Blender virtual arm.
+
+
+// ---------------------------------------------------------------------
+{
+  // ---- EMG acquisition and ARV preprocessing ----
+  "Clock":             { "Type": "Clock",       "DesiredRate": 200 },
+  "raw_EMG":           { "Type": "Myo",         "Inputs": [ "Clock" ] },
+  "amplified_raw_EMG": { "Type": "Function",    "Inputs": [ "raw_EMG" ],           "Params": [ "multiply", 5 ] },
+  "rectified_raw_EMG": { "Type": "Function",    "Inputs": [ "amplified_raw_EMG" ], "Params": [ "abs" ] },
+  "ARV_LPF":           { "Type": "FilterBlock", "Inputs": [ "rectified_raw_EMG" ], "Params": [ "Lowpass", "IIR", 2, 0, 2 ] },
+  "ARV":               { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 25 ] },
+
+  // ---- Trigger: 12-DOF labeled targets (rest, power, flex, extend, pron, sup) ----
+  "capture_data":      { "Type": "Trigger", "Params": [
+    "rest:0;0;0;0;0;0;0;0;0;0;0;0",
+    "power:1;1;1;1;1;1;0;0;0;0;0;0",
+    "flex:0;0;0;0;0;0;1;0;0;0;0;0",
+    "extend:0;0;0;0;0;0;0;1;0;0;0;0",
+    "pron:0;0;0;0;0;0;0;0;1;0;0;0",
+    "sup:0;0;0;0;0;0;0;0;0;1;0;0"
+  ] },
+
+  // ---- TriggerBuffer: stores labeled (label, target, data) segments in dB ----
+  // Trigger is the first input (start/stop capture, supplies the target vector);
+  // ARV is the second input (windowed feature data while capture is active).
+  "cluster_storage":   { "Type": "TriggerBuffer", "Inputs": [ "capture_data", "ARV" ] },
+
+  // ---- Batch predictor ----
+  // Inputs: feature source first, TriggerBuffer second. Predicts continuously on
+  // ARV; trains on cluster_storage.dB ONLY when "Train Now" is pressed in the UI.
+  // Params: [modelType, inputDim, outputDim, lambda, sigma, featureDim]
+  "batch_learn":       { "Type": "BatchPredictor",
+    "Inputs": [ "ARV", "cluster_storage" ],
+    "Params": [ "RidgeRFF", 8, 12, 0.5, 1.0, 300 ] },
+  // Alternative linear model (no random features):
+  // "batch_learn":    { "Type": "BatchPredictor",
+  //                     "Inputs": [ "ARV", "cluster_storage" ],
+  //                     "Params": [ "Ridge", 8, 12, 0.5 ] },
+
+  // ---- Test signal: 12-D sinusoid at 25 Hz, matches predictor output rate ----
+  "Clock25":           { "Type": "Clock",        "DesiredRate": 25 },
+  "sinGen":            { "Type": "SinGenerator", "Inputs": [ "Clock25" ],          "Params": [ 12 ] },
+
+  // ---- Switch toggles between test sinusoid (default) and learned predictions ----
+  // Input 0 = sinGen (visible immediately so the user can see something before
+  // training); Input 1 = batch_learn. Toggle via Switch.UseSecondInput from the UI
+  // once the BatchPredictor card shows TRAINED.
+  "select_pred":       { "Type": "Switch",       "Inputs": [ "sinGen", "batch_learn" ] },
+
+  // ---- Map predictions to actuator targets ----
+  "controlAlgorithm":  { "Type": "ControlAlgorithm", "Inputs": [ "select_pred" ],  "Params": [ "algorithm:DirectControl" ] },
+
+  // ---- Final output: stream to Blender virtual arm (host, port) ----
+  "blender_skin_arm_ctrl": { "Type": "BlenderArm", "Inputs": [ "controlAlgorithm" ], "Params": [ "localhost", 3334 ] }
+}

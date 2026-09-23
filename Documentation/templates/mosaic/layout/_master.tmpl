@@ -1,0 +1,65 @@
+{{!include(/^styles/.*/)}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} | MOSAIC</title>
+<meta name="description" content="MOSAIC documentation: build real-time biosignal pipelines, explore blocks, and extend the workbench.">
+<meta name="docfx:rel" content="{{_rel}}">
+<link rel="icon" type="image/png" href="{{_rel}}styles/mosaic-logo.png">
+<link rel="stylesheet" href="{{_rel}}styles/mosaic.css">
+<script src="{{_rel}}styles/docfx.vendor.min.js" defer></script>
+<script src="{{_rel}}styles/mosaic.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="{{_rel}}index.html" aria-label="MOSAIC documentation home">
+    <img class="brand-logo" src="{{_rel}}styles/mosaic-logo.png" alt="" width="38" height="38">
+    <span>MOSAIC</span><span class="brand-divider"></span><span class="brand-section">Docs</span>
+  </a>
+  <nav class="header-links" aria-label="Main navigation">
+    <a href="{{_rel}}docs/getting-started.html">Guides</a>
+    <a href="{{_rel}}docs/block-catalogue.html">Block catalogue</a>
+    <a href="{{_rel}}api/index.html">API reference</a>
+  </nav>
+  <button class="search-trigger" type="button"><span aria-hidden="true">⌕</span> Search documentation <kbd>Ctrl K</kbd></button>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
+</header>
+<div class="mobile-backdrop" hidden></div>
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation">
+  <a class="overview-link" href="{{_rel}}index.html"><span aria-hidden="true">◈</span> Overview</a>
+  <nav id="guide-nav" aria-label="Guides">
+    <a href="{{_rel}}docs/getting-started.html">Getting started</a>
+    <a href="{{_rel}}docs/new-block-guide.html">Build your own block</a>
+    <a href="{{_rel}}docs/block-catalogue.html">Block catalogue</a>
+  </nav>
+  <div id="api-nav" hidden>
+    <a class="api-overview-link" href="{{_rel}}api/index.html">API overview</a>
+    <label for="api-filter">Find a block or API type</label>
+    <input id="api-filter" type="search" placeholder="e.g. Filter, Myo, BaseBlock" aria-describedby="api-filter-status">
+    <p id="api-filter-status" role="status" aria-live="polite"></p>
+    <nav id="api-tree" aria-label="API types"></nav>
+  </div>
+  <div class="sidebar-footer"><span class="status-dot"></span> AIROB · FAU Erlangen-Nürnberg<br><span>Tools for biosignal research.</span></div>
+</aside>
+<main id="main" class="page-shell" tabindex="-1">
+  <div class="reading-layout">
+    <div class="article-column">
+      <div class="page-context"><a href="{{_rel}}index.html">Documentation</a><span aria-hidden="true">/</span><span id="page-section">Guide</span></div>
+      <article id="_content" class="article" data-uid="{{uid}}">{{!body}}</article>
+      <footer class="article-footer"><span>MOSAIC · Assistive Intelligent Robotics</span><a href="#main">Back to top ↑</a></footer>
+    </div>
+    <aside class="page-outline" aria-label="On this page"><span>On this page</span><nav id="page-outline-links"></nav></aside>
+  </div>
+</main>
+<dialog id="search-dialog" aria-labelledby="search-title">
+  <div class="search-heading"><h2 id="search-title">Search documentation</h2><button type="button" class="search-close" aria-label="Close search">Esc</button></div>
+  <label class="sr-only" for="search-input">Search guides and API reference</label>
+  <input id="search-input" type="search" placeholder="Search guides, blocks, and API types…" autocomplete="off">
+  <p id="search-status" role="status">Start typing to search the documentation.</p>
+  <div id="search-results"></div>
+</dialog>
+</body>
+</html>

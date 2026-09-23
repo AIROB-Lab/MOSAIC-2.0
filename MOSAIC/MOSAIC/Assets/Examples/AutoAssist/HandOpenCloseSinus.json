@@ -1,0 +1,15 @@
+﻿{
+  "Clock":      { "Type": "Clock",                "DesiredRate": 30 },
+
+  "Wave":       { "Type": "SinGenerator",         "Inputs": ["Clock"],
+    "Params": [6, 0.5, 0.5, 0.0, 0.0] },
+
+  "Offset":     { "Type": "Function",             "Inputs": ["Wave"],
+    "Params": ["add", 0.5] },
+
+  "ToDoa":      { "Type": "ControlAlgorithm",     "Inputs": ["Offset"],
+    "Params": ["algorithm:DirectControl"] },
+
+  "UdpToUnity": { "Type": "UdpStreamlinedSender", "Inputs": ["ToDoa"],
+    "Params": ["127.0.0.1", 11000] }
+}

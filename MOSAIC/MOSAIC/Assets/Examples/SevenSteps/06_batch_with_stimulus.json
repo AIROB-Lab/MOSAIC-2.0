@@ -1,0 +1,72 @@
+// ---------------------------------------------------------------------
+// Example 6: Batch Myocontrol with Stimulus-Driven Data Gathering
+// ---------------------------------------------------------------------
+// Example 4 again — same ARV front end, same TriggerBuffer, same
+// BatchPredictor — with one thing replaced: nobody presses buttons.
+//
+// In Example 4 you held a label down for as long as you felt like, which makes
+// the training set uneven and hard to reproduce. Here a Stimulus block runs a
+// scripted sequence of tasks, each held for a fixed CaptureDuration, and drives
+// the capture itself. Every class gets the same amount of data, the session is
+// repeatable, and the subject has something to follow instead of a keyboard.
+//
+// TWO arms are shown at once, and the difference between them is the point:
+//   port 3333 (white) = what the Stimulus is ASKING for
+//   port 3334 (skin)  = what the model actually PREDICTS
+// Watching them converge is the feedback loop.
+//
+// How the capture is wired:
+//   Stimulus  -> Selector    -> the prompt, as a target vector to display
+//   Stimulus  -> StimTrigger -> start/stop + label, into the TriggerBuffer
+// TriggerBuffer decides trigger-vs-data by the SENDER'S TYPE NAME, and the test
+// is Contains("Trigger") — so StimTrigger qualifies automatically and the input
+// order does not matter.
+//
+// Ported from the iM-Blocks cfg6_batch_with_stimulus.yaml.
+// ---------------------------------------------------------------------
+{
+  // ---- EMG acquisition and ARV preprocessing (identical to Examples 2-5) ----
+  "Clock":             { "Type": "Clock",       "DesiredRate": 200 },
+  "raw_EMG":           { "Type": "Myo",         "Inputs": [ "Clock" ] },
+  "amplified_raw_EMG": { "Type": "Function",    "Inputs": [ "raw_EMG" ],           "Params": [ "multiply", 5 ] },
+  "rectified_raw_EMG": { "Type": "Function",    "Inputs": [ "amplified_raw_EMG" ], "Params": [ "abs" ] },
+  "ARV_LPF":           { "Type": "FilterBlock", "Inputs": [ "rectified_raw_EMG" ], "Params": [ "Lowpass", "IIR", 2, 0, 2 ] },
+  "ARV":               { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 25 ] },
+
+  // ---- Stimulus: the scripted protocol ----
+  // Params[0] is the capture duration per task in seconds; every entry after it
+  // is one task as "name:12-DOF target vector". The sequence below is
+  // rest / power / flex, run twice, three seconds each.
+  "visual_stim":       { "Type": "Stimulus", "Inputs": [ "Clock" ], "Params": [
+    "3.0",
+    "rest_1:0;0;0;0;0;0;0;0;0;0;0;0",
+    "power_1:1;1;1;1;1;1;0;0;0;0;0;0",
+    "flex_1:0;0;0;0;0;0;1;0;0;0;0;0",
+    "rest_2:0;0;0;0;0;0;0;0;0;0;0;0",
+    "power_2:1;1;1;1;1;1;0;0;0;0;0;0",
+    "flex_2:0;0;0;0;0;0;1;0;0;0;0;0"
+  ] },
+
+  // ---- Prompt display: what the subject is being asked to do ----
+  // Selector pulls the target vector out of the Stimulus tuple so it can be
+  // driven through the same control path as a prediction.
+  "visual_stim_tv":    { "Type": "Selector",         "Inputs": [ "visual_stim" ] },
+  "controlAlgorithm1": { "Type": "ControlAlgorithm", "Inputs": [ "visual_stim_tv" ], "Params": [ "algorithm:DirectControl" ] },
+  "blender_white_arm_ctrl": { "Type": "BlenderArm",  "Inputs": [ "controlAlgorithm1" ], "Params": [ "localhost", 3333 ] },
+
+  // ---- Capture: the Stimulus opens and closes each segment ----
+  "visual_stim_trigger": { "Type": "StimTrigger",   "Inputs": [ "visual_stim" ] },
+  "cluster_storage":     { "Type": "TriggerBuffer", "Inputs": [ "visual_stim_trigger", "ARV" ] },
+
+  // ---- Batch predictor ----
+  // Predicts continuously on ARV; fits on cluster_storage.dB only when
+  // "Train Now" is pressed — so let the whole stimulus sequence finish first.
+  // Params: [modelType, inputDim, outputDim, lambda, sigma, featureDim]
+  "batch_learn":       { "Type": "BatchPredictor",
+    "Inputs": [ "ARV", "cluster_storage" ],
+    "Params": [ "RidgeRFF", 8, 12, 0.5, 1.0, 300 ] },
+
+  // ---- Prediction display: what the model actually produces ----
+  "controlAlgorithm2": { "Type": "ControlAlgorithm", "Inputs": [ "batch_learn" ], "Params": [ "algorithm:DirectControl" ] },
+  "blender_skin_arm_ctrl": { "Type": "BlenderArm",   "Inputs": [ "controlAlgorithm2" ], "Params": [ "localhost", 3334 ] }
+}

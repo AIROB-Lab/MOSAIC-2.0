@@ -1,0 +1,275 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:streaming="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.Streaming.SerialSenderCardView"
+    x:DataType="streaming:SerialSenderViewModel">
+
+    <Border Padding="14" Margin="16" CornerRadius="14"
+            BorderBrush="{DynamicResource ThemeBorderBrush}"
+            BorderThickness="1"
+            Background="{DynamicResource ThemeCardGradient}">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header Section -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="SERIAL" FontSize="9" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding ConnectionInfo}"
+                               FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                </StackPanel>
+
+                <!-- Link badge. Two mutually exclusive borders rather than a converter, so the
+                     colour comes from the theme's status brushes. -->
+                <Panel Grid.Column="1" VerticalAlignment="Center">
+                    <Border Background="{StaticResource StatusNormalBrush}"
+                            CornerRadius="12" Padding="12,5"
+                            IsVisible="{Binding IsConnected}">
+                        <TextBlock Text="{Binding StatusText}"
+                                   FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                    </Border>
+                    <Border Background="{StaticResource StatusWarningBrush}"
+                            CornerRadius="12" Padding="12,5"
+                            IsVisible="{Binding !IsConnected}">
+                        <TextBlock Text="{Binding StatusText}"
+                                   FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                    </Border>
+                </Panel>
+            </Grid>
+
+            <Border Height="1" Background="{DynamicResource ThemeBorderBrush}" Opacity="0.5"/>
+
+            <!-- Port Configuration -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="PORT CONFIGURATION" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+
+                    <!-- Retargeting the link. Left enabled while connected on purpose: the case this
+                         exists for is a port that opened perfectly well and turned out to be the
+                         wrong board, which a "disconnect first" guard would lock out. -->
+                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+                        <ComboBox Grid.Column="0"
+                                  ItemsSource="{Binding AvailablePorts}"
+                                  SelectedItem="{Binding SelectedPort, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch"
+                                  FontSize="12" FontFamily="Consolas,Monaco,monospace"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                  ToolTip.Tip="Serial port to transmit on"/>
+                        <Button Grid.Column="1" Content="⟳" Command="{Binding RefreshPortsCommand}"
+                                FontSize="12" Padding="8,4" CornerRadius="4"
+                                ToolTip.Tip="Re-read the machine's serial ports"/>
+                        <TextBox Grid.Column="2" Text="{Binding BaudInput, Mode=TwoWay}" Width="86"
+                                 FontSize="12" FontFamily="Consolas,Monaco,monospace"
+                                 Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                 Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                 BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                 ToolTip.Tip="Baud rate — must match the firmware"/>
+                        <Button Grid.Column="3" Content="Apply" Command="{Binding ApplyPortCommand}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"
+                                ToolTip.Tip="Close the current port and reconnect on the selected one"/>
+                    </Grid>
+
+                    <!-- Two TextBlocks rather than a converter, matching the badge above: the colour
+                         is the difference between "in progress" and "refused". -->
+                    <Panel IsVisible="{Binding HasPortMessage}">
+                        <TextBlock Text="{Binding PortMessage}" FontSize="10" TextWrapping="Wrap"
+                                   IsVisible="{Binding !PortMessageIsError}"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                        <TextBlock Text="{Binding PortMessage}" FontSize="10" TextWrapping="Wrap"
+                                   IsVisible="{Binding PortMessageIsError}"
+                                   Foreground="{StaticResource StatusErrorBrush}"/>
+                    </Panel>
+
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="PORT" FontSize="8"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding PortText}"
+                                           FontSize="14" Foreground="{StaticResource StatusNormalBrush}"
+                                           FontWeight="Bold" HorizontalAlignment="Center"
+                                           FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="BAUD" FontSize="8"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding BaudText}"
+                                           FontSize="14" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                           FontWeight="Bold" HorizontalAlignment="Center"
+                                           FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="PRECISION" FontSize="8"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding PrecisionText}"
+                                           FontSize="14" Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                           FontWeight="Bold" HorizontalAlignment="Center"
+                                           FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Grid.Column="0" Text="LINE" FontSize="8" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LineFormatText}" FontSize="11"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Outbound Queue -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="OUTBOUND QUEUE" FontSize="9"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding DropPolicyText}" FontSize="9"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                    </Grid>
+
+                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding QueueUsage}" Height="6"
+                                 CornerRadius="3"/>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <TextBlock Grid.Column="0" Text="{Binding QueueText}" FontSize="11"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                        <TextBlock Grid.Column="1" Text="{Binding DropRateText, StringFormat='{}{0} dropped'}"
+                                   FontSize="11" HorizontalAlignment="Right"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Traffic Statistics -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="TRAFFIC STATISTICS" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12,10">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="↑" FontSize="18"
+                                           Foreground="{StaticResource StatusNormalBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="WRITTEN" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding Written, StringFormat='{}{0:N0} lines'}"
+                                               FontSize="14" Foreground="{StaticResource StatusNormalBrush}"
+                                               FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12,10">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="✕" FontSize="16"
+                                           Foreground="{StaticResource StatusErrorBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="DROPPED" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding Dropped, StringFormat='{}{0:N0} lines'}"
+                                               FontSize="14" Foreground="{StaticResource StatusErrorBrush}"
+                                               FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <TextBlock Grid.Column="0" Text="{Binding Timeouts, StringFormat='{}timeouts: {0:N0}'}"
+                                   FontSize="10" Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Reconnects, StringFormat='{}reconnects: {0:N0}'}"
+                                   FontSize="10" HorizontalAlignment="Right"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Last Line On The Wire -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1"
+                    IsVisible="{Binding HasLastLine}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="LAST LINE" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding LastLine}" FontSize="12"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                               FontFamily="Consolas,Monaco,monospace"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Last Error -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{StaticResource StatusErrorBrush}" BorderThickness="1"
+                    IsVisible="{Binding HasError}">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="LAST ERROR" FontSize="9"
+                               Foreground="{StaticResource StatusErrorBrush}" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding LastError}" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Scope Monitor -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="10"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="TRANSMITTED SIGNAL" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6"
+                            ClipToBounds="True">
+                        <visualization:VisualizationPanel Source="{Binding Block.Viz}" ScopeVisibleByDefault="True"
+                                                          ShowScopeViewModeToggle="True" MinHeight="160"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

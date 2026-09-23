@@ -1,0 +1,12 @@
+﻿{
+  "Timer": {
+  "Type": "ClockBlock",
+  "DesiredRate": 200
+  },
+  "Delsys": {
+    "Type": "Delsys",
+    "Inputs": ["Timer"],
+    "DesiredRate": 200,
+    "Params": [0]
+  }
+}

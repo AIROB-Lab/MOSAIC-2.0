@@ -1,0 +1,19 @@
+﻿{
+  "Timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 100
+  },
+
+  "Stimulus": {
+    "Type":        "Stimulus",
+     "DesiredRate":  0,
+     "Inputs":      ["Timer"],
+     "Params":      [
+       "4.0",
+       "rest:0;0;0;0;0;0;0;0;0;0;0;0",
+       "power:1;1;1;1;1;1;0;0;0;0;0;0",
+       "flex:0;0;0;0;0;0;1;0;0;0;0;0",
+       "extend:0;0;0;0;0;0;0;1;0;0;0;0"
+     ]
+   }
+}

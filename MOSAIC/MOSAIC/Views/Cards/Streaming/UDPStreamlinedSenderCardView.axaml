@@ -1,0 +1,235 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:streaming="clr-namespace:MOSAIC.ViewModels.Streaming"
+    x:Class="MOSAIC.Views.Cards.Streaming.UdpStreamlinedSenderCardView"
+    x:DataType="streaming:UdpStreamlinedSenderViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Sender.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="UDP" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding Sender.IsConnected}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="CONNECTED" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}UDP → {0}:{1}">
+                                <Binding Path="Sender.HostIp"/>
+                                <Binding Path="Sender.Port"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Block Status -->
+                <Border Grid.Column="1"
+                        Background="{Binding Sender.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Sender.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Connection Settings -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="CONNECTION" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+                        <!-- Host IP -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Host" Classes="fieldLabel"/>
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding Sender.HostIp, Mode=TwoWay}"
+                                 FontSize="12" FontFamily="Cascadia Mono, Consolas, monospace"
+                                 IsEnabled="{Binding !Sender.IsConnected}"
+                                 Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                 Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                 BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+
+                        <!-- Port -->
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Port" Classes="fieldLabel"/>
+                        <TextBox Grid.Row="0" Grid.Column="3"
+                                 Text="{Binding Sender.Port, Mode=TwoWay}"
+                                 FontSize="12" FontFamily="Cascadia Mono, Consolas, monospace"
+                                 Width="70"
+                                 IsEnabled="{Binding !Sender.IsConnected}"
+                                 Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                 Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                 BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                    </Grid>
+
+                    <!-- Connect / Disconnect buttons -->
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Content="Connect" Command="{Binding ConnectCommand}"
+                                IsVisible="{Binding !Sender.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"
+                                Background="{StaticResource StreamingSourcesBrush}" Foreground="White"/>
+                        <Button Content="Disconnect" Command="{Binding DisconnectCommand}"
+                                IsVisible="{Binding Sender.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"
+                                Background="{StaticResource StatusErrorBrush}" Foreground="White"/>
+                        <Button Content="Reconnect" Command="{Binding ReconnectCommand}"
+                                IsVisible="{Binding Sender.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Live Stats -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="LIVE STATUS" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+                        <!-- Row 0: Counter + Bytes -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Packets" Classes="fieldLabel"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding Sender.UdpCounter}"
+                                   FontSize="11" FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Bytes" Classes="fieldLabel"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3"
+                                   Text="{Binding Sender.TotalBytesSent, StringFormat={}{0:N0}}"
+                                   FontSize="11" FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <!-- Row 1: Last data type + sender -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Type" Classes="fieldLabel"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding Sender.LastDataType}"
+                                   FontSize="11" FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Source" Classes="fieldLabel"/>
+                        <TextBlock Grid.Row="1" Grid.Column="3"
+                                   Text="{Binding Sender.LastSenderType}"
+                                   FontSize="11" FontFamily="Cascadia Mono, Consolas, monospace"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Protocol Reference (collapsible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ToggleButton IsChecked="{Binding IsProtocolExpanded}"
+                                      Content="▸" FontSize="10" Padding="4,2"
+                                      Background="Transparent" BorderThickness="0"
+                                      Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                            <ToggleButton.Styles>
+                                <Style Selector="ToggleButton:checked">
+                                    <Setter Property="Content" Value="▾"/>
+                                </Style>
+                            </ToggleButton.Styles>
+                        </ToggleButton>
+                        <TextBlock Text="PROTOCOL REFERENCE" Classes="sectionLabel"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Packet layout diagram -->
+                    <TextBlock IsVisible="{Binding IsProtocolExpanded}"
+                               FontSize="10" FontFamily="Cascadia Mono, Consolas, monospace"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                               TextWrapping="Wrap"
+                               Text="|0:count|1:valType|2:cat|3:sub|4–11:timestamp|12…N-2:DATA|N-1…N:counter|"/>
+
+                    <!-- Data type table -->
+                    <ItemsControl IsVisible="{Binding IsProtocolExpanded}"
+                                  ItemsSource="{Binding ProtocolEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="50,*" Margin="0,1">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Code}"
+                                               FontSize="10" FontFamily="Cascadia Mono, Consolas, monospace"
+                                               Foreground="{StaticResource StreamingSourcesBrush}"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Label}"
+                                               FontSize="10"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Message Log (collapsible) -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                            <ToggleButton IsChecked="{Binding IsLogExpanded}"
+                                          Content="▸" FontSize="10" Padding="4,2"
+                                          Background="Transparent" BorderThickness="0"
+                                          Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                                <ToggleButton.Styles>
+                                    <Style Selector="ToggleButton:checked">
+                                        <Setter Property="Content" Value="▾"/>
+                                    </Style>
+                                </ToggleButton.Styles>
+                            </ToggleButton>
+                            <TextBlock Text="MESSAGE LOG" Classes="sectionLabel"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock FontSize="11" Foreground="{DynamicResource ThemeTextDimmedBrush}"
+                                       VerticalAlignment="Center"
+                                       Text="(every 100th packet)"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Clear" Command="{Binding ClearLogCommand}"
+                                FontSize="9" Padding="8,3" CornerRadius="4"
+                                IsVisible="{Binding IsLogExpanded}"/>
+                    </Grid>
+
+                    <ItemsControl IsVisible="{Binding IsLogExpanded}"
+                                  ItemsSource="{Binding Sender.MessageLog}"
+                                  MaxHeight="200">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           FontSize="10" FontFamily="Cascadia Mono, Consolas, monospace"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           Margin="0,1"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Visualization -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="OUTPUT STREAM" Classes="sectionLabel"/>
+                    <viz:VisualizationPanel
+                        Source="{Binding Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

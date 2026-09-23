@@ -1,0 +1,98 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:graph="clr-namespace:MOSAIC.ViewModels.Graph"
+    xmlns:sel="clr-namespace:MOSAIC.Selector"
+    xmlns:v="clr-namespace:MOSAIC.Views"
+    x:DataType="graph:VertexGroupViewModel"
+    x:Class="MOSAIC.Views.GroupCardView"
+    x:CompileBindings="False">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor" />
+        <sel:BlockTemplateSelector x:Key="MemberSelector" />
+    </UserControl.Resources>
+
+    <Border CornerRadius="10"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource ThemeBorderBrush}"
+            Background="{DynamicResource ThemeCardGradient}"
+            Margin="0,2">
+
+        <Grid ColumnDefinitions="4,*">
+
+            <!-- Left accent bar — aggregate status colour -->
+            <Border Grid.Column="0"
+                    CornerRadius="10,0,0,10"
+                    Background="{Binding AggregateStatus, Converter={StaticResource StatusToColor}}"/>
+
+            <StackPanel Grid.Column="1" Spacing="0">
+
+                <!-- ═══ GROUP HEADER ═══ -->
+                <Expander x:Name="GroupExpander"
+                          IsExpanded="True"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Padding="0">
+                    <Expander.Header>
+                        <StackPanel Spacing="3" Margin="4,2">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <!-- Subsystem icon -->
+                                <Panel Width="16" Height="16" VerticalAlignment="Center">
+                                    <Border Width="11" Height="11"
+                                            BorderThickness="1.5"
+                                            BorderBrush="{Binding AggregateStatus, Converter={StaticResource StatusToColor}}"
+                                            CornerRadius="2"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Opacity="0.5"/>
+                                    <Border Width="11" Height="11"
+                                            BorderThickness="1.5"
+                                            BorderBrush="{Binding AggregateStatus, Converter={StaticResource StatusToColor}}"
+                                            CornerRadius="2"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"/>
+                                </Panel>
+
+                                <TextBlock Text="{Binding Name}"
+                                           FontWeight="Bold" FontSize="15"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+
+                                <Border Background="{Binding AggregateStatus, Converter={StaticResource StatusToColor}}"
+                                        CornerRadius="8" Padding="7,2" Opacity="0.85"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding BlockCount, StringFormat={}{0} blocks}"
+                                               FontSize="9" FontWeight="SemiBold"
+                                               Foreground="White"/>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding ContentSummary}"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource ThemeTextMutedBrush}"
+                                       Margin="24,0,0,0"/>
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <!-- ═══ MEMBER CARDS — same pattern as main flyout ═══ -->
+                    <ItemsControl ItemsSource="{Binding MemberBlocks}"
+                                  Margin="4,4,4,8">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="0"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <v:ExpanderItem HorizontalAlignment="Stretch"
+                                                ContentTemplate="{StaticResource MemberSelector}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Expander>
+
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

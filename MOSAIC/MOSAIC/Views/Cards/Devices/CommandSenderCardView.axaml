@@ -1,0 +1,155 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:devices="clr-namespace:MOSAIC.ViewModels.Devices"
+             xmlns:converters="using:MOSAIC.Converters"
+             xmlns:controls="clr-namespace:MOSAIC.Controls"
+             x:Class="MOSAIC.Views.Cards.Devices.CommandSenderCardView"
+             x:DataType="devices:CommandSenderViewModel">
+
+  <UserControl.Resources>
+    <converters:BoolToStatusColorConverter x:Key="BoolToStatusColor"/>
+  </UserControl.Resources>
+
+  <Border Classes="card">
+    <StackPanel Spacing="12">
+
+      <!-- Header -->
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <TextBlock Classes="cardTitle" Text="ESP Command Sender" VerticalAlignment="Center"/>
+          <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+            <TextBlock Text="DEVICE" FontSize="10" FontWeight="Bold" Foreground="White"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+        </StackPanel>
+        <Border Grid.Column="1" CornerRadius="12" Padding="12,5" VerticalAlignment="Center"
+                Background="{Binding IsConnected, Converter={StaticResource BoolToStatusColor}}">
+          <Panel>
+            <TextBlock Text="Connected" IsVisible="{Binding IsConnected}"
+                       FontSize="10" FontWeight="SemiBold" Foreground="White"/>
+            <TextBlock Text="Disconnected" IsVisible="{Binding !IsConnected}"
+                       FontSize="10" FontWeight="SemiBold" Foreground="White"/>
+          </Panel>
+        </Border>
+      </Grid>
+
+      <Border Classes="divider"/>
+
+      <!-- Connection: IP + Port + Connect button -->
+      <Border Classes="cardSection">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="sectionLabel" Text="CONNECTION"/>
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" Margin="8,0,0,0">
+              <Button Command="{Binding ConnectCommand}"
+                      MinWidth="75"
+                      FontSize="11" FontWeight="SemiBold" Foreground="White"
+                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                      Background="{StaticResource CategoryDevicesBrush}">
+                <Panel>
+                  <TextBlock Text="Connect" IsVisible="{Binding !IsConnected}"/>
+                  <TextBlock Text="Reconnect" IsVisible="{Binding IsConnected}"/>
+                </Panel>
+              </Button>
+              <Button Content="Disconnect" Command="{Binding DisconnectCommand}"
+                      MinWidth="75" FontSize="11"
+                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                      IsVisible="{Binding IsConnected}"/>
+            </StackPanel>
+            <Grid ColumnDefinitions="*,8,80">
+              <TextBox Grid.Column="0" Text="{Binding Host}" PlaceholderText="IP Address"
+                       FontSize="12" FontFamily="Cascadia Mono,Consolas,monospace"/>
+              <TextBox Grid.Column="2" Text="{Binding Port}" PlaceholderText="Port"
+                       Width="80" FontSize="12"
+                       FontFamily="Cascadia Mono,Consolas,monospace"/>
+            </Grid>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Stream Type Checkboxes: these ARE the desired state, not a selection -->
+      <Border Classes="cardSection">
+        <StackPanel Spacing="8">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+              <Button Content="All" Command="{Binding SelectAllStreamsCommand}"
+                      FontSize="10" Padding="8,2" MinWidth="40"/>
+              <Button Content="None" Command="{Binding ClearAllStreamsCommand}"
+                      FontSize="10" Padding="8,2" MinWidth="40"/>
+            </StackPanel>
+            <TextBlock Classes="sectionLabel" Text="DATA STREAMS — TICKED = ON"
+                       VerticalAlignment="Center"/>
+          </DockPanel>
+          <ItemsControl ItemsSource="{Binding StreamOptions}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="devices:StreamTypeOption">
+                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Label}"
+                          FontSize="11" Margin="0,0,12,0"
+                          Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Device Number + On/Off + Send -->
+      <Border Classes="cardSection">
+        <StackPanel Spacing="8">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Right" FontSize="10" Opacity="0.6"
+                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                       VerticalAlignment="Center"
+                       Text="{Binding DeviceCount, StringFormat='{}{0} node(s)'}"/>
+            <TextBlock Classes="sectionLabel" Text="TARGET DEVICES" VerticalAlignment="Center"/>
+          </DockPanel>
+
+          <!-- A body rig carries many nodes at once, so this takes a set rather than a
+               single number: ids and inclusive ranges, e.g. "1-8, 18". Free text rather
+               than a spinner because node ids are sparse - a rig can have sensor 18 with
+               nothing below it - and one Apply per node is not workable at rig scale. -->
+          <TextBox Text="{Binding DeviceSpec}"
+                   Watermark="e.g. 18   or   1-8, 18"
+                   FontSize="13" FontFamily="Cascadia Mono,Consolas,monospace"/>
+
+          <!-- Apply: drives the device to exactly the ticked state. There is no ON/OFF
+               mode toggle any more — un-ticked streams get an explicit "off". -->
+          <Button Content="Apply to device" Command="{Binding ApplyCommand}"
+                  HorizontalAlignment="Stretch" MinHeight="30"
+                  FontWeight="SemiBold" FontSize="12" Foreground="White"
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                  Background="{StaticResource CategoryDevicesBrush}"
+                  IsEnabled="{Binding IsConnected}"/>
+
+          <!-- Exactly what will go on the wire, so the resulting state and a wrong
+               device number are both obvious before pressing Apply. -->
+          <Border Background="{DynamicResource ThemeBackgroundBrush}"
+                  CornerRadius="4" Padding="8,5">
+            <TextBlock Text="{Binding CommandPreview}"
+                       FontSize="11" FontFamily="Cascadia Mono,Consolas,monospace"
+                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                       TextWrapping="Wrap"/>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <!-- Status bar -->
+      <Border Classes="cardSection">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Right" FontSize="10" Opacity="0.4"
+                     Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                     Text="{Binding Info.CommandsSent, StringFormat='{}Sent: {0}', FallbackValue=''}"/>
+          <TextBlock Text="{Binding StatusMessage, FallbackValue='Ready'}"
+                     FontSize="11" FontFamily="Cascadia Mono,Consolas,monospace"
+                     Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                     TextTrimming="CharacterEllipsis"/>
+        </DockPanel>
+      </Border>
+
+    </StackPanel>
+  </Border>
+</UserControl>

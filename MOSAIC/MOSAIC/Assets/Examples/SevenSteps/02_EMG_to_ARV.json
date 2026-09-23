@@ -1,0 +1,21 @@
+﻿// -------------------------------------
+// Example 2: EMG to ARV processing
+// -------------------------------------
+// - Clock at 200 Hz drives the Myo source (Myo's hardware rate cap).
+// - Pipeline: amplify x5 -> rectify -> low-pass @ 2 Hz -> ARV
+// - ARV is fanned out to two downstream sinks via self-clocked Resamplers:
+//     ARV_slow at 5 Hz, ARV_fast at 25 Hz.
+// - DesiredRate propagates through the chain automatically; only set on Clock
+//   and on the Resamplers (whose target rate breaks the chain).
+// - FilterBlock designs the filter internally from the spec — no raw [b,a].
+//   ["Lowpass", "IIR", 2, 0, 2] = 2nd-order Butterworth LP @ 2 Hz at Fs=200.
+// -------------------------------------
+{
+  "Clock":             { "Type": "Clock",       "DesiredRate": 200 },
+  "raw_EMG":           { "Type": "Myo",         "Inputs": [ "Clock" ] },
+  "amplified_raw_EMG": { "Type": "Function",    "Inputs": [ "raw_EMG" ],           "Params": [ "multiply", 5 ] },
+  "rectified_raw_EMG": { "Type": "Function",    "Inputs": [ "amplified_raw_EMG" ], "Params": [ "abs" ] },
+  "ARV_LPF":           { "Type": "FilterBlock", "Inputs": [ "rectified_raw_EMG" ], "Params": [ "Lowpass", "IIR", 2, 0, 1.5 ] },
+  "ARV_slow":          { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 5 ] },
+  "ARV_fast":          { "Type": "Resampler",   "Inputs": [ "ARV_LPF" ],           "Params": [ 25 ] }
+}

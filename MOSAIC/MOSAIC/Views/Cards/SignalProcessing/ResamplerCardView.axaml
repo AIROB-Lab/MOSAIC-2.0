@@ -1,0 +1,172 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels"
+    xmlns:scope="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    xmlns:signalProcessing="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.ResamplerCardView"
+    x:DataType="signalProcessing:ResamplerViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Resampler.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="RESAMPLER" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Resampler.ConfigSummary}" Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" 
+                        Background="{Binding Resampler.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Resampler.Status}" 
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Rate Configuration -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="RATE CONFIGURATION" Classes="sectionLabel"/>
+                    
+                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
+                        <!-- Input Rate (read-only, detected) -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                CornerRadius="6" Padding="12,10">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="INPUT (detected)" FontSize="8" 
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                           HorizontalAlignment="Center"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="{Binding Resampler.InputRate, StringFormat='{}{0:F0}'}" 
+                                               FontSize="18" Foreground="{StaticResource CategorySignalProcessingBrush}" 
+                                               FontWeight="Bold"/>
+                                    <TextBlock Text="Hz" FontSize="10" 
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                               VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Arrow with ratio -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="→" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Resampler.ResampleRatio, StringFormat='×{0:F2}'}" 
+                                       FontSize="10" Foreground="{StaticResource StatusWarningBrush}"
+                                       HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        
+                        <!-- Target Rate (editable) -->
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                CornerRadius="6" Padding="12,10"
+                                BorderBrush="{StaticResource CategorySignalProcessingBrush}" BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="TARGET (output)" FontSize="8" 
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                           HorizontalAlignment="Center"/>
+                                <controls:SafeNumericUpDown Value="{Binding Resampler.TargetRate}"
+                                               Minimum="1" Maximum="10000" Increment="10"
+                                               FormatString="F0"
+                                               Background="Transparent"
+                                               BorderThickness="0"
+                                               Foreground="{StaticResource StatusNormalBrush}"
+                                               FontSize="16" FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               HorizontalContentAlignment="Center"
+                                               ShowButtonSpinner="True"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Statistics -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="STATISTICS" Classes="sectionLabel"/>
+                        <Button Grid.Column="1" Content="Reset"
+                                Command="{Binding ResetStatisticsCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                Padding="8,4" CornerRadius="4" FontSize="10"/>
+                    </Grid>
+                    
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <!-- Channels -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="CHANNELS" FontSize="8" 
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Resampler.ChannelCount}" 
+                                           FontSize="16" Foreground="{StaticResource CategorySignalProcessingBrush}" 
+                                           FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Received -->
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="RECEIVED" FontSize="8" 
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Resampler.SamplesReceived, StringFormat='{}{0:N0}'}" 
+                                           FontSize="14" Foreground="{DynamicResource ThemeTextPrimaryBrush}" 
+                                           FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Published -->
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="PUBLISHED" FontSize="8" 
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Resampler.SamplesPublished, StringFormat='{}{0:N0}'}" 
+                                           FontSize="14" Foreground="{StaticResource StatusNormalBrush}" 
+                                           FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Scope Monitor -->
+            <Border Classes="cardSection" MinHeight="180">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="OUTPUT SIGNAL" Classes="sectionLabel"/>
+                    
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" 
+                            ClipToBounds="True" MinHeight="170">
+                        <visualization:VisualizationPanel Source="{Binding Resampler.Viz}" ScopeVisibleByDefault="True" 
+                                                          ShowScopeViewModeToggle="True" MinHeight="170"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

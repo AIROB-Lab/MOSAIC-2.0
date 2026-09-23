@@ -1,0 +1,45 @@
+{
+  "configs": [
+    {
+      "config_id": 0,
+      "tx_channels": [
+        0
+      ],
+      "rx_channels": [
+        0
+      ],
+      "optimized_switching": true
+    },
+    {
+      "config_id": 1,
+      "tx_channels": [
+        2
+      ],
+      "rx_channels": [
+        2
+      ],
+      "optimized_switching": true
+    },
+    {
+      "config_id": 2,
+      "tx_channels": [
+        4
+      ],
+      "rx_channels": [
+        4
+      ],
+      "optimized_switching": true
+    },
+    {
+      "config_id": 3,
+      "tx_channels": [
+        6
+      ],
+      "rx_channels": [
+        6
+      ],
+      "optimized_switching": true
+    }
+
+  ]
+}

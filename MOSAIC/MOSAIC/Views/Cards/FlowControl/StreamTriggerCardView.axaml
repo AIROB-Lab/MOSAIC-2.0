@@ -1,0 +1,83 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    x:Class="MOSAIC.Views.Cards.FlowControl.StreamTriggerCardView"
+    x:DataType="vm:StreamTriggerViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding StreamTrigger.Name}"
+                                   Classes="cardTitle"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}"
+                                CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="TRIGGER" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding StreamTrigger.StatusText}"
+                               Classes="cardSubtitle"/>
+                </StackPanel>
+                <Border Grid.Column="1"
+                        Background="{Binding StreamTrigger.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StreamTrigger.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <ToggleSwitch Grid.Column="0"
+                                  IsChecked="{Binding StreamTrigger.IsStreaming, Mode=OneWay}"
+                                  OnContent="Recording"
+                                  OffContent="Stopped"
+                                  Command="{Binding StreamTrigger.ToggleStreamCommand}"
+                                  VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding StreamTrigger.PublishedCount, StringFormat='{}{0:N0} frames published'}"
+                               VerticalAlignment="Center" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding StreamTrigger.ReceivedCount, StringFormat='{}{0:N0} received'}"
+                               VerticalAlignment="Center" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                </Grid>
+            </Border>
+
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <TextBlock Grid.Column="0" Text="Session" VerticalAlignment="Center"
+                               Classes="fieldLabel"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding StreamTrigger.SessionName, Mode=TwoWay}"
+                             PlaceholderText="session-name"
+                             FontSize="11"/>
+                </Grid>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="LATEST UPSTREAM LABEL" Classes="sectionLabel"/>
+                    <TextBlock Text="{Binding StreamTrigger.LatestLabelText}"
+                               FontFamily="Consolas, monospace" FontSize="13"
+                               Foreground="{StaticResource CategoryFlowControlBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

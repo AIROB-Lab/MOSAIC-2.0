@@ -1,0 +1,8 @@
+﻿{
+  "quattrocento": {
+    "Type": "Quattrocento",
+    "Inputs": [],
+    "DesiredRate": 16,
+    "Params": [ "ip:169.254.1.10", "port:23456", "fsamp:3", "nch:3" ]
+  }
+}

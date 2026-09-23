@@ -1,0 +1,58 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:models="clr-namespace:MOSAIC.ViewModels"
+    x:Class="MOSAIC.Views.Cards.JoinerCardView"
+    x:DataType="models:JoinerViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+        <converters:StatusToBoolConverter x:Key="BlockStatusToEnabled"/>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Joiner.Name}" Classes="cardTitle"/>
+                        <!-- Category badge -->
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="JOINER" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Joiner.FrequencyText}" Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <!-- Status badge -->
+                <Border Grid.Column="1" 
+                        Background="{Binding Joiner.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Joiner.Status}" 
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Block configuration is opened from the ⚙ gear button in the card header (PopoutCardBase). -->
+
+            <!-- Description -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="DESCRIPTION" Classes="sectionLabel"/>
+                    <TextBlock Text="Concatenates vectors/matrices from multiple input sources. Publishes combined output when the configured timer source triggers." 
+                               FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" 
+                               TextWrapping="Wrap" LineHeight="18"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

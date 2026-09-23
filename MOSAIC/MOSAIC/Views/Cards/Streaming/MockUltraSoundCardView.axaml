@@ -1,0 +1,239 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.Streaming.MockUltrasoundSourceCardView"
+    x:DataType="vm:MockUltrasoundSourceViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Active class button gets a filled background and white text.
+             Inactive ones stay translucent so the active one really stands out. -->
+        <Style Selector="Button.class-btn">
+            <Setter Property="Background" Value="{DynamicResource ThemeInputBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeTextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Button.class-btn.active">
+            <Setter Property="Background" Value="{StaticResource StreamingSourcesBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource StreamingSourcesBrush}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding MockUltrasound.Name}"
+                                   Classes="cardTitle"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}"
+                                CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="MOCK US" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardSubtitle">
+                            <Run Text="{Binding MockUltrasound.FrameHeight}"/>
+                            <Run Text="×"/>
+                            <Run Text="{Binding MockUltrasound.FrameWidth}"/>
+                            <Run Text=" • "/>
+                            <Run Text="{Binding MockUltrasound.NumClasses}"/>
+                            <Run Text=" classes"/>
+                        </TextBlock>
+                        <TextBlock Text="•" FontSize="11"
+                                   Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                        <TextBlock Text="{Binding MockUltrasound.FrameCount, StringFormat='{}{0:N0} frames'}"
+                                   Classes="cardSubtitle"/>
+                    </StackPanel>
+                </StackPanel>
+                <Border Grid.Column="1"
+                        Background="{Binding MockUltrasound.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding MockUltrasound.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Class buttons row -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Active class" Classes="fieldLabel"/>
+                <ItemsControl ItemsSource="{Binding ClassButtons}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" ItemSpacing="6" LineSpacing="6"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ClassButtonItem">
+                            <Button Classes="class-btn"
+                                    Classes.active="{Binding IsActive}"
+                                    Content="{Binding Label}"
+                                    Command="{Binding $parent[ItemsControl].((vm:MockUltrasoundSourceViewModel)DataContext).SelectClassCommand}"
+                                    CommandParameter="{Binding ClassId}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- Auto-cycle row -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                    <ToggleSwitch Grid.Column="0"
+                                  IsChecked="{Binding AutoCycleEnabled}"
+                                  OnContent="Auto" OffContent="Manual"
+                                  VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{Binding AutoCycleStatusText}"
+                               Classes="fieldLabel"/>
+                    <Slider Grid.Column="2" Minimum="0.5" Maximum="20"
+                            Value="{Binding CycleSeconds}"
+                            Width="160" VerticalAlignment="Center"
+                            TickFrequency="0.5" IsSnapToTickEnabled="True"/>
+                    <TextBlock Grid.Column="3" Text="{Binding CycleSeconds, StringFormat='{}{0:F1} s'}"
+                               Width="40" TextAlignment="Right" VerticalAlignment="Center"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource StreamingSourcesBrush}"/>
+                </Grid>
+            </Border>
+
+            <!-- Noise level -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                    <TextBlock Grid.Column="0" Text="Noise" Classes="fieldLabel"/>
+                    <controls:SafeNumericUpDown Grid.Column="1"
+                                   Minimum="0.0" Maximum="0.5"
+                                   Value="{Binding MockUltrasound.NoiseLevel}"
+                                   Increment="0.01" FormatString="0.00"
+                                   FontSize="12"/>
+                </Grid>
+            </Border>
+
+            <!-- Mode toggle (label vs weighted-blend) -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <ToggleSwitch Grid.Column="0"
+                                  IsChecked="{Binding MockUltrasound.WeightedMode, Mode=TwoWay}"
+                                  OnContent="Weighted"
+                                  OffContent="Label"
+                                  VerticalAlignment="Center"/>
+                    <Panel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock IsVisible="{Binding !MockUltrasound.WeightedMode}"
+                                   Text="Label mode: frame = pattern[CurrentClass]"
+                                   Classes="hint"/>
+                        <TextBlock IsVisible="{Binding MockUltrasound.WeightedMode}"
+                                   Text="Weighted mode: frame = Σ wᵢ · patternᵢ"
+                                   Classes="hint"/>
+                    </Panel>
+                </Grid>
+            </Border>
+
+            <!-- Weight source selector + driver UI (weighted mode only).
+                 Three buttons act as a segmented control: Upstream uses upstream
+                 Vector input (default — what training uses), Manual reveals
+                 per-channel sliders for precise testing, Sweep starts an internal
+                 sin²-bank generator for hands-free demos. -->
+            <Border Classes="cardSection"
+                    IsVisible="{Binding MockUltrasound.WeightedMode}">
+                <StackPanel Spacing="10">
+
+                    <!-- Source selector (three buttons, current one highlighted) -->
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="Source:" Classes="fieldLabel"/>
+                        <RadioButton Content="Upstream"
+                                     GroupName="WeightSource"
+                                     IsChecked="{Binding MockUltrasound.WeightSource,
+                                                         Mode=TwoWay,
+                                                         Converter={x:Static converters:EnumToBoolConverter.Instance},
+                                                         ConverterParameter=Upstream}"
+                                     FontSize="11"
+                                     VerticalContentAlignment="Center"/>
+                        <RadioButton Content="Manual"
+                                     GroupName="WeightSource"
+                                     IsChecked="{Binding MockUltrasound.WeightSource,
+                                                         Mode=TwoWay,
+                                                         Converter={x:Static converters:EnumToBoolConverter.Instance},
+                                                         ConverterParameter=Manual}"
+                                     FontSize="11"
+                                     VerticalContentAlignment="Center"/>
+                        <RadioButton Content="Sweep"
+                                     GroupName="WeightSource"
+                                     IsChecked="{Binding MockUltrasound.WeightSource,
+                                                         Mode=TwoWay,
+                                                         Converter={x:Static converters:EnumToBoolConverter.Instance},
+                                                         ConverterParameter=Sweep}"
+                                     FontSize="11"
+                                     VerticalContentAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Manual sliders: one per channel, only shown when Source=Manual -->
+                    <StackPanel Spacing="4"
+                                IsVisible="{Binding MockUltrasound.WeightSource,
+                                                    Converter={x:Static converters:EnumToBoolConverter.Instance},
+                                                    ConverterParameter=Manual}">
+                        <TextBlock Text="MANUAL WEIGHTS" Classes="sectionLabel"/>
+                        <ItemsControl ItemsSource="{Binding MockUltrasound.ManualChannels}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" Spacing="3"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="40,*" ColumnSpacing="6">
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                   VerticalAlignment="Center" FontSize="10"
+                                                   FontFamily="Cascadia Code,Consolas,monospace"
+                                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                                        <controls:SafeNumericUpDown Grid.Column="1"
+                                                       Minimum="0" Maximum="1"
+                                                       Value="{Binding Value, Mode=TwoWay}"
+                                                       Increment="0.05" FormatString="0.00"
+                                                       FontSize="11"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Sweep frequency: only shown when Source=Sweep -->
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10"
+                          IsVisible="{Binding MockUltrasound.WeightSource,
+                                              Converter={x:Static converters:EnumToBoolConverter.Instance},
+                                              ConverterParameter=Sweep}">
+                        <TextBlock Grid.Column="0" Text="Sweep frequency (Hz)"
+                                   Classes="fieldLabel"/>
+                        <controls:SafeNumericUpDown Grid.Column="1"
+                                       Minimum="0.05" Maximum="2.0"
+                                       Value="{Binding MockUltrasound.SweepFrequencyHz, Mode=TwoWay}"
+                                       Increment="0.05" FormatString="0.00"
+                                       FontSize="12"/>
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Visualization (the generated frame) -->
+            <Border Classes="cardSection" MinHeight="200">
+                <viz:VisualizationPanel Source="{Binding MockUltrasound.Viz}"/>
+            </Border>
+        </StackPanel>
+    </Border>
+</UserControl>

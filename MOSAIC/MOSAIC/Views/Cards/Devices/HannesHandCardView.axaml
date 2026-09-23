@@ -1,0 +1,327 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:devices="clr-namespace:MOSAIC.ViewModels.Devices"
+    x:Class="MOSAIC.Views.Cards.Devices.HannesHandCardView"
+    x:DataType="devices:HannesHandViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+        <converters:StatusTextToColorConverter x:Key="StatusTextToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding HannesHand.Name}"/>
+                        <!-- Category badge - Devices Sky Blue -->
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="HANNES" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding HannesHand.FrequencyText}"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding HannesHand.Status, Converter={StaticResource StatusTextToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding HannesHand.Status}" FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Rehab Dongle Connection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="REHAB DONGLE"/>
+                        <TextBlock Grid.Column="1" Text="{Binding DongleStatus}" FontSize="10"
+                                   Foreground="{Binding DongleStatus, Converter={StaticResource StatusTextToColor}}" FontWeight="SemiBold"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding PortName, Mode=TwoWay}"
+                                 PlaceholderText="COM Port (e.g., 50)"
+                                 Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                 Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                 BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+
+                        <Button Grid.Column="1"
+                                Content="Connect"
+                                Command="{Binding ConnectDongleCommand}"
+                                Background="{StaticResource CategoryDevicesBrush}" Foreground="White"
+                                Padding="16,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11" MinWidth="90"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Hannes Device Connection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="HANNES DEVICE"/>
+                        <TextBlock Grid.Column="1" Text="{Binding HannesStatus}" FontSize="10"
+                                   Foreground="{Binding HannesStatus, Converter={StaticResource StatusTextToColor}}" FontWeight="SemiBold"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                        <Button Grid.Column="0" Content="Scan"
+                                Command="{Binding StartScanCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                Padding="16,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11"/>
+
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding FoundDevices}"
+                                  SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                                  PlaceholderText="Select device..."
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  HorizontalAlignment="Stretch"/>
+
+                        <Button Grid.Column="2"
+                                Content="Connect"
+                                Command="{Binding ConnectHannesCommand}"
+                                Background="{StaticResource CategoryDevicesBrush}" Foreground="White"
+                                Padding="16,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11" MinWidth="90"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+                        <Button Grid.Column="3"
+                                Content="Disconnect"
+                                Command="{Binding DisconnectHannesCommand}"
+                                Background="{StaticResource StatusErrorBrush}" Foreground="White"
+                                Padding="12,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Control Mode Toggle -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="CONTROL MODE"/>
+                        <TextBlock Text="{Binding ControlModeText}" FontSize="12"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <ToggleSwitch Grid.Column="1"
+                                  IsChecked="{Binding IsManualMode, Mode=TwoWay}"
+                                  OnContent="Manual" OffContent="Input"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  PointerPressed="ToggleSwitch_PointerPressed"
+                                  PointerReleased="ToggleSwitch_PointerReleased"/>
+                </Grid>
+            </Border>
+
+            <!-- Manual Control (only visible in manual mode) -->
+            <Border Classes="cardSection"
+                    IsVisible="{Binding IsManualMode}">
+                <StackPanel Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="MANUAL CONTROL"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="Center All" Command="{Binding CenterSlidersCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}" 
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}" 
+                                Padding="10,4" CornerRadius="4"
+                                FontSize="10" FontWeight="SemiBold"/>
+                    </Grid>
+                    
+                    <!-- Hand Open/Close -->
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Hand Open/Close" FontSize="12" 
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding HandValue, StringFormat='{}{0:F0}'}" 
+                                       FontSize="11" Foreground="{StaticResource CategoryDevicesBrush}" FontWeight="Bold"/>
+                        </Grid>
+                        <Slider Value="{Binding HandValue, Mode=TwoWay}" 
+                                Minimum="0" Maximum="100"/>
+                        <Grid ColumnDefinitions="*,*">
+                            <TextBlock Grid.Column="0" Text="Open" FontSize="9" 
+                                       Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="Close" FontSize="9" 
+                                       Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Wrist Flex/Extend -->
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Wrist Flex/Extend" FontSize="12" 
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding WristFeValue, StringFormat='{}{0:F0}'}" 
+                                       FontSize="11" Foreground="{StaticResource CategoryDevicesBrush}" FontWeight="Bold"/>
+                        </Grid>
+                        <Slider Value="{Binding WristFeValue, Mode=TwoWay}" 
+                                Minimum="0" Maximum="100"/>
+                        <Grid ColumnDefinitions="*,*">
+                            <TextBlock Grid.Column="0" Text="Flex" FontSize="9" 
+                                       Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="Extend" FontSize="9" 
+                                       Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Wrist Pronation/Supination -->
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Wrist Rotation (Velocity)" FontSize="12" 
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding WristPsValue, StringFormat='{}{0:F0}'}" 
+                                       FontSize="11" Foreground="{StaticResource CategoryDevicesBrush}" FontWeight="Bold"/>
+                        </Grid>
+                        
+                        <!-- Desktop: Slider -->
+                        <StackPanel Spacing="4" IsVisible="{Binding UseSliderControl}">
+                            <Slider Value="{Binding WristPsValue, Mode=TwoWay}" 
+                                    Minimum="-100" Maximum="100"
+                                    x:Name="WristPsSlider"
+                                    PointerReleased="VelocitySlider_Released"
+                                    PointerCaptureLost="VelocitySlider_CaptureLost"/>
+                            <Grid ColumnDefinitions="*,Auto,*">
+                                <TextBlock Grid.Column="0" Text="Supination" FontSize="9" 
+                                           Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="1" Text="Stop" FontSize="9" 
+                                           Foreground="{DynamicResource ThemeTextDimmedBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="Pronation" FontSize="9" 
+                                           Foreground="{DynamicResource ThemeTextMutedBrush}" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <!-- Mobile: Press & Hold Buttons -->
+                        <StackPanel Spacing="4" IsVisible="{Binding UseButtonControl}">
+                            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+                                <Button Grid.Column="0" Content="◀ Supination"
+                                        Tag="WristPs_Neg"
+                                        PointerPressed="VelocityButton_Pressed"
+                                        PointerReleased="VelocityButton_Released"
+                                        PointerCaptureLost="VelocityButton_CaptureLost"
+                                        Background="{DynamicResource ThemeSurfaceBrush}" 
+                                        Foreground="{DynamicResource ThemeTextPrimaryBrush}" 
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                        Padding="8,12" CornerRadius="6" FontWeight="SemiBold" FontSize="11"/>
+                                <Border Grid.Column="1" Background="{DynamicResource ThemeBorderBrush}" 
+                                        CornerRadius="4" Padding="12,8" VerticalAlignment="Center">
+                                    <TextBlock Text="0" Foreground="{DynamicResource ThemeTextDimmedBrush}" FontSize="10"/>
+                                </Border>
+                                <Button Grid.Column="2" Content="Pronation ▶"
+                                        Tag="WristPs_Pos"
+                                        PointerPressed="VelocityButton_Pressed"
+                                        PointerReleased="VelocityButton_Released"
+                                        PointerCaptureLost="VelocityButton_CaptureLost"
+                                        Background="{DynamicResource ThemeSurfaceBrush}" 
+                                        Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                        Padding="8,12" CornerRadius="6" FontWeight="SemiBold" FontSize="11"/>
+                            </Grid>
+                            <TextBlock Text="Hold to rotate • Release to stop" FontSize="9" 
+                                       Foreground="{DynamicResource ThemeTextDimmedBrush}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Thumb Rotation -->
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Thumb Rotation" FontSize="12" 
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ThumbValue, StringFormat='{}{0:F0}'}" 
+                                       FontSize="11" Foreground="{StaticResource CategoryDevicesBrush}" FontWeight="Bold"/>
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Grid.Column="0" Content="◀ Close"
+                                    Tag="Thumb_Neg"
+                                    PointerPressed="VelocityButton_Pressed"
+                                    PointerReleased="VelocityButton_Released"
+                                    PointerCaptureLost="VelocityButton_CaptureLost"
+                                    Background="{DynamicResource ThemeSurfaceBrush}" 
+                                    Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    Padding="8,14" CornerRadius="6" FontWeight="SemiBold" FontSize="12"/>
+                            <Button Grid.Column="1" Content="Open ▶"
+                                    Tag="Thumb_Pos"
+                                    PointerPressed="VelocityButton_Pressed"
+                                    PointerReleased="VelocityButton_Released"
+                                    PointerCaptureLost="VelocityButton_CaptureLost"
+                                    Background="{DynamicResource ThemeSurfaceBrush}" 
+                                    Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    Padding="8,14" CornerRadius="6" FontWeight="SemiBold" FontSize="12"/>
+                        </Grid>
+                        <TextBlock Text="Hold to move • Release to stop" FontSize="9" 
+                                   Foreground="{DynamicResource ThemeTextDimmedBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Joint Toggles -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="ACTIVE JOINTS"/>
+                    
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="8" ColumnSpacing="12">
+                        <Border Grid.Row="0" Grid.Column="0" 
+                                Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="10,8">
+                            <CheckBox IsChecked="{Binding WristExFlex, Mode=TwoWay}" 
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Wrist Flex/Ext" FontSize="11" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+                        
+                        <Border Grid.Row="0" Grid.Column="1" 
+                                Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="10,8">
+                            <CheckBox IsChecked="{Binding WristSupPro, Mode=TwoWay}" 
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Wrist Pro/Sup" FontSize="11" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+                        
+                        <Border Grid.Row="1" Grid.Column="0" 
+                                Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="10,8">
+                            <CheckBox IsChecked="{Binding HandOpenClose, Mode=TwoWay}" 
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Hand Grip" FontSize="11" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+                        
+                        <Border Grid.Row="1" Grid.Column="1" 
+                                Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="6" Padding="10,8">
+                            <CheckBox IsChecked="{Binding Thumb, Mode=TwoWay}" 
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="Thumb" FontSize="11" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

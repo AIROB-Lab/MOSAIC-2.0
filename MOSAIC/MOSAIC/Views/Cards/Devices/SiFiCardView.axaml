@@ -1,0 +1,216 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Devices"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    xmlns:scope="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    x:Class="MOSAIC.Views.Cards.Devices.SiFiCardView"
+    x:DataType="vm:SifiViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+        <converters:StatusTextToColorConverter x:Key="StatusTextToColor"/>
+        <converters:BoolToConnectTextConverter x:Key="BoolToConnectText"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Block.Name}" VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="SIFI" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsConnected}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="CONNECTED" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding HasBattery}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="3">
+                                <TextBlock Text="🔋" FontSize="10"/>
+                                <TextBlock Text="{Binding BatteryLevel, StringFormat='{}{0}%'}"
+                                           FontSize="10" FontWeight="Bold" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding Block.FrequencyText}"/>
+                </StackPanel>
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- BLE Device Selection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="BLE DEVICE"/>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <Button Grid.Column="0" Content="Scan" Command="{Binding StartScanCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                Padding="16,8" CornerRadius="5" FontWeight="SemiBold" FontSize="11"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding FoundDevices}"
+                                  SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  IsEnabled="{Binding !IsConnected}"
+                                  HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="2"
+                                Command="{Binding ToggleConnectCommand}"
+                                Content="{Binding IsConnected, Converter={StaticResource BoolToConnectText}}"
+                                Foreground="White" Padding="16,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11" MinWidth="100"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="Background" Value="{StaticResource CategoryDevicesBrush}"/>
+                                </Style>
+                                <Style Selector="Button[Tag=True]">
+                                    <Setter Property="Background" Value="{StaticResource StatusErrorBrush}"/>
+                                </Style>
+                            </Button.Styles>
+                            <Button.Tag>
+                                <Binding Path="IsConnected"/>
+                            </Button.Tag>
+                        </Button>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Background="{Binding DeviceStatus, Converter={StaticResource StatusTextToColor}}"
+                                CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DeviceStatus}" FontSize="10" FontWeight="SemiBold" Foreground="White"/>
+                        </Border>
+                        <TextBlock Text="{Binding LastError}" FontSize="10" VerticalAlignment="Center"
+                                   Foreground="{StaticResource StatusErrorBrush}"
+                                   IsVisible="{Binding LastError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Sensor Configuration (before connect) -->
+            <Border Classes="cardSection" IsVisible="{Binding !IsConnected}">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="SENSORS"/>
+                    <WrapPanel Orientation="Horizontal">
+                        <CheckBox Content="EMG" IsChecked="{Binding EmgEnabled}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12" Margin="0,0,16,4"/>
+                        <CheckBox Content="IMU" IsChecked="{Binding ImuEnabled}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12" Margin="0,0,16,4"/>
+                        <CheckBox Content="ECG" IsChecked="{Binding EcgEnabled}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12" Margin="0,0,16,4"/>
+                        <CheckBox Content="EDA" IsChecked="{Binding EdaEnabled}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12" Margin="0,0,16,4"/>
+                        <CheckBox Content="PPG" IsChecked="{Binding PpgEnabled}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12" Margin="0,0,16,4"/>
+                    </WrapPanel>
+                    <TextBlock Text="{Binding Block.MainsNotch, StringFormat='Mains notch: {0}'}"
+                               FontSize="10" Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                    <TextBlock FontSize="10" Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="Bandpass: {0:F0}–{1:F0} Hz">
+                                <Binding Path="Block.BandpassLow"/>
+                                <Binding Path="Block.BandpassHigh"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- EMG Scope -->
+            <Border Classes="cardSection" IsVisible="{Binding EmgEnabled}">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="sectionLabel" Text="EMG"/>
+                        <TextBlock Text="{Binding Block.EmgChannelCount, StringFormat='{}{0} ch'}"
+                                   FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   IsVisible="{Binding IsStreaming}"/>
+                    </StackPanel>
+                    <visualization:VisualizationPanel
+                        Source="{Binding Block.Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+            <!-- IMU Scope -->
+            <Border Classes="cardSection" IsVisible="{Binding ImuEnabled}">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="IMU (ax ay az qw qx qy qz)"/>
+                    <scope:ScopeMonitorView
+                        Scope="{Binding ScopeImu}"
+                        ShowViewModeToggle="True"
+                        MinHeight="120"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ECG Scope -->
+            <Border Classes="cardSection" IsVisible="{Binding EcgEnabled}">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="ECG"/>
+                    <scope:ScopeMonitorView
+                        Scope="{Binding ScopeEcg}"
+                        ShowViewModeToggle="False"
+                        MinHeight="100"/>
+                </StackPanel>
+            </Border>
+
+            <!-- EDA Scope -->
+            <Border Classes="cardSection" IsVisible="{Binding EdaEnabled}">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="EDA"/>
+                    <scope:ScopeMonitorView
+                        Scope="{Binding ScopeEda}"
+                        ShowViewModeToggle="False"
+                        MinHeight="100"/>
+                </StackPanel>
+            </Border>
+
+            <!-- PPG Scope -->
+            <Border Classes="cardSection" IsVisible="{Binding PpgEnabled}">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="PPG (IR R G B)"/>
+                    <scope:ScopeMonitorView
+                        Scope="{Binding ScopePpg}"
+                        ShowViewModeToggle="True"
+                        MinHeight="120"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Stats (streaming) -->
+            <Border Classes="cardSection" IsVisible="{Binding IsStreaming}">
+                <Grid ColumnDefinitions="*,*,*">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="PACKETS"/>
+                        <TextBlock Text="{Binding Block.PacketsReceived}" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="SAMPLES"/>
+                        <TextBlock Text="{Binding Block.SamplesPublished}" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="CHANNELS"/>
+                        <TextBlock Text="{Binding Block.EmgChannelCount}" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

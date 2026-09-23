@@ -1,0 +1,130 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters1="clr-namespace:MOSAIC.Converters"
+    xmlns:graph="clr-namespace:MOSAIC.ViewModels.Graph"
+    x:DataType="graph:VertexViewModel"
+    x:Class="MOSAIC.Views.GraphVertexView">
+
+    <UserControl.Resources>
+        <converters1:StatusToColorConverter x:Key="StatusToColor" />
+        <converters1:BlockCategoryToBrushConverter x:Key="CategoryBrush" />
+    </UserControl.Resources>
+
+    <!-- Root panel: the bordered node + a full-bounds port overlay. PortCanvas MUST sit outside
+         RootBorder so its (0,0) is the node's true outer corner — otherwise the border thickness
+         offsets the dots from where EdgeDrawableControl anchors the arrows. -->
+    <Panel>
+        <!-- Named so Popup can anchor to it -->
+        <Border x:Name="RootBorder"
+                CornerRadius="8"
+                BorderThickness="3"
+                BorderBrush="{Binding Value.Status, Converter={StaticResource StatusToColor}}"
+                Background="{DynamicResource ThemeCanvasNodeBrush}"
+                BoxShadow="0 2 8 0 #40000000">
+            <Grid>
+                <TextBlock Text="{Binding Value.Name}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                           FontWeight="SemiBold"
+                           FontSize="12"
+                           Margin="8,4" />
+
+                <!-- Arity badge (connected / capacity), bottom-right corner (clear of the top/bottom ports).
+                     Shown only in build mode (toggled in code-behind). -->
+                <Border x:Name="ArityBadge"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,4,2"
+                        CornerRadius="7"
+                        Padding="6,0"
+                        IsVisible="False"
+                        Background="{DynamicResource ThemeSurfaceHoverBrush}">
+                    <TextBlock Text="{Binding ArityBadge}"
+                               FontSize="10"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+                </Border>
+
+                <ToggleButton x:Name="InfoToggle"
+                              Background="Transparent"
+                              BorderBrush="{x:Null}"
+                              Focusable="False"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              Opacity="0" />
+
+                <Popup x:Name="InfoPopup"
+                       Placement="{Binding #RootBorder}"
+                       IsLightDismissEnabled="True"
+                       IsOpen="{Binding IsChecked, ElementName=InfoToggle, Mode=TwoWay}"
+                       Closed="InfoPopup_OnClosed">
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}"
+                            BorderBrush="{DynamicResource ThemeBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="12"
+                            BoxShadow="0 4 16 0 #60000000">
+                        <StackPanel Spacing="5" MinWidth="180">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Border Width="8" Height="18" CornerRadius="4"
+                                        Background="{Binding Category, Converter={StaticResource CategoryBrush}}" />
+                                <TextBlock Text="{Binding Value.Name}"
+                                           FontWeight="Bold"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}" />
+                            </StackPanel>
+                            <Border Height="1" Background="{DynamicResource ThemeBorderBrush}" Margin="0,3"/>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Inputs:" Foreground="{DynamicResource ThemeTextMutedBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding InputSummaryText}"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Accepts:" Foreground="{DynamicResource ThemeTextMutedBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding AcceptsSummary}"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="12"
+                                           TextWrapping="Wrap" MaxWidth="200"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Rate:" Foreground="{DynamicResource ThemeTextMutedBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding Value.DesiredRate, StringFormat={}{0:F1} Hz}"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="Actual:" Foreground="{DynamicResource ThemeTextMutedBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding Value.FrequencyText}"
+                                           Foreground="{DynamicResource ThemeAccentBrush}" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <Border IsVisible="{Binding NeedsMoreInputs}"
+                                    Background="#FAEEDA"
+                                    CornerRadius="4"
+                                    Padding="7,4"
+                                    Margin="0,2,0,0">
+                                <TextBlock Text="{Binding NeedsText}"
+                                           FontSize="12"
+                                           Foreground="#854F0B" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </Grid>
+        </Border>
+
+        <!-- Compatible-target ring: shown while dragging a palette block this node can connect with. -->
+        <Border IsHitTestVisible="False"
+                IsVisible="{Binding IsDropCompatible}"
+                Margin="-4"
+                CornerRadius="11"
+                BorderThickness="2"
+                BorderBrush="#1D9E75"
+                Background="Transparent" />
+
+        <!-- Input/output port dots (populated in code-behind via PortLayout). Build-mode only.
+             Overlays the full node bounds so dot centres line up with the edge anchors. -->
+        <Canvas x:Name="PortCanvas" IsHitTestVisible="False" IsVisible="False" />
+    </Panel>
+</UserControl>

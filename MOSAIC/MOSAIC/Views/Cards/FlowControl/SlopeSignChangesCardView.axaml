@@ -1,0 +1,131 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:scope="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.FlowControl.SlopeSignChangesCardView"
+    x:DataType="vm:SlopeSignChangesViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding SlopeSignChanges.Name}"
+                                   Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="SSC" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="{Binding SlopeSignChanges.FrequencyText}"
+                                   Classes="cardSubtitle"/>
+                        <TextBlock Text="•" Classes="cardSubtitle"/>
+                        <TextBlock Text="{Binding SlopeSignChanges.ConfigSummary}"
+                                   FontSize="11" Foreground="{StaticResource CategoryFlowControlBrush}" FontWeight="Medium"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1" 
+                        Background="{Binding SlopeSignChanges.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SlopeSignChanges.Status}" 
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Info Section -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Text="FEATURE EXTRACTION" Classes="sectionLabel"/>
+                        <TextBlock Text="Slope Sign Changes" FontSize="12" 
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    
+                    <!-- Formula display -->
+                    <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                            CornerRadius="6" Padding="10,6">
+                        <TextBlock Text="Σ sign(Δx) changes" 
+                                   FontSize="11" Foreground="{StaticResource CategoryFlowControlBrush}" 
+                                   FontFamily="Consolas,Monaco,monospace"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Configuration Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="CONFIGURATION" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="12">
+                        <!-- Threshold -->
+                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                            <TextBlock Text="Noise Threshold" Classes="fieldLabel"/>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="8,6"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                                <TextBox Text="{Binding ThresholdText, Mode=TwoWay}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12"
+                                         PlaceholderText="0.0"
+                                         ToolTip.Tip="Minimum amplitude difference to count as slope change"/>
+                            </Border>
+                        </StackPanel>
+                        
+                        <!-- Info -->
+                        <Border Grid.Column="1" Grid.Row="0" 
+                                Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                CornerRadius="6" Padding="12,8" VerticalAlignment="Center">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="THRESHOLD" FontSize="8"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding SlopeSignChanges.Threshold, StringFormat={}{0:F3}}" 
+                                           FontSize="14" Foreground="{StaticResource CategoryFlowControlBrush}" 
+                                           FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Error message -->
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+                                   Text="{Binding ErrorMessage}"
+                                   FontSize="10" Foreground="{StaticResource StatusErrorBrush}"
+                                   IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   TextWrapping="Wrap"/>
+                        
+                        <!-- Help text -->
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
+                                   Text="Higher threshold filters out small fluctuations (noise suppression)." 
+                                   FontSize="9" Foreground="{DynamicResource ThemeTextSecondaryBrush}" TextWrapping="Wrap"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Scope Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="SSC OUTPUT" Classes="sectionLabel"/>
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" ClipToBounds="True" MinHeight="170">
+                        <visualization:VisualizationPanel Source="{Binding SlopeSignChanges.Viz}" ScopeVisibleByDefault="True" 
+                                                          ShowScopeViewModeToggle="True" MinHeight="160"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

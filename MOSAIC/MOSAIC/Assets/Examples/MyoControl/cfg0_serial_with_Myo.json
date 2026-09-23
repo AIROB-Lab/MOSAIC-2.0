@@ -1,0 +1,50 @@
+
+{
+  "timer_fast": { "Type": "Clock", "DesiredRate": 200 },
+
+  "raw_EMG": { "Type": "Myo", "Inputs": [ "timer_fast" ] },
+
+  "amplified_raw_EMG": {
+    "Type": "Function",
+    "Inputs": [ "raw_EMG" ],
+    "Params": [ "multiply", 5 ]
+  },
+
+  "rectified_raw_EMG": {
+    "Type": "Function",
+    "Inputs": [ "amplified_raw_EMG" ],
+    "Params": [ "abs" ]
+  },
+
+  "ARV_LPF": {
+    "Type": "FilterBlock",
+    "Inputs": [ "rectified_raw_EMG" ],
+    "DesiredRate": 200,
+    "Params": [ "Lowpass", "IIR", 0.3, 0, 2, 64 ]
+  },
+
+  "ARV": { "Type": "Resampler", "Inputs": [ "ARV_LPF" ], "Params": [ 30 ] },
+
+  "ground_truth": {
+    "Type": "Trigger",
+    "Params": [ "rest:0", "flex:120" ]
+  },
+
+  "incr_learn_prediction": {
+    "Type": "IncrementalPredictor",
+    "Inputs": [ "ARV", "ground_truth" ],
+    "Params": [ "Ridge", 8, 1 ]
+  },
+
+  "clip": {
+    "Type": "Function",
+    "Inputs": [ "incr_learn_prediction" ],
+    "Params": [ "clip", 120 ]
+  },
+
+  "Serial": {
+    "Type": "SerialSender",
+    "Inputs": [ "clip" ],
+    "Params": [ "COM9", 115200, "\n", ",", 2, 256, 500, 2000, 0.0, true, "DropNewest" ]
+  }
+}

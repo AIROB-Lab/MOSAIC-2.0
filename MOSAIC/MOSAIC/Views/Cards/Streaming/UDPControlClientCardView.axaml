@@ -1,0 +1,218 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:streaming="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.Streaming.UDPControlClientCardView"
+    x:DataType="streaming:UDPControlClientViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor" />
+    </UserControl.Resources>
+
+    <Border Padding="14" Margin="16" CornerRadius="14"
+            BorderBrush="{DynamicResource ThemeBorderBrush}"
+            BorderThickness="1"
+            Background="{DynamicResource ThemeCardGradient}">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header Section -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}"
+                                  FontWeight="Bold"
+                                  FontSize="16"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="UDP CTRL" FontSize="9" FontWeight="Bold"
+                                      Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding ConnectionInfo}"
+                              FontSize="11"
+                              Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                              FontWeight="SemiBold"
+                              Foreground="White"
+                              FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Height="1" Background="{DynamicResource ThemeBorderBrush}" Opacity="0.5"/>
+
+            <!-- Impedance Gains -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="IMPEDANCE GAINS" FontSize="9"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding PacketLayoutText}" FontSize="9"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   FontFamily="Consolas,Monaco,monospace"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <!-- Kp -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="Kp (PROPORTIONAL)" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Kp, StringFormat='{}{0:F2}'}"
+                                               FontSize="14" FontWeight="Bold"
+                                               Foreground="{StaticResource StatusWarningBrush}"
+                                               FontFamily="Consolas,Monaco,monospace"/>
+                                </Grid>
+                                <Slider Minimum="0" Maximum="50" Value="{Binding Kp, Mode=TwoWay}"/>
+                                <NumericUpDown Value="{Binding Kp, Mode=TwoWay}" Minimum="0" Maximum="1000"
+                                               Increment="0.5" FormatString="F2" FontSize="11"
+                                               FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Kd -->
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="Kd (DERIVATIVE)" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Kd, StringFormat='{}{0:F2}'}"
+                                               FontSize="14" FontWeight="Bold"
+                                               Foreground="{StaticResource StatusWarningBrush}"
+                                               FontFamily="Consolas,Monaco,monospace"/>
+                                </Grid>
+                                <Slider Minimum="0" Maximum="10" Value="{Binding Kd, Mode=TwoWay}"/>
+                                <NumericUpDown Value="{Binding Kd, Mode=TwoWay}" Minimum="0" Maximum="1000"
+                                               Increment="0.1" FormatString="F2" FontSize="11"
+                                               FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Network Configuration -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="NETWORK CONFIGURATION" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+
+                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
+                        <!-- Receive (Local) -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="RECEIVE (LOCAL)" FontSize="8"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding ReceivePortText}"
+                                           FontSize="14" Foreground="{StaticResource StatusNormalBrush}"
+                                           FontWeight="Bold" HorizontalAlignment="Center"
+                                           FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bidirectional Arrow -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="⇄" FontSize="18"
+                                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding FormatText}" FontSize="9"
+                                       Foreground="{StaticResource StreamingSourcesBrush}"
+                                       HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                        </StackPanel>
+
+                        <!-- Send (Remote) -->
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="SEND (REMOTE)" FontSize="8"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding RemoteEndpointText}"
+                                           FontSize="14" Foreground="{StaticResource StatusWarningBrush}"
+                                           FontWeight="Bold" HorizontalAlignment="Center"
+                                           FontFamily="Consolas,Monaco,monospace"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Statistics Panel -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="TRAFFIC STATISTICS" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <!-- Sent -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12,10">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="↑" FontSize="18"
+                                           Foreground="{StaticResource StatusWarningBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="SENT" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding PacketsSent, StringFormat='{}{0:N0} pkts'}"
+                                               FontSize="14" Foreground="{StaticResource StatusWarningBrush}"
+                                               FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Received -->
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12,10">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="↓" FontSize="18"
+                                           Foreground="{StaticResource StatusNormalBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="RECEIVED" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding PacketsReceived, StringFormat='{}{0:N0} pkts'}"
+                                               FontSize="14" Foreground="{StaticResource StatusNormalBrush}"
+                                               FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Scope Monitor -->
+            <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="8" Padding="10"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="CONTROL SIGNAL" FontSize="9"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" FontWeight="SemiBold"/>
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6"
+                            ClipToBounds="True">
+                        <visualization:VisualizationPanel Source="{Binding ControlClient.Viz}" ScopeVisibleByDefault="True"
+                                                          ShowScopeViewModeToggle="True" MinHeight="160"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

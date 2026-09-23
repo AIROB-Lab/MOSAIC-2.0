@@ -1,0 +1,141 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Devices"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    x:Class="MOSAIC.Views.Cards.Devices.DlrAdcBtCardView"
+    x:DataType="vm:DlrAdcBtViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- ── Title row ─────────────────────────────────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Block.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="DLR ADC/BT" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsReceiving}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <TextBlock Text="STREAMING" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}" Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <!-- ── Parser fault banner ───────────────────────────────────── -->
+            <Border CornerRadius="4" Padding="10,6"
+                    IsVisible="{Binding HasRecentErrors}"
+                    Background="{StaticResource StatusErrorBrush}">
+                <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="White">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}Frame errors: {0} — {1}">
+                            <Binding Path="FrameErrors"/>
+                            <Binding Path="Flag"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Border>
+
+            <Border Classes="divider"/>
+
+            <!-- ── Connection ────────────────────────────────────────────── -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="SERIAL CONNECTION" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Text="Port" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding AvailablePorts}"
+                                  SelectedItem="{Binding SelectedPort, Mode=TwoWay}"
+                                  FontSize="12" FontFamily="Cascadia Mono, Consolas, monospace"
+                                  HorizontalAlignment="Stretch"
+                                  IsEnabled="{Binding !Block.IsConnected}"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                        <Button Grid.Column="2" Content="⟳" Command="{Binding RefreshPortsCommand}"
+                                FontSize="12" Padding="6,4" CornerRadius="4"
+                                IsEnabled="{Binding !Block.IsConnected}"
+                                ToolTip.Tip="Refresh COM port list"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Text="Channels" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <controls:SafeNumericUpDown Grid.Column="1"
+                                                    Value="{Binding Block.NumOfChannels, Mode=TwoWay}"
+                                                    Minimum="1" Maximum="255" Increment="1"
+                                                    FontSize="12" Padding="6,2"
+                                                    IsEnabled="{Binding !Block.IsConnected}"/>
+                        <TextBlock Grid.Column="2" Text="Baud" Classes="fieldLabel" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="3"
+                                 Text="{Binding Block.BaudRate, Mode=TwoWay}"
+                                 FontSize="12" FontFamily="Cascadia Mono, Consolas, monospace"
+                                 IsEnabled="{Binding !Block.IsConnected}"
+                                 Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                 Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                 BorderBrush="{DynamicResource ThemeBorderBrush}"/>
+                    </Grid>
+
+                    <TextBlock Classes="fieldLabel" FontSize="10"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}Frame size {0} B · {1} frames decoded">
+                                <Binding Path="Block.BytesPerFrame"/>
+                                <Binding Path="FramesProcessed"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Content="Connect" Command="{Binding ConnectCommand}"
+                                IsVisible="{Binding !Block.IsConnected}"
+                                Background="{StaticResource CategoryDevicesBrush}" Foreground="White"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                        <Button Content="Disconnect" Command="{Binding DisconnectCommand}"
+                                IsVisible="{Binding Block.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                        <Button Content="Reconnect" Command="{Binding ReconnectCommand}"
+                                IsVisible="{Binding Block.IsConnected}"
+                                FontSize="11" Padding="12,5" CornerRadius="4"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ── Output scope ──────────────────────────────────────────── -->
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="OUTPUT STREAM" Classes="sectionLabel"/>
+                    <viz:VisualizationPanel
+                        Source="{Binding Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,206 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:signalProcessing="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.FilterCardView"
+    x:DataType="signalProcessing:FilterViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Name}"/>
+                        <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="FILTER" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding FilterDescription}"
+                               Foreground="{StaticResource CategorySignalProcessingBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Enabled" FontSize="11"
+                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <ToggleSwitch IsChecked="{Binding IsEnabled}" OnContent="" OffContent=""/>
+                </StackPanel>
+
+                <Border Grid.Column="2"
+                        Background="{Binding BlockStatus, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding BlockStatus}" FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Visualization Panel: Scope + Spider + Heatmap with individual toggles + size presets -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="sectionLabel" Text="FILTERED OUTPUT"/>
+                    <viz:VisualizationPanel Source="{Binding Block.Viz}" ScopeVisibleByDefault="True"
+                                                      ShowScopeViewModeToggle="True" MinHeight="160"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Filter Type Selection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="FILTER TYPE"/>
+
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+                        <Button Grid.Column="0" Content="Lowpass" Command="{Binding SetLowpassCommand}"
+                                Background="{Binding SelectedFilterType, Converter={x:Static signalProcessing:FilterConverters.FilterTypeToBackground}, ConverterParameter=Lowpass}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <Button Grid.Column="1" Content="Highpass" Command="{Binding SetHighpassCommand}"
+                                Background="{Binding SelectedFilterType, Converter={x:Static signalProcessing:FilterConverters.FilterTypeToBackground}, ConverterParameter=Highpass}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <Button Grid.Column="2" Content="Bandpass" Command="{Binding SetBandpassCommand}"
+                                Background="{Binding SelectedFilterType, Converter={x:Static signalProcessing:FilterConverters.FilterTypeToBackground}, ConverterParameter=Bandpass}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        <Button Grid.Column="3" Content="Bandstop" Command="{Binding SetBandstopCommand}"
+                                Background="{Binding SelectedFilterType, Converter={x:Static signalProcessing:FilterConverters.FilterTypeToBackground}, ConverterParameter=Bandstop}"
+                                Foreground="White" Padding="8,8" CornerRadius="5" FontSize="11"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Classes="sectionLabel" Text="IMPLEMENTATION" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding AvailableImplementations}"
+                                      SelectedItem="{Binding SelectedImplementation}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Classes="sectionLabel" Text="SAMPLE RATE" Margin="0,0,0,4"/>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}" CornerRadius="4" Padding="8,6">
+                                <TextBlock Text="{Binding SampleRate, StringFormat='{}{0:F0} Hz'}"
+                                          Foreground="{StaticResource StatusNormalBrush}" FontWeight="SemiBold" FontSize="14"/>
+                            </Border>
+                            <TextBlock Classes="hint" Text="(inherited from prev. Block)" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Cutoff Frequencies -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="CUTOFF FREQUENCIES"/>
+
+                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Classes="fieldLabel" MinWidth="44"
+                                  Text="{Binding IsBandFilter, Converter={x:Static signalProcessing:FilterConverters.BoolToLowLabel}}"/>
+                        <controls:SafeNumericUpDown Grid.Column="1" Value="{Binding CutoffLow}"
+                                       Minimum="{Binding MinCutoff}" Maximum="{Binding MaxCutoff}"
+                                       Increment="1" FormatString="0.0" Width="150" FontSize="13" Padding="8,4"
+                                       Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+                        <TextBlock Grid.Column="2" Classes="fieldLabel" Text="Hz"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="8" IsVisible="{Binding IsBandFilter}">
+                        <TextBlock Grid.Column="0" Classes="fieldLabel" Text="High:" MinWidth="44"/>
+                        <controls:SafeNumericUpDown Grid.Column="1" Value="{Binding CutoffHigh}"
+                                       Minimum="{Binding MinCutoff}" Maximum="{Binding MaxCutoff}"
+                                       Increment="1" FormatString="0.0" Width="150" FontSize="13" Padding="8,4"
+                                       Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+                        <TextBlock Grid.Column="2" Classes="fieldLabel" Text="Hz"/>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,6,0,0">
+                        <TextBlock Text="Presets:" FontSize="10"
+                                   Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,4,0"/>
+                        <Button Content="50Hz" Command="{Binding SetPreset50HzCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                Padding="8,4" CornerRadius="4" FontSize="10"/>
+                        <Button Content="100Hz" Command="{Binding SetPreset100HzCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                Padding="8,4" CornerRadius="4" FontSize="10"/>
+                        <Button Content="200Hz" Command="{Binding SetPreset200HzCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                Padding="8,4" CornerRadius="4" FontSize="10"/>
+                        <Button Content="Notch 50Hz" Command="{Binding SetPresetNotch50HzCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                Padding="8,4" CornerRadius="4" FontSize="10"/>
+                        <Button Content="EMG" Command="{Binding SetPresetEMGCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                Padding="8,4" CornerRadius="4" FontSize="10"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Filter Order / Taps -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <StackPanel Grid.Column="0" Spacing="4" IsVisible="{Binding !IsFirFilter}">
+                        <TextBlock Classes="sectionLabel" Text="ORDER (IIR)"/>
+                        <controls:SafeNumericUpDown Value="{Binding Order}" Minimum="1" Maximum="10" Increment="1"
+                                       FormatString="0" HorizontalAlignment="Left" Width="120" FontSize="13" Padding="8,4"
+                                       Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+                        <TextBlock Classes="hint" Text="Integer only, 1–10. Higher = sharper cutoff, more delay"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="0" Spacing="4" IsVisible="{Binding IsFirFilter}">
+                        <TextBlock Classes="sectionLabel" Text="TAPS (FIR)"/>
+                        <controls:SafeNumericUpDown Value="{Binding FirTaps}" Minimum="8" Maximum="256" Increment="1"
+                                       FormatString="0" HorizontalAlignment="Left" Width="120" FontSize="13" Padding="8,4"
+                                       Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       BorderBrush="{DynamicResource ThemeInputBorderBrush}"/>
+                        <TextBlock Classes="hint" Text="Integer only, 8–256. Higher = sharper cutoff, more delay"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="4">
+                        <TextBlock Classes="sectionLabel" Text="SAMPLES PROCESSED"/>
+                        <TextBlock Text="{Binding SamplesProcessed, StringFormat='{}{0:N0}'}"
+                                  FontSize="18" FontWeight="Bold"
+                                  Foreground="{StaticResource StatusNormalBrush}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Control Buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button Grid.Column="0" Content="Apply Changes" Command="{Binding ApplyChangesCommand}"
+                        Background="{StaticResource CategorySignalProcessingBrush}" Foreground="White"
+                        Padding="12,10" CornerRadius="5"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="SemiBold"/>
+                <Button Grid.Column="1" Content="Reset Filters" Command="{Binding ResetFiltersCommand}"
+                        Background="{DynamicResource ThemeSurfaceBrush}"
+                        Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                        Padding="12,10" CornerRadius="5"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="SemiBold"/>
+            </Grid>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,59 @@
+﻿{
+  "Timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "Myo": {
+    "Type": "Myo",
+    "Inputs": ["Timer"]
+  },
+  "Amplifier": {
+    "Type": "Function",
+    "Inputs": ["Myo"],
+    "Params": ["multiply", 10]
+  },
+  "AbsoluteValue": {
+    "Type": "Function",
+    "Inputs": ["Amplifier"],
+    "Params": ["abs"]
+  },
+  "LowpassFilter": {
+    "Type": "FilterBlock",
+    "Inputs": ["AbsoluteValue"],
+    "Params": ["Lowpass", "IIR", 2, 0, 4, 64]
+  },
+  "umap3d": {
+    "Type": "SupervisedUMAP",
+    "Inputs": [ "LowpassFilter" ],
+    "Params": [ 3, 15, 0.1, 42 ],
+    "DesiredRate": 10
+  },
+  "Trigger": {
+    "Type": "Trigger",
+    "Params": [
+      "rest:0;0;0;0;0;0;0;0;0;0;0;0",
+      "power:1;1;1;1;1;1;0;0;0;0;0;0",
+      "flex:0;0;0;0;0;0;1;0;0;0;0;0",
+      "extend:0;0;0;0;0;0;0;1;0;0;0;0",
+      "pron:0;0;0;0;0;0;0;0;0;1;0;0",
+      "sup:0;0;0;0;0;0;0;0;1;0;0;0"
+    ]
+  },
+  "Predictor": {
+    "Type": "IncrementalPredictor",
+    "Inputs": ["umap3d", "Trigger"],
+    "Params": ["RidgeRFF", 3, 12, 0.5, 1.0, 300],
+    "Path": "C:\\path\\to\\models\\"
+  },
+  "ControlAlgorithm": {
+    "Type": "ControlAlgorithm",
+    "Inputs": ["Predictor"],
+    "Params": ["algorithm:DirectControl"]
+  },
+  "BlenderArm": {
+    "Type": "BlenderArm",
+    "DesiredRate": 0,
+    "Inputs": ["ControlAlgorithm"],
+    "Params": ["localhost", 3334]
+  }
+}

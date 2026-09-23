@@ -1,0 +1,145 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:spectrogram="clr-namespace:MOSAIC.Visualization.SpectrogramMonitor"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.FFTCardView"
+    x:DataType="vm:FFTViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- ═══════════════ Header ═══════════════ -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Name}"/>
+                        <Border Background="{StaticResource CategoryAnalyticsBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="FFT" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding FftDescription}"
+                               Foreground="{StaticResource CategoryAnalyticsBrush}"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding BlockStatus, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding BlockStatus}" FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- ═══════════════ Spectrogram ═══════════════ -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Classes="sectionLabel" Text="SPECTROGRAM"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                            <TextBlock Classes="fieldLabel" Text="Channel:"/>
+                            <ComboBox ItemsSource="{Binding ChannelOptions}"
+                                      SelectedItem="{Binding SelectedChannelOption}"
+                                      MinWidth="100" FontSize="11"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                    <spectrogram:SpectrogramMonitorView Spectrogram="{Binding Block.Spectrogram}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════════════ FFT Info ═══════════════ -->
+            <Border Classes="cardSection">
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="FFT SIZE"/>
+                        <TextBlock Classes="metricValue" Text="{Binding FftSize}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="BINS"/>
+                        <TextBlock Classes="metricValue" Text="{Binding OutputBins}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="Δf (Hz)"/>
+                        <TextBlock Classes="metricValue" Text="{Binding FrequencyResolution, StringFormat='{}{0:F2}'}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="3" Spacing="2">
+                        <TextBlock Classes="sectionLabel" Text="CHANNELS"/>
+                        <TextBlock Classes="metricValue" Text="{Binding ChannelCount}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════ Configuration ═══════════════ -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="sectionLabel" Text="CONFIGURATION"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+
+                        <!-- Window Type -->
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Classes="sectionLabel" Text="WINDOW"/>
+                            <ComboBox ItemsSource="{Binding AvailableWindows}"
+                                      SelectedItem="{Binding SelectedWindow}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            <TextBlock Classes="hint" Text="Rectangular if SlidingWindow already windows"/>
+                        </StackPanel>
+
+                        <!-- Output Mode -->
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Classes="sectionLabel" Text="OUTPUT MODE"/>
+                            <ComboBox ItemsSource="{Binding AvailableOutputModes}"
+                                      SelectedItem="{Binding SelectedOutputMode}"
+                                      HorizontalAlignment="Stretch"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- dB Parameters (only visible when mode is DB) -->
+                    <StackPanel Spacing="6" IsVisible="{Binding IsDbMode}">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="sectionLabel" Text="dB REFERENCE"/>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Slider Grid.Column="0" Minimum="0.001" Maximum="10" Value="{Binding DbRef}"
+                                            TickFrequency="0.1"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding DbRef, StringFormat='{}{0:F3}'}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               Width="50" TextAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Classes="sectionLabel" Text="dB FLOOR"/>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Slider Grid.Column="0" Minimum="-200" Maximum="0" Value="{Binding DbFloor}"
+                                            TickFrequency="10"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding DbFloor, StringFormat='{}{0:F0} dB'}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                               Width="60" TextAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,11 @@
+{
+  "Clock": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "Signal": {
+    "Type": "SinGenerator",
+    "Inputs": ["Clock"],
+    "Params": [8, 1.0, 0.5, 0.0]
+  }
+}

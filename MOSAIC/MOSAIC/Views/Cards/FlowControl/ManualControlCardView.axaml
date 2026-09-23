@@ -1,0 +1,285 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.FlowControl.ManualControlCardView"
+    x:DataType="vm:ManualControlViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Compact DOA-row visuals. ColumnDefinitions is set inline on each Grid
+             because it is not an AvaloniaProperty and cannot be set via a Setter. -->
+        <Style Selector="Grid.doaRow">
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+        <Style Selector="Grid.doaRow > CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+        <Style Selector="Grid.doaRow > TextBlock.label">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeTextPrimaryBrush}"/>
+        </Style>
+        <Style Selector="Grid.doaRow > Slider">
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="100"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Grid.doaRow > Border.valueBox">
+            <Setter Property="Background" Value="{DynamicResource ThemeInputBackgroundBrush}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Grid.doaRow > Border.valueBox > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Foreground" Value="{StaticResource CategoryFlowControlBrush}"/>
+            <Setter Property="FontFamily" Value="Consolas,Monaco,monospace"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding ManualControl.Name}"
+                                   Classes="cardTitle"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="MANUAL" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding ManualControl.FrequencyText}"
+                               Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding ManualControl.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ManualControl.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Master HOC -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                        <TextBlock Grid.Column="0" Text="HAND OPEN / CLOSE" Classes="sectionLabel"
+                                   VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="1"
+                                  Content="Link fingers"
+                                  IsChecked="{Binding ManualControl.LinkFingers, Mode=TwoWay}"
+                                  FontSize="11" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="2"
+                                  Content="Send HOC"
+                                  IsChecked="{Binding ManualControl.SendHandOpenClose, Mode=TwoWay}"
+                                  FontSize="11" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,56">
+                        <Slider Grid.Column="0"
+                                Minimum="0" Maximum="100"
+                                Value="{Binding ManualControl.HandOpenClose, Mode=TwoWay}"
+                                VerticalAlignment="Center"/>
+                        <Border Grid.Column="1"
+                                Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="4" Padding="6,3" Margin="8,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ManualControl.HandOpenClose, StringFormat='{}{0:F0}'}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="{StaticResource CategoryFlowControlBrush}"
+                                       FontFamily="Consolas,Monaco,monospace"
+                                       HorizontalAlignment="Right"/>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Fingers -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding ManualControl.FingersEnabled, Mode=TwoWay}"
+                                  VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="FINGERS" Classes="sectionLabel"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <StackPanel Spacing="4" IsEnabled="{Binding ManualControl.FingersEnabled}">
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendThumbFlexion, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Thumb Flex"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.ThumbFlexion, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.ThumbFlexion, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendThumbRotation, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Thumb Rot"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.ThumbRotation, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.ThumbRotation, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendIndex, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Index"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.Index, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.Index, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendMiddle, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Middle"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.Middle, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.Middle, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendRing, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Ring"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.Ring, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.Ring, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendLittle, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Little"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.Little, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.Little, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Wrist -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding ManualControl.WristEnabled, Mode=TwoWay}"
+                                  VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="WRIST (50 = neutral)" Classes="sectionLabel"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <StackPanel Spacing="4" IsEnabled="{Binding ManualControl.WristEnabled}">
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendWristFlexionExtension, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Flex / Ext"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.WristFlexionExtension, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.WristFlexionExtension, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendWristUlnarRadial, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Ulnar / Radial"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.WristUlnarRadial, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.WristUlnarRadial, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendWristPronationSupination, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Pro / Sup"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.WristPronationSupination, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.WristPronationSupination, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Elbow -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding ManualControl.ElbowEnabled, Mode=TwoWay}"
+                                  VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="ELBOW (bidirectional, 0 = no activation)" Classes="sectionLabel"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <StackPanel Spacing="4" IsEnabled="{Binding ManualControl.ElbowEnabled}">
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendElbowFlexion, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Flexion"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.ElbowFlexion, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.ElbowFlexion, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Classes="doaRow" ColumnDefinitions="Auto,110,*,56">
+                            <CheckBox Grid.Column="0" IsChecked="{Binding ManualControl.SendElbowExtension, Mode=TwoWay}"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="Extension"/>
+                            <Slider    Grid.Column="2" Value="{Binding ManualControl.ElbowExtension, Mode=TwoWay}"/>
+                            <Border    Grid.Column="3" Classes="valueBox">
+                                <TextBlock Text="{Binding ManualControl.ElbowExtension, StringFormat='{}{0:F0}'}"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Actions -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button Grid.Column="0" Content="Reset (open, neutral wrist)"
+                        Command="{Binding ResetCommand}"
+                        Background="{StaticResource CategoryFlowControlBrush}" Foreground="White"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"/>
+                <Button Grid.Column="1" Content="Neutral (all 50)"
+                        Command="{Binding NeutralCommand}"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"/>
+            </Grid>
+
+            <!-- Scope -->
+            <Border Classes="cardSection" Padding="10">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="OUTPUT SCOPE" Classes="sectionLabel"/>
+                    <visualization:VisualizationPanel
+                        Source="{Binding ManualControl.Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

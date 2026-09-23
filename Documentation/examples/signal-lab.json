@@ -1,0 +1,65 @@
+{
+  "Clock": {
+    "Type": "Clock",
+    "DesiredRate": 256
+  },
+  "Signal": {
+    "Type": "SinGenerator",
+    "Inputs": [
+      "Clock"
+    ],
+    "Params": [
+      1,
+      1,
+      8,
+      0,
+      0,
+      1
+    ]
+  },
+  "Filtered": {
+    "Type": "Filter",
+    "Inputs": [
+      "Signal"
+    ],
+    "Params": [
+      "Lowpass",
+      "IIR",
+      32,
+      0,
+      4,
+      64
+    ]
+  },
+  "Window": {
+    "Type": "SlidingWindow",
+    "Inputs": [
+      "Filtered"
+    ],
+    "Params": [
+      256,
+      64,
+      "Rectangular"
+    ]
+  },
+  "MAV": {
+    "Type": "MeanAverageValue",
+    "Inputs": [
+      "Window"
+    ]
+  },
+  "Spectrum": {
+    "Type": "FFT",
+    "Inputs": [
+      "Window"
+    ],
+    "Params": [
+      "Rectangular",
+      "MagnitudeNormalized",
+      1,
+      -120,
+      200,
+      0
+    ]
+  }
+}

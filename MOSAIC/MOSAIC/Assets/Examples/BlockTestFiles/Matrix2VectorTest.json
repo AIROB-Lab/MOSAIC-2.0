@@ -1,0 +1,44 @@
+﻿
+{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "sin1": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [4, 1.0, 0.2, 0.0]
+  },
+  "sin2": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [4, 0.8, 0.5, 1.57]
+  },
+  "sin3": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [4, 0.6, 1.0, 3.14]
+  },
+  "joiner": {
+    "Type": "Joiner",
+    "Inputs": ["sin1", "sin2", "sin3"],
+    "Params": ["timer:sin1"],
+    "DesiredRate": 200
+  },
+  "window":                
+  { "Type": "SlidingWindow",
+    "Inputs": [ "joiner" ],
+    "Params": [ "200", "100", "Rectangular" ] },
+
+  "stream": {
+    "Type": "Matrix2Vector",
+    "Inputs": ["timer", "window"],
+    "Params": ["timer:timer"]
+  },
+  "Amplifier": {
+    "Type": "Function",
+    "Inputs": ["stream"],
+    "Params": ["multiply", 100]
+  }
+}
+

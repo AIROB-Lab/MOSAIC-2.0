@@ -1,0 +1,158 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.SignalProcessing"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.SignalProcessing.SlidingWindowCardView"
+    x:DataType="vm:SlidingWindowViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding SlidingWindow.Name}"/>
+                        <!-- Category badge - SignalProcessing -->
+                        <Border Background="{StaticResource CategorySignalProcessingBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="WINDOW" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="cardSubtitle" Text="{Binding SlidingWindow.FrequencyText}"/>
+                        <TextBlock Classes="cardSubtitle" Text="•"/>
+                        <TextBlock Classes="cardSubtitle" Text="{Binding SlidingWindow.ConfigSummary}"
+                                   Foreground="{StaticResource CategorySignalProcessingBrush}" FontWeight="Medium"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding SlidingWindow.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SlidingWindow.Status}"
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Configuration Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="sectionLabel" Text="WINDOW CONFIGURATION"/>
+
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" ColumnSpacing="12">
+
+                        <!-- Buffer Size -->
+                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Buffer Size"/>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="8,6"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                                <TextBox Text="{Binding BufferSizeText, Mode=TwoWay}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12"
+                                         PlaceholderText="e.g. 128"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Stride -->
+                        <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Stride"/>
+                            <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                    CornerRadius="6" Padding="8,6"
+                                    BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                                <TextBox Text="{Binding StrideText, Mode=TwoWay}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="{DynamicResource ThemeTextPrimaryBrush}" FontSize="12"
+                                         PlaceholderText="e.g. 32"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Window Type -->
+                        <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4">
+                            <TextBlock Classes="fieldLabel" Text="Window Function"/>
+                            <ComboBox x:Name="WindowTypeCombo"
+                                      ItemsSource="{Binding WindowTypes}"
+                                      SelectedItem="{Binding SlidingWindow.WindowKind, Mode=TwoWay}"
+                                      Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                      BorderBrush="{DynamicResource ThemeBorderBrush}"
+                                      CornerRadius="6"
+                                      Padding="8,6"
+                                      MinHeight="32"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        
+                        <!-- Error message -->
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+                                   Text="{Binding ErrorMessage}"
+                                   FontSize="10" Foreground="{StaticResource StatusErrorBrush}"
+                                   IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   TextWrapping="Wrap"/>
+
+                        <!-- Info Row -->
+                        <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
+                                Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <Grid ColumnDefinitions="*,Auto,*,Auto,*">
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                    <TextBlock Text="INPUT RATE" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SlidingWindow.InputRate, StringFormat={}{0:F0} Hz}"
+                                               FontSize="12" Foreground="{StaticResource CategorySignalProcessingBrush}"
+                                               FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" Text="→"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           VerticalAlignment="Center" FontSize="16"/>
+
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                    <TextBlock Text="OUTPUT RATE" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SlidingWindow.OutputRate, StringFormat={}{0:F1} Hz}"
+                                               FontSize="12" Foreground="{StaticResource StatusNormalBrush}"
+                                               FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="3" Text="•"
+                                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                           VerticalAlignment="Center" Margin="12,0"/>
+
+                                <StackPanel Grid.Column="4" HorizontalAlignment="Center">
+                                    <TextBlock Text="OVERLAP" FontSize="8"
+                                               Foreground="{DynamicResource ThemeTextSecondaryBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SlidingWindow.OverlapPercent, StringFormat={}{0}%}"
+                                               FontSize="12" Foreground="{StaticResource StatusWarningBrush}"
+                                               FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Scope Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="sectionLabel" Text="INPUT SIGNAL"/>
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6" ClipToBounds="True" MinHeight="155">
+                        <visualization:VisualizationPanel Source="{Binding SlidingWindow.Viz}" ScopeVisibleByDefault="True" 
+                                                          ShowScopeViewModeToggle="True" MinHeight="160"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

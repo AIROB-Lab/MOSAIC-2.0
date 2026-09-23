@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Mobile identity and output paths are set before SDK evaluation in Directory.Build.props. -->
+    <Import Project="MOSAIC.Shared.targets" />
+</Project>

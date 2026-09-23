@@ -1,0 +1,10 @@
+{
+  "Clock": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "Myo": {
+    "Type": "Myo",
+    "Inputs": ["Clock"]
+  }
+}

@@ -1,0 +1,50 @@
+// BodyRig 2 — single sensor.
+//
+//   ControlSender .... tells the rig to start streaming (card: pick ROT, device 1, ON, Send)
+//   sensor1Reading ... listens on UDP 11018 for the rig's packets
+//   sensor1ROT ....... picks four floats out of the packet (see note below)
+//   bodyRig .......... forward kinematics over a one-segment chain
+//
+// Broadcast address must match YOUR subnet. This PC is 192.168.0.215/24 on the
+// TP-Link router, so the broadcast is 192.168.0.255 — NOT the old lab's 10.156.222.255,
+// which is on a different network and reaches nothing from here.
+//
+// No COM port: with a quaternion vector as its input the block takes the quaternion
+// path and never touches the serial port, so Params[0] is deliberately empty.
+//
+// WIRE FORMAT (confirmed by capture from a live rig, 2026-08-19):
+//   52-byte packets = 13 little-endian float32, one packet per sample:
+//     [ 0.. 3]  quaternion  w, x, y, z   (unit norm, verified 1.0000)
+//     [ 4.. 6]  accelerometer  ax, ay, az   (m/s^2; |a| = 9.68 at rest)
+//     [ 7.. 9]  gyroscope      gx, gy, gz
+//     [10..12]  magnetometer   mx, my, mz
+//   Component order was pinned by rotating world gravity through the quaternion and
+//   matching the measured accelerometer vector (0.2% error) — index 0 is W, not X.
+//   BodyRig reads each quaternion group as [w,x,y,z], so 0;1;2;3 maps straight through.
+//
+// The rig streams continuously on its own. ControlSender only selects WHICH streams
+// it sends (ROT/ACC/GYR/MAG/ALL) — it is not needed to start or stop the flow.
+{
+  "ControlSender": {
+    "Type": "CommandSender",
+    "Params": ["192.168.0.255", 11000]
+  },
+
+  "sensor1Reading": {
+    "Type": "UDPClient",
+    "DesiredRate": 100,
+    "Params": [11013, "float"]
+  },
+
+  "sensor1ROT": {
+    "Type": "Projector",
+    "Inputs": ["sensor1Reading"],
+    "Params": ["0;1;2;3"]
+  },
+
+  "bodyRig": {
+    "Type": "BodyRig",
+    "Inputs": ["sensor1ROT"],
+    "Params": ["", 1, ""]
+  }
+}

@@ -1,0 +1,120 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Devices"
+    xmlns:scope="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.Devices.MyoCardView"
+    x:DataType="vm:MyoViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+        <converters:StatusTextToColorConverter x:Key="StatusTextToColor"/>
+        <converters:BoolToConnectTextConverter x:Key="BoolToConnectText"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Classes="cardTitle" Text="{Binding Myo.Name}"/>
+                        <!-- Category badge - Devices Sky Blue -->
+                        <Border Background="{StaticResource CategoryDevicesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="MYO" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- Connection indicator -->
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsConnected}"
+                                Background="{Binding Myo.Status, Converter={StaticResource StatusTextToColor}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="CONNECTED" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="cardSubtitle" Text="{Binding Myo.FrequencyText}"/>
+                </StackPanel>
+
+                <!-- Status Indicator -->
+                <Border Grid.Column="1" 
+                        Background="{Binding Myo.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Myo.Status}" FontWeight="SemiBold" Foreground="White" FontSize="10" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- BLE Device Selection -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <TextBlock Classes="sectionLabel" Text="BLE DEVICE"/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <!-- Scan Button -->
+                        <Button Grid.Column="0" Content="Scan" Command="{Binding StartScanCommand}"
+                                IsEnabled="{Binding !IsBusy}"
+                                Background="{StaticResource CategoryDevicesBrush}"
+                                Foreground="White"
+                                Padding="16,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        
+                        <!-- Device Picker -->
+                        <ComboBox Grid.Column="1" 
+                                  ItemsSource="{Binding FoundDevices}"
+                                  SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                                  Background="{DynamicResource ThemeInputBackgroundBrush}" 
+                                  Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                  IsEnabled="{Binding !IsConnected}"
+                                  HorizontalAlignment="Stretch"/>
+                        
+                        <!-- Connect/Disconnect Button -->
+                        <Button Grid.Column="2" 
+                                IsEnabled="{Binding !IsBusy}"
+                                Command="{Binding ToggleConnectCommand}"
+                                Content="{Binding IsConnected, Converter={StaticResource BoolToConnectText}}"
+                                Foreground="White" Padding="16,8" CornerRadius="5"
+                                FontWeight="SemiBold" FontSize="11" MinWidth="100" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"> 
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="Background" Value="{StaticResource StatusNormalBrush}"/>
+                                </Style>
+                                <Style Selector="Button[Tag=True]">
+                                    <Setter Property="Background" Value="{StaticResource StatusErrorBrush}"/>
+                                </Style>
+                            </Button.Styles>
+                            <Button.Tag>
+                                <Binding Path="IsConnected"/>
+                            </Button.Tag>
+                        </Button>
+                    </Grid>
+                    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" FontSize="12"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding LastError}" TextWrapping="Wrap" FontSize="12"
+                               Foreground="{StaticResource StatusErrorBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Viz Panel -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                   <TextBlock Classes="sectionLabel" Text="EMG SIGNAL"/>
+                   <visualization:VisualizationPanel
+                       Source="{Binding Myo.Viz}"
+                       ScopeVisibleByDefault="True"
+                       ShowScopeViewModeToggle="True"
+                       MinHeight="140"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

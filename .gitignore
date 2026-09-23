@@ -1,0 +1,59 @@
+﻿################################################################################
+# Diese .gitignore-Datei wurde von Microsoft(R) Visual Studio automatisch erstellt.
+################################################################################
+
+/.vs
+
+# Packaged builds. tools/make-student-build.ps1 stages the self-contained app and the
+# student zip here - hundreds of MB of publish output, regenerated on demand.
+/dist/
+
+# Paper sources and anything built from them.
+/paper/
+
+# Generated analysis output.
+/output/
+
+# Temporary working files and build/test logs.
+/tmp/
+
+# CSV recordings. BlockFactory gives every block a dumper, so any run with a per-block
+# Path or the record toggle on drops files here.
+/MOSAIC/MOSAIC/Assets/DumpFiles/
+
+# Python bytecode and virtual environments. MOSAIC/.gitignore already covers these
+# inside MOSAIC/; PythonIntegrations/ sits outside it and needs its own rule.
+__pycache__/
+*.pyc
+.venv/
+
+# Generated Python packaging output.
+/PythonIntegrations/wulpus-package/build/
+/PythonIntegrations/wulpus-package/src/*.egg-info/
+
+# Trained-model artifacts are local outputs and are never part of the public source release.
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.keras
+*.ckpt
+*.safetensors
+*.tflite
+/PythonIntegrations/**/checkpoints/
+/PythonIntegrations/**/models/
+/PythonIntegrations/**/outputs/
+
+# Optional third-party runtimes are supplied by each user and are not redistributed.
+/MOSAIC/MOSAIC/Assets/MccDaq/MccDaq.dll
+/MOSAIC/MOSAIC/Assets/LSLLib/runtimes/**/lsl.dll
+
+# DocFX API metadata is regenerated from the shared application project.
+/Documentation/_api/
+/Documentation/_site-builds/
+/Documentation/_site/
+/Documentation/api-blocks.json

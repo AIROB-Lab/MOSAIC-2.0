@@ -1,0 +1,100 @@
+﻿{
+  "timer_myo": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+
+  "raw_EMG": {
+    "Type": "Myo",
+    "Inputs": ["timer_myo"]
+  },
+
+  "amplified_raw_EMG": {
+    "Type": "Function",
+    "Inputs": ["raw_EMG"],
+    "Params": ["multiply:5"]
+  },
+
+  "rectified_raw_EMG": {
+    "Type": "Function",
+    "Inputs": ["amplified_raw_EMG"],
+    "Params": ["abs:0"]
+  },
+
+  "ARV_LPF": {
+    "Type": "Filter",
+    "Inputs": ["rectified_raw_EMG"],
+    "Params": ["0.00002206;0.00004412;0.00002206", "1;-1.9867;0.9868"]
+  },
+  
+
+  "ARV": {
+    "Type": "Resampler",
+    "Inputs": ["ARV_LPF"],
+    "Params": [25]
+  },
+
+  "ground_truth": {
+    "Type": "Trigger",
+    "Params": [
+      "rest:0;0;0;0;0;0;0;0;0;0;0;0",
+      "power:1;1;1;1;1;1;0;0;0;0;0;0",
+      "flex:0;0;0;0;0;0;1;0;0;0;0;0",
+      "extend:0;0;0;0;0;0;0;1;0;0;0;0",
+      "pron:0;0;0;0;0;0;0;0;1;0;0;0"
+    ]
+  },
+
+  "incr_learn_prediction": {
+    "Type": "IncrementalPredictor",
+    "Inputs": ["ARV", "ground_truth"],
+    "Params": ["Ridge", 8, 12]
+  },
+
+  "controlAlgorithm1": {
+    "Type": "ControlAlgorithm",
+    "Inputs": ["incr_learn_prediction"],
+    "Params": ["algorithm:DirectControl"]
+  },
+
+  "blender_skin_arm_ctrl": {
+    "Type": "BlenderArm",
+    "Inputs": ["controlAlgorithm1"],
+    "Params": ["localhost", 3334]
+  },
+
+  "TAC_stim": {
+    "Type": "Stimulus",
+    "Inputs": ["timer_myo"],
+    "Params": [
+      "20.0",
+      "power80:0.8;0.8;0.8;0.8;0.8;0.8;0;0;0;0;0;0",
+      "flex80:0;0;0;0;0;0;0.8;0;0;0;0;0",
+      "flex80:0;0;0;0;0;0;0.8;0;0;0;0;0",
+      "flex80:0;0;0;0;0;0;0.8;0;0;0;0;0"
+    ]
+  },
+
+  "TAC_stim_tv": {
+    "Type": "Selector",
+    "Inputs": ["TAC_stim"]
+  },
+
+  "controlAlgorithm2": {
+    "Type": "ControlAlgorithm",
+    "Inputs": ["TAC_stim_tv"],
+    "Params": ["algorithm:DirectControl"]
+  },
+
+  "blender_white_arm_ctrl": {
+    "Type": "BlenderArm",
+    "Inputs": ["controlAlgorithm2"],
+    "Params": ["localhost", 3333]
+  },
+
+  "increm_learning_TAC": {
+    "Type": "TAC",
+    "Inputs": ["TAC_stim", "incr_learn_prediction"],
+    "Params": ["TAC_stim", 2.0, 0.2]
+  }
+}

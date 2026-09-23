@@ -1,0 +1,12 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 100
+  },
+  "MuoviEmg": {
+    "Type": "Muovi",
+    "Inputs": [],
+    "DesiredRate": 111,
+    "Params": [1, "emg"]
+  }
+}

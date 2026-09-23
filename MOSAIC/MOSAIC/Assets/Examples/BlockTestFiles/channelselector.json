@@ -1,0 +1,16 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 100
+  },
+  "sin1": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [32, 1.0, 0.5, 0.0]
+  },
+  "channelSelector": {
+    "Type": "ChannelSelector",
+    "Inputs": ["sin1"],
+    "DesiredRate": 100
+  }
+}

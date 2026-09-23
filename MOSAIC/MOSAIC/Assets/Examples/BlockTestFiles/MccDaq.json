@@ -1,0 +1,73 @@
+// MCC DAQ — bare acquisition test.
+//
+//   timer ..... paces the pipeline; the DAQ block takes ONE packet per tick
+//   daq ....... runs a continuous background scan and decodes packets into volts
+//
+// BEFORE RUNNING:
+//
+//   1. Configure the board in InstaCal. The Universal Library addresses boards by the
+//      InstaCal board number, not by serial number or USB path, and a board that has not
+//      been through InstaCal is invisible to it. Params[2] is that number; the block's
+//      card lists the boards it can see.
+//
+//   2. The board is asked for  timerRate x scansPerPacket  SCANS PER SECOND, where one
+//      scan covers every channel. With the values below that is 100 x 10 = 1000 scans/s,
+//      i.e. 1000 samples per second on each of the eight channels.
+//
+//      Check the number on the card before pressing Connect: a board that cannot divide
+//      its clock to the requested rate acquires at a nearby one instead, and the card says
+//      so rather than letting the whole signal come out wrong by a constant factor.
+//
+//   3. Each tick copies the newest packet out of the driver's ring buffer. Keep the timer
+//      rate and the scan rate consistent — the scan rate is derived from the timer, so they
+//      agree by construction unless the board rounds the rate.
+//
+//   4. THERE IS NO SAMPLING-RATE FIELD. The per-channel rate is timerRate x scansPerPacket,
+//      so raise scansPerPacket, NOT the timer, to sample faster. Measured on a USB-1608GX
+//      over 8 channels:
+//
+//        timer 100 Hz x  20 scans =  2000 S/s/ch   100.0% of packets delivered
+//        timer 200 Hz x  10 scans =  2000 S/s/ch    99.5%
+//        timer 2000 Hz x  1 scan  =  2000 S/s/ch    99.5%
+//        timer 100 Hz x  50 scans =  5000 S/s/ch    99.7%
+//        timer 100 Hz x 100 scans = 10000 S/s/ch    99.7%
+//
+//      A slow timer with big packets wins: fewer ticks means fewer that find no whole packet
+//      ready and republish the previous one. It also keeps the UI and the rest of the
+//      pipeline at a sane rate while the board runs fast. The ring buffer holds 8 packets
+//      whatever the rate, so latency stays at ~80 ms at every setting above.
+//
+//      SignalRate is set from the rate the BOARD settled on, so a downstream Filter or FFT
+//      designs against 2000 Hz — not against the timer's 100 Hz.
+//
+// OUTPUT SHAPE: scansPerPacket = 1 publishes a Vector of channels. More than 1 publishes a
+// Matrix of rows = scans, columns = channels — the shape the other multi-sample device
+// blocks use, and what a Filter or Metric Extractor behind this expects.
+//
+// PARAMS: [ channels, scansPerPacket, boardNumber, range, scale ]
+//   channels ....... ";"-separated list. The hardware sweeps a CONTIGUOUS range, so only the
+//                    lowest and highest entries matter: "0;1;2;3" and "0;3" both sweep 0-3.
+//   scansPerPacket . scans taken per tick. 1 = vector out, >1 = matrix out.
+//   boardNumber .... InstaCal board number. Default 0.
+//   range .......... Universal Library range name, e.g. "Bip10Volts", "Bip5Volts".
+//   scale .......... "volts" (driver-derived, the default) or "legacy" to reproduce the
+//                    iM-Blocks conversion of raw count / 10000, which is not volts under any
+//                    range and is only here so a ported pipeline matches its old recordings.
+//
+// The block does NOT auto-connect. Load the pipeline, then press Connect on the card.
+//
+// Adding "Path" to a block writes every published sample to a timestamped CSV in that
+// directory — the way to check the recording afterwards rather than watching the scope.
+{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 100
+  },
+
+  "daq": {
+    "Type": "MccDaq",
+    "Inputs": ["timer"],
+    "Params": ["0;1;2;3;4;5;6;7", 10, 0, "Bip10Volts", "volts"]
+    // "Path": "C:/Data/daq_session1"
+  }
+}

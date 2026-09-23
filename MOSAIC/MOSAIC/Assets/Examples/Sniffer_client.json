@@ -1,0 +1,11 @@
+{
+  "Trigger": {
+    "Type": "Trigger",
+    "Params": ["rest:0", "extend:-1", "flex:1"]
+  },
+  "ToSniffer": {
+    "Type": "UDPClient",
+    "Inputs": ["Trigger"],
+    "Params": [3343, "float", "172.27.7.236", 3335]
+  }
+}

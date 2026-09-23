@@ -1,0 +1,13 @@
+﻿{
+  "ROS": {
+    "Type": "RosBlock",
+    "Inputs": [],
+    "Params": [
+      "localhost",
+      "subscribe",
+      "ros_topic",
+      "std_msgs/Float64MultiArray",
+      "32"
+    ]
+  }
+}

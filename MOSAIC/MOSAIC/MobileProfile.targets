@@ -1,0 +1,23 @@
+<Project>
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);MOSAIC_MOBILE</DefineConstants>
+    </PropertyGroup>
+
+    <!-- Remove implementations and their cards together: merely dropping native
+         packages leaves type references that the startup block catalog can load. -->
+    <ItemGroup>
+        <Compile Remove="Components/Manager/Python/**/*.cs;Components/Devices/Wulpus/**/*.cs" />
+        <Compile Remove="Models/Devices/Wulpus.cs;Models/Analytics/SupervisedUmap.cs;Models/MachineLearning/PyPredictor*.cs;Models/MachineLearning/USClassifier.cs" />
+        <Compile Remove="ViewModels/Devices/WulpusViewModel.cs;ViewModels/Analytics/SupervisedUmapViewModel.cs;ViewModels/MachineLearning/PyPredictor*ViewModel.cs;ViewModels/MachineLearning/USClassifierViewModel.cs" />
+        <Compile Remove="Views/Cards/Devices/WulpusCardView.axaml.cs;Views/Cards/Analytics/SupervisedUmapCardView.axaml.cs;Views/Cards/MachineLearning/PyPredictorCardView.axaml.cs;Views/Cards/MachineLearning/PyPredictionRegressionCardView.axaml.cs;Views/Cards/MachineLearning/USPredictorCardView.axaml.cs" />
+        <AvaloniaXaml Remove="Views/Cards/Devices/WulpusCardView.axaml;Views/Cards/Analytics/SupervisedUmapCardView.axaml;Views/Cards/MachineLearning/PyPredictorCardView.axaml;Views/Cards/MachineLearning/PyPredictionRegressionCardView.axaml;Views/Cards/MachineLearning/USPredictorCardView.axaml" />
+
+        <Compile Remove="Components/Devices/Delsys/**/*.cs;Assets/LSLLib/**/*.cs" />
+        <Compile Remove="Models/Devices/Delsys.cs;Models/Devices/MccDaqBoard.cs;Models/Streaming/LSL.cs" />
+        <Compile Remove="ViewModels/Devices/DelsysViewModel.cs;ViewModels/Devices/MccDaqBoardViewModel.cs;ViewModels/Streaming/LSLViewModel.cs" />
+        <Compile Remove="Views/Cards/Devices/DelsysCardView.axaml.cs;Views/Cards/Devices/MccDaqBoardCardView.axaml.cs;Views/Cards/Streaming/LSLCardView.axaml.cs" />
+        <AvaloniaXaml Remove="Views/Cards/Devices/DelsysCardView.axaml;Views/Cards/Devices/MccDaqBoardCardView.axaml;Views/Cards/Streaming/LSLCardView.axaml" />
+
+        <None Remove="Components/Manager/Python/**;Assets/MccDaq/**;Assets/LSLLib/**;Assets/WulpusConfigs/**" />
+    </ItemGroup>
+</Project>

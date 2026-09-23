@@ -1,0 +1,60 @@
+- name: Start Here
+  items:
+    - name: What MOSAIC Is
+      href: introduction.md
+    - name: Getting Started
+      href: getting-started.md
+    - name: Using the Workbench
+      href: workbench.md
+    - name: Your First Pipeline
+      href: first-pipeline.md
+- name: Working with Signals
+  items:
+    - name: Signal Processing Walkthrough
+      href: signal-lab.md
+    - name: Data Shapes and Time
+      href: data-and-time.md
+    - name: Reading the Plots
+      href: reading-plots.md
+    - name: Recording and Saved Pipelines
+      href: recording.md
+    - name: Train a Simple Classifier
+      href: learning-lab.md
+- name: Reference
+  items:
+    - name: Block Catalogue
+      href: block-catalogue.md
+    - name: Pipeline Configuration
+      href: configuration.md
+    - name: Python Integrations
+      href: python-integrations.md
+    - name: Troubleshooting
+      href: troubleshooting.md
+- name: Developing Blocks
+  items:
+    - name: Build Your Own Block
+      href: new-block-guide.md
+    - name: Batches, Features and Source Blocks
+      href: advanced-blocks.md
+    - name: Block Catalogue Registration
+      href: block-catalogue-registration.md
+- name: Architecture and UI
+  items:
+    - name: Core Architecture and the Runtime Model
+      href: core-architecture.md
+    - name: Performance
+      href: performance.md
+    - name: MVVM Pattern
+      href: mvvm-pattern.md
+    - name: Drag-and-Drop Implementation
+      href: drag-and-drop-blocks.md
+    - name: Visualization Overview
+      href: visualisation-architecture.md
+    - name: Visualization Panel Integration
+      href: visualization-panel.md
+    - name: Custom Chart ViewModels
+      href: visualisation-system.md
+    - name: Theme Colours
+      href: theme-colours.md
+    - name: Building the Documentation
+      href: building-documentation.md

@@ -1,0 +1,21 @@
+﻿{
+  "timer": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+  "sin1": {
+    "Type": "SinGenerator",
+    "Inputs": ["timer"],
+    "Params": [4, 1.0, 0.5, 0.0]
+  },
+  "window": {
+    "Type": "SlidingWindow",
+    "Inputs": ["sin1"],
+    "Params": [100, 50, "hann"]
+  },
+  "mav": {
+    "Type": "MeanAverageValue",
+    "Inputs": ["window"],
+    "DesiredRate": 50
+  }
+}

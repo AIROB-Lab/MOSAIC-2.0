@@ -1,0 +1,87 @@
+﻿{
+  "Clock": {
+    "Type": "ClockBlock",
+    "DesiredRate": 200
+  },
+
+  "Myo": {
+    "Type": "Myo",
+    "DesiredRate": 200,
+    "Inputs": [ "Clock" ]
+  },
+
+  "notch50": {
+    "Type": "FilterBlock",
+    "Inputs": [ "Myo" ],
+    "Params": [ "Bandstop", "IIR", 49, 51, 4, 64 ],
+    "DesiredRate": 200
+  },
+
+  "bandpass": {
+    "Type": "FilterBlock",
+    "Inputs": [ "notch50" ],
+    "Params": [ "Bandpass", "IIR", 20, 95, 4, 64 ],
+    "DesiredRate": 200
+  },
+
+  "Window": {
+    "Type": "SlidingWindow",
+    "Inputs": [ "bandpass" ],
+    "Params": [ 40, 20, "Rectangular" ],
+    "DesiredRate": 200
+  },
+
+  "RMS": {
+    "Type": "MetricExtractor",
+    "Inputs": [ "Window" ],
+    "Params": [ "RMS" ]
+  },
+
+  "MAV": {
+    "Type": "MetricExtractor",
+    "Inputs": [ "Window" ],
+    "Params": [ "MAV" ]
+  },
+
+  "VAR": {
+    "Type": "MetricExtractor",
+    "Inputs": [ "Window" ],
+    "Params": [ "VAR" ]
+  },
+
+  "STD": {
+    "Type": "MetricExtractor",
+    "Inputs": [ "Window" ],
+    "Params": [ "STD" ]
+  },
+
+  "Features": {
+    "Type": "Joiner",
+    "Inputs": [ "RMS", "MAV", "VAR", "STD" ],
+    "Params": [ "timer:STD" ]
+  },
+
+  "Trigger": {
+    "Type": "Trigger",
+    "Params": [
+      "rest:1;0;0;0;0;0",
+      "fist:0;1;0;0;0;0",
+      "open:0;0;1;0;0;0",
+      "flex:0;0;0;1;0;0",
+      "extend:0;0;0;0;1;0",
+      "pronation:0;0;0;0;0;1"
+    ]
+  },
+
+  "Buffer": {
+    "Type": "TriggerBuffer",
+    "Inputs": [ "Trigger", "Features" ]
+  },
+
+  "Classifier": {
+    "Type": "ClassifierBlock",
+    "DesiredRate": 10,
+    "Inputs": [ "Features", "Buffer" ],
+    "Params": [ "LDA", 32, 6, "Buffer" ]
+  }
+}

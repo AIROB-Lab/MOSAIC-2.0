@@ -1,0 +1,18 @@
+{
+  "Clock": { "Type": "Clock", "DesiredRate": 200 },
+  "sinusoidSignal": {
+    "Type": "SinGenerator",
+    "Inputs": ["Clock"],
+    "Params": [1, 1.0, 1.0, 0.0, 0.0, 1]
+  },
+  "squaredSignal": {
+    "Type": "Function",
+    "Inputs": ["sinusoidSignal"],
+    "Params": ["power", 2]
+  },
+  "doubledSignal": {
+    "Type": "Function",
+    "Inputs": ["sinusoidSignal"],
+    "Params": ["multiply", 2]
+  }
+}

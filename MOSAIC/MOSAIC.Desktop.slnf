@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "MOSAIC.sln",
+    "projects": [
+      "MOSAIC\\MOSAIC.csproj",
+      "MOSAIC.Desktop\\MOSAIC.Desktop.csproj"
+    ]
+  }
+}

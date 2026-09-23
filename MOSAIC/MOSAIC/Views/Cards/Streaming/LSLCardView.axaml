@@ -1,0 +1,205 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:viz="clr-namespace:MOSAIC.Visualization"
+    xmlns:controls="clr-namespace:MOSAIC.Controls"
+    x:Class="MOSAIC.Views.Cards.Streaming.LSLCardView"
+    x:DataType="vm:LSLViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor"/>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.streaming-pulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.0" IterationCount="INFINITE" PlaybackDirection="Alternate"
+                           Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StatusNormalBrush}"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="BorderBrush" Value="{StaticResource StreamingSourcesBrush}"/>
+                        <Setter Property="Opacity" Value="1.0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="card"
+            Classes.streaming-pulse="{Binding IsActive}">
+
+        <StackPanel Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Block.Name}" Classes="cardTitle"/>
+                        <Border Background="{StaticResource StreamingSourcesBrush}"
+                                CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="{Binding ModeLabel}" FontSize="10" FontWeight="Bold"
+                                       Foreground="White"/>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                IsVisible="{Binding IsActive}"
+                                Background="{StaticResource StatusNormalBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="LIVE" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Block.FrequencyText}" Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Block.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="14" Padding="14,6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Block.Status}" FontWeight="SemiBold"
+                               Foreground="White" FontSize="11" TextAlignment="Center"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <UniformGrid Columns="3" HorizontalAlignment="Stretch">
+                <Border Classes="cardSection" Margin="0,0,4,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="CHANNELS" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding Block.ResolvedChannels}" FontSize="22" FontWeight="Bold"
+                                   Foreground="{StaticResource StreamingSourcesBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="2,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="RATE" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding Block.ResolvedRate, StringFormat='{}{0:F0} Hz'}"
+                                   FontSize="14" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="cardSection" Margin="4,0,0,0">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="SAMPLES" Classes="sectionLabel"/>
+                        <TextBlock Text="{Binding Block.SampleCount, StringFormat='{}{0:N0}'}"
+                                   FontSize="14" FontWeight="Bold"
+                                   Foreground="{StaticResource StatusNormalBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="LSL SIGNAL" Classes="sectionLabel"/>
+                    <viz:VisualizationPanel
+                        Source="{Binding Block.Viz}"
+                        ScopeVisibleByDefault="True"
+                        ShowScopeViewModeToggle="True"
+                        MinHeight="180"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+
+                    <Button Background="Transparent" BorderThickness="0" Padding="6,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                            Cursor="Hand" Command="{Binding ToggleSettingsExpandedCommand}">
+                        <Grid ColumnDefinitions="Auto,Auto,*">
+                            <TextBlock Grid.Column="0" Text="▸" IsVisible="{Binding !IsSettingsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="▾" IsVisible="{Binding IsSettingsExpanded}"
+                                       FontSize="16" FontWeight="Bold" Width="20"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Stream Settings" FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel Spacing="12" IsVisible="{Binding IsSettingsExpanded}">
+
+                        <!-- Stream Name -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="Stream Name" Classes="fieldLabel"
+                                       VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Text="{Binding EditStreamName}"
+                                     PlaceholderText="e.g. MOSAIC_EMG"
+                                     FontFamily="Cascadia Mono, Consolas, monospace"/>
+                        </Grid>
+
+                        <!-- Stream Type -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="Stream Type" Classes="fieldLabel"
+                                       VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Text="{Binding EditStreamType}"
+                                     PlaceholderText="e.g. EMG, EEG"
+                                     FontFamily="Cascadia Mono, Consolas, monospace"/>
+                        </Grid>
+
+                        <!-- Rate / Timeout -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="{Binding RateOrTimeoutLabel}" Classes="fieldLabel"
+                                       VerticalAlignment="Center"/>
+                            <controls:SafeNumericUpDown Grid.Column="1"
+                                           Value="{Binding EditRateOrTimeout}"
+                                           Minimum="0" Maximum="100000"
+                                           Increment="100"/>
+                        </Grid>
+
+                        <!-- Channels / Chunk Len -->
+                        <Grid ColumnDefinitions="90,*">
+                            <TextBlock Grid.Column="0" Text="{Binding ChannelsOrChunkLabel}" Classes="fieldLabel"
+                                       VerticalAlignment="Center"/>
+                            <controls:SafeNumericUpDown Grid.Column="1"
+                                           Value="{Binding EditChannelsOrChunkLen}"
+                                           Minimum="0" Maximum="1024"
+                                           Increment="1"/>
+                        </Grid>
+
+                        <!-- Apply Button -->
+                        <Button Content="Apply Settings"
+                                Command="{Binding ApplySettingsCommand}"
+                                Background="{StaticResource StreamingSourcesBrush}"
+                                Foreground="White"
+                                Padding="12,8" CornerRadius="6"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                FontSize="12" FontWeight="SemiBold"/>
+
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="*,8,*" IsVisible="{Binding IsInlet}">
+                <Button Grid.Column="0" Content="Start Streaming"
+                        Command="{Binding StartStreamingCommand}"
+                        Background="{StaticResource StreamingSourcesBrush}"
+                        Foreground="White"
+                        Padding="12,10" CornerRadius="6"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"/>
+                <Button Grid.Column="2" Content="Stop Streaming"
+                        Command="{Binding StopStreamingCommand}"
+                        Background="{DynamicResource ThemeSectionBrush}"
+                        Foreground="{StaticResource StatusWarningBrush}"
+                        BorderBrush="{StaticResource StatusWarningBrush}"
+                        BorderThickness="1"
+                        Padding="12,10" CornerRadius="6"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        FontSize="12" FontWeight="SemiBold"/>
+            </Grid>
+
+        </StackPanel>
+    </Border>
+</UserControl>

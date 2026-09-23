@@ -1,0 +1,16 @@
+﻿{
+  "pythonDllByOS": {
+    "windows": "%MOSAIC_WULPUS_PYTHON_DLL%",
+    "linux": "%MOSAIC_WULPUS_PYTHON_DLL%",
+    "osx": "%MOSAIC_WULPUS_PYTHON_DLL%"
+  },
+
+  "sitePackagesByOS": {
+    "windows": "%MOSAIC_WULPUS_SITE_PACKAGES%",
+    "linux": "%MOSAIC_WULPUS_SITE_PACKAGES%",
+    "osx": "%MOSAIC_WULPUS_SITE_PACKAGES%"
+  },
+
+  "loadScriptsPath": "."
+}
+

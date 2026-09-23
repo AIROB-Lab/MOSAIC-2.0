@@ -1,0 +1,18 @@
+{
+  "Clock": { "Type": "clock", "DesiredRate": 100 },
+  "Signal": {
+    "Type": "singenerator",
+    "Inputs": ["Clock"],
+    "Params": [1, 1.0, 1.0, 0.0, 0.0, 1]
+  },
+  "Amplify": {
+    "Type": "gainblock",
+    "Inputs": ["Signal"],
+    "Params": [2.5]
+  },
+  "Check": {
+    "Type": "function",
+    "Inputs": ["Amplify"],
+    "Params": ["multiply", 1.0]
+  }
+}

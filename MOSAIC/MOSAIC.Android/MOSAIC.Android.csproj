@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
+        <Nullable>enable</Nullable>
+        <ApplicationId>com.CompanyName.MOSAIC</ApplicationId>
+        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
+        <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AndroidResource Include="Icon.png">
+            <Link>Resources\drawable\Icon.png</Link>
+        </AndroidResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia.Android" />
+        <PackageReference Include="FftFlat" />
+        <PackageReference Include="LiveChartsCore" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" />
+        <PackageReference Include="ScottPlot" />
+        <PackageReference Include="ScottPlot.Avalonia" />
+        <PackageReference Include="Svg.Controls.Skia.Avalonia" />
+        <!-- Shared blocks reference SerialPort while the block catalog is initialized. Keep the
+             managed assembly and its Android runtime assets in the APK so those types can load. -->
+        <PackageReference Include="System.IO.Ports" />
+        <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MOSAIC\MOSAIC.Mobile.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Compile Include="..\MOSAIC\Components\Manager\BLE\AndroidBackend.cs"
+                 Link="Components\Manager\BLE\AndroidBackend.cs" />
+    </ItemGroup>
+</Project>

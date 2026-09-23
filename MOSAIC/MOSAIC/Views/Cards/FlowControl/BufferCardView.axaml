@@ -1,0 +1,137 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:MOSAIC.Converters"
+    xmlns:models="clr-namespace:MOSAIC.ViewModels"
+    xmlns:flowControl="clr-namespace:MOSAIC.ViewModels.FlowControl"
+    x:Class="MOSAIC.Views.Cards.FlowControl.BufferCardView"
+    x:DataType="flowControl:BufferViewModel">
+
+    <UserControl.Resources>
+        <conv:StatusToColorConverter x:Key="StatusToColor" />
+        <conv:BooleanToStringConverter x:Key="BooleanToString"/>
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Buffer.Name}" Classes="cardTitle"/>
+                        <!-- Category badge -->
+                        <Border Background="{StaticResource CategoryFlowControlBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="BUFFER" FontSize="10" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Buffer.DesiredRate, StringFormat='{}{0:F0} Hz'}"
+                               Classes="cardSubtitle"/>
+                </StackPanel>
+
+                <!-- Status badge -->
+                <Border Grid.Column="1" 
+                        Background="{Binding Buffer.Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Buffer.Status}" 
+                               FontWeight="SemiBold" Foreground="White" FontSize="10"/>
+                </Border>
+            </Grid>
+
+            <Border Classes="divider"/>
+
+            <!-- Control Buttons -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="CONTROLS" Classes="sectionLabel"/>
+
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Content="Refresh"
+                                Command="{Binding RefreshCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                Padding="12,8" CornerRadius="6"
+                                FontSize="11" FontWeight="SemiBold"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        
+                        <Button Grid.Column="1" Content="Clear"
+                                Command="{Binding ClearCommand}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                Padding="12,8" CornerRadius="6"
+                                FontSize="11" FontWeight="SemiBold"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        
+                        <Button Grid.Column="2" Content="Start/Stop"
+                                Command="{Binding TestToggleCommand}"
+                                Background="{StaticResource CategoryFlowControlBrush}"
+                                Foreground="White"
+                                Padding="12,8" CornerRadius="6"
+                                FontSize="11" FontWeight="SemiBold"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        
+                        <Button Grid.Column="3" Content="Save…"
+                                Command="{Binding SaveToFolderCommand}"
+                                CommandParameter="{Binding $parent[Window].StorageProvider}"
+                                Background="{DynamicResource ThemeSurfaceBrush}"
+                                Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                Padding="12,8" CornerRadius="6"
+                                FontSize="11" FontWeight="SemiBold"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Cluster Info Section -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="CLUSTER DATA" Classes="sectionLabel"/>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{Binding NumberOfCluster}"
+                                           FontSize="20" FontWeight="Bold"
+                                           Foreground="{StaticResource CategoryFlowControlBrush}"/>
+                                <TextBlock Text="clusters" Classes="cardSubtitle"
+                                           VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <ToggleButton Grid.Column="1"
+                                      IsChecked="{Binding IsExpanded, Mode=TwoWay}"
+                                      Background="{DynamicResource ThemeSurfaceBrush}"
+                                      Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                      Padding="12,8" CornerRadius="6"
+                                      FontSize="11" FontWeight="SemiBold"
+                                      VerticalAlignment="Center">
+                            <ToggleButton.Content>
+                                <Binding Path="IsExpanded" 
+                                         Converter="{StaticResource BooleanToString}" 
+                                         ConverterParameter="Hide Details|Show Details"/>
+                            </ToggleButton.Content>
+                        </ToggleButton>
+                    </Grid>
+                    
+                    <!-- Expandable Details -->
+                    <Border Background="{DynamicResource ThemeInputBackgroundBrush}"
+                            CornerRadius="6"
+                            Padding="10"
+                            IsVisible="{Binding IsExpanded}">
+                        <ScrollViewer MaxHeight="160" 
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <TextBlock Text="{Binding ClusterInformation}"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       FontSize="12"
+                                       FontFamily="Consolas,Monaco,monospace"/>
+                        </ScrollViewer>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

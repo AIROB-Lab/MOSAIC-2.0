@@ -1,0 +1,131 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- MOSAIC DARK THEME                                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- BACKGROUNDS                                                             -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeBackground">#0F0F0F</Color>
+    <Color x:Key="ThemeBackgroundAlt">#1A1A1A</Color>
+    <Color x:Key="ThemeSurface">#252525</Color>
+    <Color x:Key="ThemeSurfaceHover">#2A2A2A</Color>
+    <Color x:Key="ThemeCard">#1E1E1E</Color>
+    <Color x:Key="ThemeCardHeader">#252525</Color>
+    
+    <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="#0F0F0F"/>
+    <SolidColorBrush x:Key="ThemeBackgroundAltBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="ThemeSurfaceBrush" Color="#252525"/>
+    <SolidColorBrush x:Key="ThemeSurfaceHoverBrush" Color="#2A2A2A"/>
+    <SolidColorBrush x:Key="ThemeCardBrush" Color="#1E1E1E"/>
+    <SolidColorBrush x:Key="ThemeCardHeaderBrush" Color="#252525"/>
+    
+    <!-- Card gradient -->
+    <LinearGradientBrush x:Key="ThemeCardGradient" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="#252525" Offset="0"/>
+        <GradientStop Color="#1A1A1A" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- CANVAS / GRAPH AREA                                                     -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeCanvas">#0A1628</Color>
+    <Color x:Key="ThemeCanvasGrid">#1E3A5F</Color>
+    <Color x:Key="ThemeCanvasNode">#1A1A1A</Color>
+    <Color x:Key="ThemeCanvasNodeBorder">#3B82F6</Color>
+    
+    <SolidColorBrush x:Key="ThemeCanvasBrush" Color="#0A1628"/>
+    <SolidColorBrush x:Key="ThemeCanvasGridBrush" Color="#1E3A5F"/>
+    <SolidColorBrush x:Key="ThemeCanvasNodeBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="ThemeCanvasNodeBorderBrush" Color="#3B82F6"/>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- BORDERS                                                                 -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeBorder">#2A2A2A</Color>
+    <Color x:Key="ThemeBorderLight">#333333</Color>
+    <Color x:Key="ThemeBorderFocus">#3B82F6</Color>
+    
+    <SolidColorBrush x:Key="ThemeBorderBrush" Color="#2A2A2A"/>
+    <SolidColorBrush x:Key="ThemeBorderLightBrush" Color="#333333"/>
+    <SolidColorBrush x:Key="ThemeBorderFocusBrush" Color="#3B82F6"/>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- TEXT                                                                    -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeTextPrimary">#FFFFFF</Color>
+    <Color x:Key="ThemeTextSecondary">#B0B0B0</Color>
+    <Color x:Key="ThemeTextMuted">#808080</Color>
+    <Color x:Key="ThemeTextDimmed">#606060</Color>
+    <Color x:Key="ThemeTextDisabled">#404040</Color>
+    
+    <SolidColorBrush x:Key="ThemeTextPrimaryBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ThemeTextSecondaryBrush" Color="#B0B0B0"/>
+    <SolidColorBrush x:Key="ThemeTextMutedBrush" Color="#808080"/>
+    <SolidColorBrush x:Key="ThemeTextDimmedBrush" Color="#606060"/>
+    <SolidColorBrush x:Key="ThemeTextDisabledBrush" Color="#404040"/>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- INPUTS                                                                  -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeInputBackground">#1A1A1A</Color>
+    <Color x:Key="ThemeInputBorder">#333333</Color>
+    <Color x:Key="ThemeInputFocus">#3B82F6</Color>
+    
+    <SolidColorBrush x:Key="ThemeInputBackgroundBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="ThemeInputBorderBrush" Color="#333333"/>
+    <SolidColorBrush x:Key="ThemeInputFocusBrush" Color="#3B82F6"/>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- ACCENT                                                                  -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeAccent">#3B82F6</Color>
+    <Color x:Key="ThemeAccentHover">#2563EB</Color>
+    <Color x:Key="ThemeAccentMuted">#1E3A5F</Color>
+    
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="ThemeAccentHoverBrush" Color="#2563EB"/>
+    <SolidColorBrush x:Key="ThemeAccentMutedBrush" Color="#1E3A5F"/>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- SCOPE / CHART                                                           -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeScopeBackground">#0A0C0F</Color>
+    <Color x:Key="ThemeScopeGrid">#1A1A2E</Color>
+    <Color x:Key="ThemeScopeAxis">#404040</Color>
+    
+    <SolidColorBrush x:Key="ThemeScopeBackgroundBrush" Color="#0A0C0F"/>
+    <SolidColorBrush x:Key="ThemeScopeGridBrush" Color="#1A1A2E"/>
+    <SolidColorBrush x:Key="ThemeScopeAxisBrush" Color="#404040"/>
+    
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- SECTION BACKGROUNDS                                                     -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    
+    <Color x:Key="ThemeSection">#0D0D0D</Color>
+    <SolidColorBrush x:Key="ThemeSectionBrush" Color="#0D0D0D"/>
+    
+    <!-- Gray scale for general use -->
+    <Color x:Key="Gray50">#F9FAFB</Color>
+    <Color x:Key="Gray100">#F3F4F6</Color>
+    <Color x:Key="Gray200">#E5E7EB</Color>
+    <Color x:Key="Gray300">#252525</Color>
+    <Color x:Key="Gray400">#9CA3AF</Color>
+    <Color x:Key="Gray500">#6B7280</Color>
+    <Color x:Key="Gray600">#4B5563</Color>
+    <Color x:Key="Gray700">#374151</Color>
+    <Color x:Key="Gray800">#1F2937</Color>
+    <Color x:Key="Gray900">#111827</Color>
+    
+    <SolidColorBrush x:Key="Gray300Brush" Color="#252525"/>
+
+</ResourceDictionary>

@@ -1,0 +1,197 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MOSAIC.Converters"
+    xmlns:scopeMonitor="clr-namespace:MOSAIC.Visualization.ScopeMonitor"
+    xmlns:streaming="clr-namespace:MOSAIC.ViewModels.Streaming"
+    xmlns:visualization="clr-namespace:MOSAIC.Visualization"
+    x:Class="MOSAIC.Views.Cards.Streaming.UDPClientCardView"
+    x:DataType="streaming:UDPClientViewModel">
+
+    <UserControl.Resources>
+        <converters:StatusToColorConverter x:Key="StatusToColor" />
+        <converters:StatusToBoolConverter x:Key="StatusToBool" />
+        <converters:StatusToVisConverter x:Key="StatusToVis" />
+    </UserControl.Resources>
+
+    <Border Classes="card">
+
+        <StackPanel Spacing="12">
+
+            <!-- Header Section -->
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}"
+                                   Classes="cardTitle" />
+                        <Border Background="{StaticResource StreamingSourcesBrush}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="UDP" FontSize="10" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding ConnectionInfo}"
+                               Classes="cardSubtitle" />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="{Binding Status, Converter={StaticResource StatusToColor}}"
+                        CornerRadius="12" Padding="12,5" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               FontSize="10" />
+                </Border>
+            </Grid>
+
+            <Border Classes="divider" />
+
+            <!-- Network Configuration -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="NETWORK CONFIGURATION" Classes="sectionLabel" />
+                    <!-- Locked hint — shown when pipeline is running -->
+                    <Border Background="{DynamicResource ThemeSectionBrush}" CornerRadius="6"
+                            IsVisible="{Binding UdpClient.Status, Converter={StaticResource StatusToVis}}"
+                            Padding="10,6"
+                            BorderBrush="{DynamicResource ThemeBorderBrush}" BorderThickness="1">
+                        <TextBlock Text="🔒 Stop the pipeline to edit these settings."
+                                   FontSize="11" Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12"
+                          IsEnabled="{Binding UdpClient.Status, Converter={StaticResource StatusToBool}}">
+                        <!-- Receive (Local) — was TextBlock, now editable -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="RECEIVE (LOCAL)" Classes="fieldLabel"
+                                           HorizontalAlignment="Center" />
+                                <TextBox Text="{Binding ReceivePortText, Mode=TwoWay}"
+                                         FontSize="14" Foreground="{StaticResource StatusNormalBrush}"
+                                         FontWeight="Bold" HorizontalAlignment="Center"
+                                         FontFamily="Consolas,Monaco,monospace"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="4,0"
+                                         CaretBrush="{StaticResource StatusNormalBrush}">
+                                    <TextBox.Styles>
+                                        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                    </TextBox.Styles>
+                                </TextBox>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bidirectional Arrow -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="⇄" FontSize="18"
+                                       Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding FormatText}" FontSize="9"
+                                       Foreground="{StaticResource StreamingSourcesBrush}"
+                                       HorizontalAlignment="Center" FontWeight="SemiBold" />
+                        </StackPanel>
+
+                        <!-- Send (Remote) — was TextBlock, now editable -->
+                        <Border Grid.Column="2" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="10,8">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="SEND (REMOTE)" Classes="fieldLabel"
+                                           HorizontalAlignment="Center" />
+                                <TextBox Text="{Binding RemoteEndpointText, Mode=TwoWay}"
+                                         FontSize="14" Foreground="{StaticResource StatusWarningBrush}"
+                                         FontWeight="Bold" HorizontalAlignment="Center"
+                                         FontFamily="Consolas,Monaco,monospace"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="4,0"
+                                         CaretBrush="{StaticResource StatusWarningBrush}">
+                                    <TextBox.Styles>
+                                        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                        </Style>
+                                    </TextBox.Styles>
+                                </TextBox>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Statistics Panel -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="TRAFFIC STATISTICS" Classes="sectionLabel" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <!-- Sent -->
+                        <Border Grid.Column="0" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12,10">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="↑" FontSize="18"
+                                           Foreground="{StaticResource StatusWarningBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="SENT" Classes="fieldLabel" />
+                                    <TextBlock Text="{Binding PacketsSent, StringFormat='{}{0:N0} pkts'}"
+                                               FontSize="14" Foreground="{StaticResource StatusWarningBrush}"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Received -->
+                        <Border Grid.Column="1" Background="{DynamicResource ThemeInputBackgroundBrush}"
+                                CornerRadius="6" Padding="12,10">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="↓" FontSize="18"
+                                           Foreground="{StaticResource StatusNormalBrush}"
+                                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="RECEIVED" Classes="fieldLabel" />
+                                    <TextBlock Text="{Binding PacketsReceived, StringFormat='{}{0:N0} pkts'}"
+                                               FontSize="14" Foreground="{StaticResource StatusNormalBrush}"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Scope Monitor -->
+            <Border Classes="cardSection">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="DATA STREAM" Classes="sectionLabel" />
+
+                    <Border Background="{DynamicResource ThemeScopeBackgroundBrush}" CornerRadius="6"
+                            ClipToBounds="True">
+                        <visualization:VisualizationPanel Source="{Binding UdpClient.Viz}" ScopeVisibleByDefault="True"
+                                                          ShowScopeViewModeToggle="True" MinHeight="160" />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</UserControl>

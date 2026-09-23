@@ -1,0 +1,11 @@
+[project]
+name = "wulpus"
+version = "0.0.0"
+description = "Python interface retained for the MOSAIC Wulpus ultrasound integration"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
