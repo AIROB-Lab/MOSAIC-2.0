@@ -11,8 +11,9 @@
 - 🧩 [API reference](https://airob-lab.github.io/MOSAIC-2.0/api/index.html)
 
 <p align="center">
-  <img width="945" alt="The MOSAIC workbench showing a connected signal-processing pipeline and live visualizations" src="Documentation/images/workbench/workbench.png">
+  <img width="945" height="422" alt="528558647-1e289e24-67d0-43f3-a35a-7bae64ae9209" src="https://github.com/user-attachments/assets/56983525-201e-4dd4-9f18-dbc8db50a049" />
 </p>
+
 
 ## Overview
 
