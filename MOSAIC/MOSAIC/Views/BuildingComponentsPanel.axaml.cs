@@ -483,8 +483,7 @@ public partial class BuildingComponentsPanel : UserControl
         }
         catch (Exception ex)
         {
-            // One of the two ways a block lands on the canvas with the wrong port count, and it
-            // used to happen without a word.
+            // Surface the failure before falling back to the default port constraints.
             Log.Warn("BuildingComponents", ex, $"Could not read input constraints from '{filePath}'; using the defaults.");
             return (1, 1, new List<string>());
         }

@@ -600,7 +600,6 @@ public sealed partial class BodyRig : BaseBlock
         for (int i = 0; i < _chain.Length; i++)
         {
             // Segment id as 4 ASCII digits, e.g. segment 0 -> "0001", segment 11 -> "0012".
-            // The old code only bumped the last digit, so ids collided/garbled past segment 9.
             WriteAsciiId(id, i + 1);
             buffer[0] = BitConverter.ToSingle(id, 0);
 
@@ -696,13 +695,10 @@ public sealed partial class BodyRig : BaseBlock
         if (ReferenceEquals(child.Parent, parent)) return;
         if (parent.IsDescendantOf(child)) return;
 
-        // Unhook from the old parent first, or it keeps pointing at a child it no longer owns
-        // and the recursive forward-kinematics walk reaches that segment twice.
+        // Detach first to keep both link directions consistent and avoid duplicate traversal.
         DetachFromParent(child);
 
-        // The new parent keeps every child it already has. Evicting one to make room is what
-        // silently flattened branching models — a torso with two arms came back as a torso with
-        // one, and a second arm orphaned at the world origin.
+        // Preserve the parent's existing children so branching rigs remain intact.
         child.Parent = parent;
         parent.AddChild(child);
     }
@@ -759,10 +755,7 @@ public sealed partial class BodyRig : BaseBlock
     /// <summary>
     /// Loads calibration data from <paramref name="path"/>, making it the current profile.
     /// </summary>
-    /// <remarks>
-    /// The parameterless overload reads whatever the block already considers current, which is
-    /// why a path typed into the card used to be ignored.
-    /// </remarks>
+    /// <remarks>Sets the current file before delegating to the parameterless overload.</remarks>
     public void LoadCalibration(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) return;
@@ -818,9 +811,7 @@ public sealed partial class BodyRig : BaseBlock
                 _chain[i].Name = name.Length > 0 ? name : null;
             }
 
-            // SetParent maintains both link directions and rejects cycles; assigning
-            // Parent directly (as this used to) left every Child pointer null, so the
-            // chain never propagated an update past its root.
+            // SetParent maintains both link directions and rejects cycles.
             for (int i = 0; i < count; i++)
                 SetParent(i, parents[i] < count ? parents[i] : -1);
 
@@ -837,10 +828,8 @@ public sealed partial class BodyRig : BaseBlock
     /// </summary>
     /// <returns><see langword="true"/> when the file was actually written.</returns>
     /// <remarks>
-    /// Failures are still swallowed, because a failed store must not take down a running
-    /// pipeline - but they are now reported. A caller that announces "stored" without checking
-    /// this repeats the defect that made the first profile in a fresh directory impossible to
-    /// create from inside the app while the card claimed success.
+    /// Failures are reported and returned as <see langword="false"/> rather than interrupting a
+    /// running pipeline. Callers must check the result before reporting success.
     /// </remarks>
     public bool StoreCalibration(string filename)
     {
@@ -858,9 +847,7 @@ public sealed partial class BodyRig : BaseBlock
 
         try
         {
-            // Typing a folder that does not exist yet and pressing Store is the normal way the
-            // very first profile gets created; refusing it would leave the card unusable from
-            // scratch, which is the hole this fix closes.
+            // Create the parent directory so the first profile can be stored in a new location.
             var parent = Path.GetDirectoryName(filename);
             if (!string.IsNullOrEmpty(parent)) Directory.CreateDirectory(parent);
 

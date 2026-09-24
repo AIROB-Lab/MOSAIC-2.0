@@ -206,16 +206,12 @@ public class UDPClient : BaseBlock, IReceivePort
     /// JSON model. See the class-level example for <c>Params</c> layout.
     /// </param>
     /// <returns>A configured <see cref="UDPClient"/> instance.</returns>
-    /// <exception cref="ArgumentException">Thrown if required parameters are missing or invalid.</exception>
+    /// <exception cref="ArgumentException">Thrown if a configured parameter is invalid.</exception>
     public static UDPClient ConfigureInput(IServiceProvider sp, JsonModel m)
     {
         var p = m.Params;
         var name = m.Name ?? "UDPClient";
         var rate = m.DesiredRate ?? 0;
-
-        // if (p.Count < 2)
-        //     throw new ArgumentException(
-        //         $"UDP Client '{name}' requires at least 2 parameters: [receivePort, parsingFormat, remoteHost?, remotePort?]");
 
         var receivePort = JsonModel.GetInt(p is { Count: > 0 } ? p[0] : null, 3342);
         if (receivePort is <= 0 or > 65535)

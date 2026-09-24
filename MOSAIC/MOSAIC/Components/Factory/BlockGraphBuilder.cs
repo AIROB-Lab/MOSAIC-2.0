@@ -55,10 +55,9 @@ public static class BlockGraphBuilder
     /// </para>
     /// <para>
     /// A block that fails to build, or an input that cannot be connected, is recorded in
-    /// <see cref="BuiltGraph.Failures"/> and skipped rather than thrown: one unknown or
-    /// misconfigured block used to abort the whole load, which cost the user every other block
-    /// and every wire in the file. The failed block's name stays in the downstream blocks' input
-    /// lists, so saving the graph again preserves the reference instead of quietly dropping it.
+    /// <see cref="BuiltGraph.Failures"/> and skipped rather than thrown, allowing valid blocks and
+    /// wires to load. The failed block's name remains in downstream input lists so saving the graph
+    /// preserves the unresolved reference.
     /// </para>
     /// </remarks>
     /// <param name="models">

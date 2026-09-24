@@ -157,9 +157,6 @@ public sealed partial class UdpStreamlinedSender : BaseBlock
         var name = m.Name ?? "UdpSender";
         var rate = m.DesiredRate ?? 0;
 
-        // if (m.Params is not { Count: >= 2 })
-        //     throw new ArgumentException($"Block {name} must have at least 2 parameters [hostIP, port]");
-
         var hostIp = m.Params?[0]?.ToString() ?? "127.0.0.1";
         if (!int.TryParse(m.Params?[1]?.ToString() ?? "8080", out var port))
             throw new ArgumentException($"Block {name}: Params[1] must be a valid port number");

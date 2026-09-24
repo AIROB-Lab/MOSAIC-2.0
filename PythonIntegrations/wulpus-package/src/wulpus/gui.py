@@ -26,8 +26,6 @@ import os.path
 
 from wulpus.dongle import WulpusDongle
 
-# plt.ioff()
-
 V_TISSUE = 1540 # m/s
 
 LOWER_BOUNDS_MM = 7 # data below this depth will be discarded
@@ -255,12 +253,10 @@ class WulpusGuiSingleCh(widgets.VBox):
         self.ax.set_xlabel('Depth (mm)')
         self.ax.set_ylabel('Channel number')
         self.ax.set_title('B-mode data')
-        # self.bmode_image.set_clim(0, 2)
         self.bmode_image.set_clim(0, 200)
         
         meas_time = LINE_N_SAMPLES / self.uss_conf.sampling_freq
         meas_depth = meas_time * V_TISSUE * 1000 / 2
-        # self.bmode_image.set_extent((LOWER_BOUNDS_MM, meas_depth, 0.5, 7.5))
         self.bmode_image.set_extent((0, meas_depth, 0.5, 7.5))
 
     # Callbacks
@@ -388,8 +384,6 @@ class WulpusGuiSingleCh(widgets.VBox):
         
     def run_acquisition_loop(self):
 
-#         self.fig.show()
-        
         # Clean data buffer
         acq_length = self.com_link.acq_length
         number_of_acq = self.uss_conf.num_acqs
@@ -462,8 +456,6 @@ class WulpusGuiSingleCh(widgets.VBox):
         if self.ser_open_button.disabled:
             self.click_start_stop_acq(self.start_stop_button)
 
-        # self.click_open_port(self.ser_open_button) # if you want to close the port after acquisition
-    
     def visualization(self, number_of_acq):
 
         self.frame_progr_bar.max = number_of_acq
@@ -478,8 +470,6 @@ class WulpusGuiSingleCh(widgets.VBox):
                 if self.current_data is None:
                     continue
                 try:
-                    # self.bmode_image.set_data(np.log10(np.add(self.data_arr_bmode, 0.1)))                                # log scale
-                    # self.bmode_image.set_data(self.data_arr_bmode[:,10*LOWER_BOUNDS_MM:])                                # linear scale
                     self.bmode_image.set_data(self.data_arr_bmode)                                # linear scale, all data
                 except:
                     # B-mode graph is not initialized yet

@@ -12,15 +12,15 @@ using MOSAIC.Visualization.SpectrogramMonitor;
 namespace MOSAIC.Models.SignalProcessing;
 
 /// <summary>
-/// Two-channel cross-correlation block, ported from feature_xcorr (819bb1b).
+/// Two-channel cross-correlation block.
 /// Consumes a Matrix&lt;double&gt; [rows x 2] (col0 = ch1, col1 = ch2) — or, as a
 /// fallback, an interleaved Vector&lt;double&gt; (even = ch1, odd = ch2).
 /// Pipeline per processed batch: z-normalize → 10-sample moving maximum →
 /// subtract a 500-sample forward mean → cross-correlate. Output lags ascend from
 /// -MaxLag to +MaxLag (0 selects the full range); the result has L2 norm 10,
-/// matching the feature branch's display scaling, not a Pearson coefficient.
+/// scaled to an L2 norm of 10 rather than expressed as a Pearson coefficient.
 /// Params: MaxLag (0), BufferLen (1000), ProcessEveryN packets (5).
-/// Named Lags parameters instead enable the newer selectable-channel/filter pipeline
+/// Named Lags parameters enable the selectable-channel/filter pipeline
 /// and publish [peak lag, sample rate / lag, reserved zero]; see CrossCorrelation.Configuration.cs.
 /// </summary>
 /// <example>
@@ -127,7 +127,7 @@ public sealed partial class CrossCorrelation : BaseBlock
 
         var block = ActivatorUtilities.CreateInstance<CrossCorrelation>(
             sp, name, rate, maxLag, bufferLen, processEveryN);
-        // BlockFactory owns the primary dumper and recording switch in net10migration.
+        // Add the two channel-specific dumpers; BaseBlock owns the primary recording stream.
         block.InitChannelDumpers(sp, m.Path);
         return block;
     }
@@ -180,7 +180,7 @@ public sealed partial class CrossCorrelation : BaseBlock
     private void ComputeAndPublish()
     {
         if (_bufCh1.Count != _bufCh2.Count) return;
-        // The original filters shorten their input by 10 and then 500 samples.
+        // The preprocessing filters shorten their input by 10 and then 500 samples.
         // Do not allocate negative arrays or emit empty/degenerate warm-up frames.
         if (_bufCh1.Count < RequiredSamples)
         {
@@ -188,12 +188,11 @@ public sealed partial class CrossCorrelation : BaseBlock
             return;
         }
 
-        // Retain the feature branch's normalization/envelope/high-pass processing.
+        // Apply normalization, envelope extraction, and high-pass processing before correlation.
         var x = Vector<double>.Build.DenseOfEnumerable(_bufCh1);
         var y = Vector<double>.Build.DenseOfEnumerable(_bufCh2);
 
-        // Input-health guard: a near-constant channel makes z-normalize emit
-        // zeros (the old "everything is flat" failure). Surface it explicitly.
+        // A near-constant channel makes z-normalization emit zeros; report that condition.
         double sdx = Std(x), sdy = Std(y);
         Ch1Std = sdx;
         Ch2Std = sdy;

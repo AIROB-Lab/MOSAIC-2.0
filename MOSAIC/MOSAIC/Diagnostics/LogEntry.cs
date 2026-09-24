@@ -28,10 +28,7 @@ public readonly record struct LogEntry(
     /// <summary>
     /// The bracketed component tag, e.g. <c>[Delsys:Scan]</c> or <c>[SupervisedUMAP 'umap1']</c>.
     /// </summary>
-    /// <remarks>
-    /// Built here so that a migrated call site can drop the prefix it used to hand-write into its
-    /// <c>Console.WriteLine</c> string and still produce byte-identical output.
-    /// </remarks>
+    /// <remarks>Constructed centrally so every log sink receives the same component format.</remarks>
     public string Prefix { get; } = string.IsNullOrEmpty(Instance)
         ? "[" + Category + "]"
         : "[" + Category + " '" + Instance + "']";

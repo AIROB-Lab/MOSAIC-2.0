@@ -632,8 +632,8 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
                 // WeightedPoint implements INotifyPropertyChanged (LiveChartsCore.Defaults),
                 // so the in-place Weight writes in MapFrame above already notify the chart.
                 // LiveCharts coalesces them into one throttled repaint (~10 ms) and re-colors
-                // the existing cells in place. No structural collection change is needed; the
-                // old remove/re-add "nudge" forced a full clear+redraw every frame — that was the flicker.
+                // the existing cells in place. Avoid structural collection changes here because
+                // they force a full clear and redraw.
 
                 ColorbarMinLabel = legend.MinLabel;
                 ColorbarMaxLabel = legend.MaxLabel;

@@ -9,11 +9,6 @@ namespace MOSAIC.ViewModels.Devices;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The strip exists because the chain used to be invisible. Parenting was a bare numeric box, so
-/// the two facts that actually matter — what hangs off what, and which IMU drives which segment —
-/// could not be seen together, or at all.
-/// </para>
-/// <para>
 /// Deliberately holds no brushes. Colours come from converters and style classes in the view, so
 /// they follow a theme switch; an <c>IBrush</c> captured here would go stale.
 /// </para>

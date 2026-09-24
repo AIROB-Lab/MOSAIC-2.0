@@ -56,6 +56,30 @@ After metadata exists, run the generator followed by `docfx build` to rebuild ar
 and navigation. Use a full build after adding, removing or renaming C# types;
 `-ArticlesOnly` uses the last extracted API metadata.
 
+## Publish with GitHub Pages
+
+The repository includes `.github/workflows/documentation-pages.yml`. On every push to
+`main`, GitHub Actions performs a clean full build, runs the documentation checks, and
+deploys `Documentation/_site` to GitHub Pages. You can also start the workflow manually
+from the repository's **Actions** tab.
+
+After creating the GitHub repository and pushing `main`, enable the deployment once:
+
+1. Open **Settings > Pages** in the GitHub repository.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Open **Actions > Publish documentation** and run the workflow, or push a commit to `main`.
+4. Follow the deployment URL shown by the completed `Deploy documentation` job. GitHub also
+   displays the public URL under **Settings > Pages**.
+
+The workflow uses GitHub's Pages artifact deployment, so it does not create or maintain a
+`gh-pages` branch. Generated HTML remains untracked, and the live site is replaced only after
+the build and documentation checks pass. If the repository uses a default branch name other
+than `main`, update the branch under `on.push.branches` in the workflow.
+
+GitHub Pages availability for a private repository depends on the GitHub account or
+organization plan. If **Settings > Pages** is unavailable while the repository is private,
+publish the repository or use a plan that supports private-repository Pages.
+
 ## Where to edit
 
 - Edit guides in `Documentation/docs` and their navigation in `docs/toc.yml`.

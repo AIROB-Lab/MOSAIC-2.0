@@ -104,10 +104,8 @@ public sealed partial class CommandSender : BaseBlock, IDisposable
     {
         var name = m.Name ?? "CommandSender";
 
-        // Validated rather than defaulted. A UDP send to a subnet that does not exist looks
-        // exactly like a successful one — nothing is transmitted back to contradict it — so a
-        // config typo silently addressed the wrong network for the rest of the session. The
-        // old fallbacks (192.168.1.255:10015) were themselves a guess at someone else's lab.
+        // Require an explicit endpoint because UDP cannot confirm that a datagram reached the
+        // intended subnet; a guessed default could silently target the wrong network.
         if (m.Params is not { Count: 2 })
             throw new ArgumentException(
                 $"CommandSender '{name}' requires exactly 2 Params: [hostIP, port].");

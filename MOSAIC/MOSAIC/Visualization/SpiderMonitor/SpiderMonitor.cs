@@ -29,8 +29,7 @@ public partial class SpiderMonitor : ObservableObject, IDisposable, IMonitor
 
     private readonly Action _timerCallback;
 
-    // Latest-only handoff: the spider renders only the newest sample, so a single-frame slot
-    // replaces the old per-sample ConcurrentQueue<double[]> + ToArray() allocation.
+    // The spider renders only the newest sample, so a single-frame slot avoids queueing and copying.
     private LatestFrameSlot? _slot;
     private double[] _producerScratch = Array.Empty<double>(); // producer-side EMA output
     private double[] _consumerFrame = Array.Empty<double>();    // consumer-side latest read

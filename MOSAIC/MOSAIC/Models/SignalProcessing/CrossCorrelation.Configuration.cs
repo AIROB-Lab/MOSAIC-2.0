@@ -17,8 +17,8 @@ public sealed partial class CrossCorrelation
     public int HighPassWindow { get; private set; } = 1;
     public int MovMedianWindow { get; private set; } = 1;
 
-    // The forward-window filters retain the branch's N-window output convention.
-    // Wait for actual overlap at every requested lag; a window of 1 disables a filter.
+    // Forward-window filters emit N-window results. Wait for actual overlap at every
+    // requested lag; a window of 1 disables a filter.
     public int RequiredSamples => !UsesLagSummary ? MinimumBufferLength :
         (LowPassWindow > 1 ? LowPassWindow : 0) + (HighPassWindow > 1 ? HighPassWindow : 0) +
         (MovMedianWindow > 1 ? MovMedianWindow : 0) + Math.Max(Math.Abs(MinLag), Math.Abs(MaxLag)) + 2;

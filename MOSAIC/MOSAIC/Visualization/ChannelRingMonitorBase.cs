@@ -11,8 +11,7 @@ using Vector = MathNet.Numerics.LinearAlgebra.Vector<double>;
 namespace MOSAIC.Visualization;
 
 /// <summary>
-/// Shared data engine for the time-series (ring-backed) monitors. Owns everything that was
-/// previously copy-pasted across ScopeMonitor / SpectrogramMonitor / etc.:
+/// Shared data engine for the time-series (ring-backed) monitors. It centralizes:
 /// <list type="bullet">
 ///   <item>the lock-free <see cref="SampleRingBuffer"/> ingest (<see cref="EnqueueData"/> / <see cref="EnqueueBatch"/>),</item>
 ///   <item>the <see cref="VisualizationTimer"/> subscription and <see cref="Pause"/>/<see cref="Resume"/> lifecycle,</item>

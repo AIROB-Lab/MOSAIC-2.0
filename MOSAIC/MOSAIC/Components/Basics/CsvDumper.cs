@@ -392,17 +392,13 @@ public class CsvDumper : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            // A read-only folder or an unreachable path used to leave a zero-byte file and no
-            // message at all, on a background thread where nothing could report it. The rethrow
-            // keeps the failure signal itself intact: a faulted writer task is what DisposeAsync
-            // observes, and returning normally here would make a dumper that never opened a file
-            // indistinguishable from one that recorded everything asked of it.
+            // Preserve the writer-task failure so DisposeAsync can distinguish a failed recording
+            // from a successful one and report the original exception.
             Log.Error("CsvDumper", ex, $"Could not open '{_filePath}'; nothing will be recorded.");
             throw;
         }
 
-        // Catching the open failure forces the stream to be declared outside the try, so this is
-        // what closes the handle if the StreamWriter constructor is the thing that throws.
+        // Close the file handle if StreamWriter construction fails.
         using var openStream = stream;
         using var writer = new StreamWriter(stream, new UTF8Encoding(false));
 

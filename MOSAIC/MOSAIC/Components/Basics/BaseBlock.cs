@@ -357,10 +357,8 @@ public abstract partial class BaseBlock : ObservableObject, ISubscriber, IPublis
     /// not describe.
     /// </summary>
     /// <remarks>
-    /// The single authority on the file name, for both ways a recording starts. It used to compete
-    /// with a prefix argument passed to <see cref="InitDumper"/>, so the same block wrote
-    /// <c>Foo_emg.csv</c> when the config named a <c>Path</c> and <c>Foo.csv</c> when the card
-    /// toggle opened it. One property, one name.
+    /// This is the single file-name authority for configuration-driven and UI-driven recording,
+    /// ensuring both paths write the block to the same destination.
     /// </remarks>
     protected virtual string DumpFilePrefix => Name;
 
@@ -369,12 +367,9 @@ public abstract partial class BaseBlock : ObservableObject, ISubscriber, IPublis
     /// block but the handful that read <c>Path</c> as something else.
     /// </summary>
     /// <remarks>
-    /// The opt-out has to be a declaration rather than an omission. It used to be expressed by a
-    /// block simply not calling <see cref="InitDumper"/> from its <c>ConfigureInput</c> — invisible
-    /// in the signature, invisible to the compiler, and forgotten by eleven blocks, which silently
-    /// ignored a <c>Path</c> their config asked them to record to. Override this to
-    /// <see langword="false"/> only where <c>Path</c> genuinely addresses something else, such as
-    /// the model directory of a predictor.
+    /// The explicit opt-out makes alternate <c>Path</c> semantics visible to callers and reviewers.
+    /// Override this to <see langword="false"/> only where <c>Path</c> addresses something else,
+    /// such as the model directory of a predictor.
     /// </remarks>
     protected virtual bool PathIsDumpFolder => true;
 
@@ -521,11 +516,10 @@ public abstract partial class BaseBlock : ObservableObject, ISubscriber, IPublis
     /// Blocks until a close started earlier has released the file, so a reopen can take the handle.
     /// </summary>
     /// <remarks>
-    /// Switching a recording off is deliberately non-blocking, but the old dumper only opens its
-    /// <see cref="System.IO.FileStream"/> inside its writer task and holds it until the close
-    /// finishes. Reopening the same file before then throws on a background thread where nothing can
-    /// see it, so the block would silently record nothing. Waiting here confines the cost to the rare
-    /// off-then-straight-back-on case, which is a user action rather than the hot path.
+    /// Switching a recording off is deliberately non-blocking. The dumper owns its
+    /// <see cref="System.IO.FileStream"/> until asynchronous disposal finishes, so reopening the same
+    /// file must wait for that handle. The wait occurs only during an immediate user-driven reopen,
+    /// not on the data path.
     /// </remarks>
     private void WaitForPendingClose()
     {

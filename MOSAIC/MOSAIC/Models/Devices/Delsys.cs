@@ -302,7 +302,7 @@ public partial class Delsys : BaseBlock
             Console.WriteLine($"[Delsys:Init]   TrignoRfManager type: {_pipeline.TrignoRfManager.GetType().Name}");
             Console.WriteLine($"[Delsys:Init]   Components count (before scan): {_pipeline.TrignoRfManager.Components.Count}");
 
-            // Wire API events — use properly typed handlers matching old code
+            // Wire the vendor API events with their concrete event-argument types.
             Console.WriteLine("[Delsys:Init] Step 5 — Wiring events...");
             _pipeline.TrignoRfManager.ComponentAdded        += OnComponentAdded;
             _pipeline.TrignoRfManager.ComponentLost         += OnComponentLost;
@@ -327,7 +327,7 @@ public partial class Delsys : BaseBlock
         }
     }
 
-    // --- Properly typed API event handlers (matching old working code) ---
+    // Vendor API event handlers.
 
     private void OnComponentAdded(object sender, ComponentAddedEventArgs e)
     {
@@ -520,10 +520,8 @@ public partial class Delsys : BaseBlock
     }
 
     /// <summary>
-    /// FIX: Only log the scan result here. Do NOT call comp.SelectSampleMode()
-    /// because ArmAsync will apply the user's chosen mode per sensor.
-    /// The old code was force-setting mode 0 here, which overwrote the user's
-    /// dropdown selection if the scan callback fired late.
+    /// Logs the completed scan without selecting a sample mode. <see cref="ArmAsync"/> applies
+    /// each sensor's user-selected mode after scanning.
     /// </summary>
     private void OnComponentScanComplete(object sender, ComponentScanCompletedEventArgs e)
     {
@@ -1069,8 +1067,7 @@ public partial class Delsys : BaseBlock
         _prevFrameEnd  = new double[_vectorLength];
         _isStreaming   = true;
 
-        // Always start the dispatch timer so data flows from FIFO → Publish → Scope.
-        // The old code did this unconditionally in CollectionStarted regardless of mode.
+        // Start the dispatch timer for every mode so data flows from FIFO to Publish and Scope.
         if (_highResTimer is null)
         {
             Console.WriteLine("[Delsys] Starting HighResTimer from CollectionStarted...");

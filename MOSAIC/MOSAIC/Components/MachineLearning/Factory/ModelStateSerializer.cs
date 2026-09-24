@@ -52,7 +52,7 @@ namespace MOSAIC.Components.MachineLearning.Factory
         }
 
         /// <summary>
-        /// Saves a RidgeState to a simple CSV format (for compatibility with old code).
+        /// Saves a RidgeState to the CSV format accepted by existing model files.
         /// </summary>
         public static void SaveCsv(RidgeState state, string path)
         {

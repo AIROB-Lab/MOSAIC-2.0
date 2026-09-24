@@ -79,13 +79,8 @@ public partial class MainView : UserControl
     /// follow blocks being added and removed.
     /// </summary>
     /// <remarks>
-    /// Called from both constructors that run <c>InitializeComponent</c>, and from neither more than
-    /// once - the three-argument overload chains to the one above rather than starting its own.
-    /// It used to be a bare line in the parameterless constructor, which the running app never calls:
-    /// the container picks the greediest overload, so nothing was listening to the collection and the
-    /// FAB only appeared on the paths that happen to call <see cref="UpdateFabVisibility"/> by hand.
-    /// Building a pipeline by dragging blocks onto the canvas is not one of them, so the monitor
-    /// button stayed hidden however many scopes the pipeline had.
+    /// Both construction paths call this method exactly once. The service-provider constructor
+    /// chains to the parameterless constructor, preventing duplicate collection subscriptions.
     /// </remarks>
     private void WireBlockCollection() => Blocks.CollectionChanged += OnBlocksChanged;
 
@@ -518,9 +513,8 @@ public partial class MainView : UserControl
         }
         catch (Exception ex)
         {
-            // No dialog here on purpose: this is the catch of an async void handler, where a second
-            // exception (a closing owner window, a non-Panel content root) has nowhere to go. Log.Error
-            // never throws and the log panel now shows the failure.
+            // Avoid opening a dialog from an async-void failure path whose owner may be closing.
+            // Log.Error is non-throwing and makes the failure available in the log panel.
             Log.Error("MainView", ex, $"Adding '{e.Descriptor.DisplayName}' from the palette failed");
         }
     }

@@ -106,10 +106,8 @@ public static class GraphUtility
             });
         }
 
-        // Assign positions in natural graph-space at a constant, readable spacing. The canvas
-        // frames the whole graph with a zoom-to-fit transform (GraphCanvas.FitToView), so the
-        // layout no longer compresses itself into the canvas size (which made nodes overlap) —
-        // it lets the view scale to the window and to the network's complexity instead.
+        // Use constant spacing in graph coordinates; GraphCanvas.FitToView scales the completed
+        // layout to the window without changing the relative spacing between nodes.
         const double hGap = 40;
         const double layerHeight = 120;   // node height (45) + clear arrow/label gap
 

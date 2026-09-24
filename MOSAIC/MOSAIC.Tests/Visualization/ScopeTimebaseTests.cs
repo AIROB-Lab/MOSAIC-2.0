@@ -32,10 +32,8 @@ namespace MOSAIC.Tests.Visualization;
 /// and the trace then scrolls <c>trueRate / 200</c> times too fast with no error anywhere.
 /// </para>
 /// <para>
-/// That is not hypothetical. An auto-rate that measured the feed interval and set a
-/// <c>PeriodOverride</c> existed until it was removed in "Matrix plotting fixes" (9e90b9f);
-/// blocks written against it kept their comments and their silence, and nothing failed. These
-/// tests exist so the next such omission does.
+/// These tests ensure every scope-capable block explicitly propagates its signal rate, preventing
+/// plausible-looking plots with an incorrect time axis.
 /// </para>
 /// <para>
 /// They read the declaration rather than the rendered plot, so they need no window and are

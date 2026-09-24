@@ -282,16 +282,12 @@ public partial class CommandSenderViewModel : ObservableObject
     /// switched on and every un-ticked one is switched off.
     /// </summary>
     /// <remarks>
-    /// Sending an explicit <c>off</c> for the un-ticked streams is the whole point. The previous
-    /// design sent commands only for ticked streams, with a separate ON/OFF mode toggle, so
-    /// un-ticking a stream did nothing at all — the rig kept sending it, and "off" appeared
-    /// broken. Here the checkboxes are the desired state, not a selection to act on.
+    /// Every stream receives an explicit desired state. Cleared checkboxes therefore send
+    /// <c>off</c> rather than merely omitting a command.
     /// </remarks>
     /// <remarks>
-    /// Rebinds first if the card shows an address the block is not actually bound to. Host and
-    /// Port reach the block only through <see cref="Connect"/>, so editing either and pressing
-    /// Apply used to send to the *previous* endpoint and still report success — the card read
-    /// 192.168.0.255 while the packets went to 192.168.1.1, and nothing said so.
+    /// Rebinds first if the address displayed by the card differs from the block's active endpoint,
+    /// ensuring the command is sent to the endpoint currently shown to the user.
     /// </remarks>
     [RelayCommand]
     private async Task ApplyAsync()

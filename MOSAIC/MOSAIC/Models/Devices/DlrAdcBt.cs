@@ -128,7 +128,7 @@ public sealed partial class DlrAdcBt : BaseBlock
         get => _portNumber;
         set
         {
-            // A bare number is what the old control panel's spin box produced; accept it.
+            // Accept bare numeric ports for compatibility with existing pipeline files.
             var trimmed = value?.Trim() ?? string.Empty;
             _portNumber = int.TryParse(trimmed, out _) ? $"COM{trimmed}" : trimmed;
             OnPropertyChanged();

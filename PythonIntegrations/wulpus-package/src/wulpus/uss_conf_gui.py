@@ -130,14 +130,13 @@ class WulpusUssConfigGUI(widgets.VBox, WulpusUssConfig):
         entries_acq.append(self.get_param('rx_gain').get_as_widget(self.rx_gain))
 
         entries_exc.append(widgets.HTML(value="<b>Excitation settings</b>"))
-        # TODO: Add DutyCycle input here
+        # Duty-cycle configuration is not exposed by the current parameter model.
         entries_exc.append(self.get_param('pulse_freq').get_as_widget(self.pulse_freq))
         entries_exc.append(self.get_param('num_pulses').get_as_widget(self.num_pulses))
 
         entries_adv.append(widgets.HTML(value="<b>Advanced settings</b>"))
         entries_adv.append(self.get_param('start_hvmuxrx').get_as_widget(self.start_hvmuxrx))
         entries_adv.append(self.get_param('dcdc_turnon').get_as_widget(self.dcdc_turnon))
-        # entries_adv.append(widgets.HTML(value="</br>"))                                             # Placeholder to get alignment right
         entries_adv.append(self.get_param('start_ppg').get_as_widget(self.start_ppg))
         entries_adv.append(self.get_param('turnon_adc').get_as_widget(self.turnon_adc))
         entries_adv.append(self.get_param('start_pgainbias').get_as_widget(self.start_pgainbias))
@@ -145,7 +144,7 @@ class WulpusUssConfigGUI(widgets.VBox, WulpusUssConfig):
         entries_adv.append(self.get_param('restart_capt').get_as_widget(self.restart_capt))
         entries_adv.append(self.get_param('capt_timeout').get_as_widget(self.capt_timeout))
 
-        # Disable capture restart, capture timeout and number of samples (per index is sloppy, but works for now)
+        # These fields are fixed by the acquisition protocol and are shown read-only.
         entries_acq[4].disabled = True      # num_samples
         entries_adv[7].disabled = True      # restart_capt
         entries_adv[8].disabled = True      # capt_timeout

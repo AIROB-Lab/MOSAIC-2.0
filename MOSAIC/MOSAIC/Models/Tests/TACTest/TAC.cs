@@ -219,9 +219,6 @@ public sealed partial class TAC : BaseBlock
         var rate = m.DesiredRate ?? 0;
         var p = m.Params;
 
-        // if (p.Count < 3)
-        //     throw new ArgumentException($"TAC '{name}' requires params: [stimulusBlockName, dwellTime, threshold]");
-
         return ActivatorUtilities.CreateInstance<TAC>(sp, name, rate, 
             GetString(p?[0], "Stimulus") ?? "Stimulus", 
             GetDouble(p?[1], 2.0),

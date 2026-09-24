@@ -149,14 +149,11 @@ public sealed partial class BlenderArm : BaseBlock
     /// JSON model. See the class-level example for <c>Params</c> layout.
     /// </param>
     /// <returns>A configured <see cref="BlenderArm"/> instance.</returns>
-    /// <exception cref="ArgumentException">Thrown if required parameters are missing.</exception>
+    /// <exception cref="ArgumentException">Thrown if the configured port is invalid.</exception>
     public static BlenderArm ConfigureInput(IServiceProvider sp, JsonModel m)
     {
         var name = m.Name ?? "BlenderArm";
         var rate = m.DesiredRate ?? 0;
-
-        // if (m.Params is not { Count: >= 2 })
-        //     throw new ArgumentException($"Block {name} must have at least 2 parameters [hostIP, port]");
 
         var hostIp = m.Params?[0]?.ToString() ?? "127.0.0.1";
         if (!int.TryParse(m.Params?[1]?.ToString() ?? "3334", out var port))

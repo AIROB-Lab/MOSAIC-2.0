@@ -148,7 +148,7 @@ public partial class HannesHandCardView : PopoutCardBase
 
     #endregion
     
-    // Keep old method names for XAML compatibility (they won't be called but avoids compile errors)
+    // XAML event hooks are intentionally empty; velocity changes are handled by commands.
     private void VelocityButton_Pressed(object? sender, PointerPressedEventArgs e) { }
     private void VelocityButton_Released(object? sender, PointerReleasedEventArgs e) { }
     private void VelocityButton_CaptureLost(object? sender, PointerCaptureLostEventArgs e) { }

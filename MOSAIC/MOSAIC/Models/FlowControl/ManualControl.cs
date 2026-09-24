@@ -48,8 +48,7 @@ namespace MOSAIC.Models.FlowControl;
 /// </para>
 /// </remarks>
 /// <example>
-/// JSON configuration — identical to the old ControlAlgorithm + UdpStreamlinedSender chain,
-/// just with ManualControl in place of ControlAlgorithm and a Clock upstream:
+/// JSON configuration using ManualControl with a Clock upstream and UdpStreamlinedSender downstream:
 /// <code>
 /// {
 ///   "Clock":         { "Type": "Clock",               "DesiredRate": 30 },

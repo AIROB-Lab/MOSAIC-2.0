@@ -216,10 +216,8 @@ internal sealed class LogFileSink : IAsyncDisposable
     }
 
     /// <summary>
-    /// Runs the drain, and keeps it running. A fault that escaped the drain used to end the task
-    /// while the sink stayed alive, so the queue simply stopped being emptied and file, ring and
-    /// panel froze with nothing to show for it. A transient fault is retried; a persistent one leaves
-    /// <see cref="WriterStopped"/> set and a description in <see cref="Log.LastInternalError"/>.
+    /// Runs the drain continuously. Transient faults are retried; a persistent fault leaves
+    /// <see cref="WriterStopped"/> set and records a description in <see cref="Log.LastInternalError"/>.
     /// </summary>
     private async Task WriterLoop()
     {

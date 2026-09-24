@@ -54,14 +54,6 @@ public partial class TACViewModel : ObservableObject, IDisposable
     public string Name => _block.Name;
     
     public ObservableCollection<string> AvailableInputNames { get; } = [];
-    
-
-    // /// <summary>Configured success threshold (L2 distance).</summary>
-    // public double SuccessThreshold => _block.SuccessThreshold;
-    //
-    // /// <summary>Configured dwell time (seconds).</summary>
-    // public double DwellTime => _block.DwellTime;
-
     /// <summary>Visualization bundle wired to the block.</summary>
     public BlockVisualization Viz { get; } = new();
 

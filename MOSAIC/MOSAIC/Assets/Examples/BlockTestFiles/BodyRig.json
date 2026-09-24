@@ -5,9 +5,8 @@
 //   sensor1ROT ....... picks four floats out of the packet (see note below)
 //   bodyRig .......... forward kinematics over a one-segment chain
 //
-// Broadcast address must match YOUR subnet. This PC is 192.168.0.215/24 on the
-// TP-Link router, so the broadcast is 192.168.0.255 — NOT the old lab's 10.156.222.255,
-// which is on a different network and reaches nothing from here.
+// The broadcast address must match the host subnet. The example uses 192.168.0.255
+// for a 192.168.0.0/24 network; replace it when using another subnet.
 //
 // No COM port: with a quaternion vector as its input the block takes the quaternion
 // path and never touches the serial port, so Params[0] is deliberately empty.

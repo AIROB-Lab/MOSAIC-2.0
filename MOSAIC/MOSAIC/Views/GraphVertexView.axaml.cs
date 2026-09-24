@@ -24,9 +24,8 @@ public partial class GraphVertexView : UserControl
     private static readonly IBrush OptionalStroke = new SolidColorBrush(Color.Parse("#9CA3AF")); // empty · optional
     private static readonly IBrush OutputFill = new SolidColorBrush(Color.Parse("#6B7280"));
 
-    // The VertexViewModel we've subscribed PropertyChanged on, so we can unsubscribe (these node
-    // controls are recreated on every graph rebuild while the VMs survive — an untracked handler
-    // would leak the old control and pile up stale handlers on the VM).
+    // Track the subscribed view model so graph rebuilds can detach the handler before replacing
+    // node controls; the view models can outlive their controls.
     private VertexViewModel? _boundVm;
 
     public GraphVertexView() => InitializeComponent();

@@ -23,9 +23,8 @@ public sealed record ParentOption(int Index, string Label)
 /// </summary>
 /// <remarks>
 /// <para>
-/// The card is organised around the kinematic chain, because that is the thing the block is
-/// really about and the thing the previous card hid: parenting was a bare "-1 / 0 / 1" spinner,
-/// so a reader could not tell what was attached to what, nor which IMU drove which segment.
+/// The card is organised around the kinematic chain so the segment hierarchy and each segment's
+/// assigned IMU can be read together.
 /// </para>
 /// <para>
 /// <b>Live values are mirrored, never bound directly.</b> <see cref="BodyRig.Info"/> is mutated
@@ -68,12 +67,7 @@ public partial class BodyRigViewModel : ObservableObject
 
     #region Connection
 
-    /// <summary>Full serial port name, e.g. "COM5".</summary>
-    /// <remarks>
-    /// A free-text name, not a number. The card used to offer a digits-only box and rebuild the
-    /// port as <c>$"COM{n}"</c>, which silently destroyed any port name from JSON that was not
-    /// exactly <c>COM&lt;n&gt;</c>.
-    /// </remarks>
+    /// <summary>Full free-text serial port name, e.g. "COM5" or "/dev/ttyUSB0".</summary>
     [ObservableProperty] private string _portName = string.Empty;
 
     /// <summary>Whether the serial port is actually open, mirrored from the block.</summary>
@@ -180,9 +174,8 @@ public partial class BodyRigViewModel : ObservableObject
     /// Selected index in <see cref="SensorChoiceLabels"/>, which is <c>SensorIndex + 1</c>.
     /// </summary>
     /// <remarks>
-    /// The offset is what makes the model's <c>-1</c> "passive, no sensor" default selectable.
-    /// The old numeric spinner had <c>Minimum="0"</c>, so merely selecting an unbound segment
-    /// clamped it to 0 and wrote that back into the block.
+    /// The offset makes the model's <c>-1</c> "passive, no sensor" value selectable without
+    /// changing the stored sensor index.
     /// </remarks>
     [ObservableProperty] private int _sensorChoice;
 
@@ -964,8 +957,7 @@ public partial class BodyRigViewModel : ObservableObject
         try { SelectedProfile = _block.CalibrationName; }
         finally { _suppressWriteBack = false; }
 
-        // Counts only. It used to also carry "no profile directory", which the hint under
-        // the Store button already says — two lines of the same news, in the same section.
+        // The nearby hint reports directory state; this label shows only profile position.
         int index = SelectedProfile is null ? -1 : Profiles.IndexOf(SelectedProfile);
         ProfileCounter = HasProfiles ? $"{Math.Max(index, 0) + 1} / {Profiles.Count}" : string.Empty;
     }
@@ -1039,8 +1031,7 @@ public partial class BodyRigViewModel : ObservableObject
         var name = NewProfileName.Trim();
         if (name.Length == 0)
         {
-            // No new name: overwrite what is selected, which is the old behaviour and still
-            // the common one once a directory has profiles in it.
+            // With no new name, overwrite the selected profile.
             if (!string.IsNullOrWhiteSpace(SelectedProfile)) return SelectedProfile;
 
             problem = string.IsNullOrWhiteSpace(CalibrationDirectory)

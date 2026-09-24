@@ -30,8 +30,8 @@ public partial class ParamField : ObservableObject
 }
 
 /// <summary>
-/// Backs the (slimmed) Add-Block dialog: just a name, an optional desired rate, and the block's
-/// parameters. Inputs are no longer chosen here — they're wired on the canvas by dragging an
+/// Backs the Add-Block dialog: a name, an optional desired rate, and the block's parameters.
+/// Inputs are wired on the canvas by dragging an
 /// output port to an input port, so a freshly added block simply shows its required-but-empty ports.
 /// </summary>
 public partial class AddBlockDialogViewModel : ObservableObject
