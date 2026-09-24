@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use MOSAIC 2.0 in academic work, please cite the software."
+title: "MOSAIC 2.0"
+type: software
+version: 2.0.0
+authors:
+  - family-names: Braun
+    given-names: Hannah
+    affiliation: "Assistive Intelligent Robotics Lab, Friedrich-Alexander-Universität Erlangen-Nürnberg"
+  - family-names: Okhravi
+    given-names: Mahdi
+    affiliation: "Assistive Intelligent Robotics Lab, Friedrich-Alexander-Universität Erlangen-Nürnberg"
+  - family-names: Castellini
+    given-names: Claudio
+    affiliation: "Assistive Intelligent Robotics Lab, Friedrich-Alexander-Universität Erlangen-Nürnberg; Institute of Robotics and Mechatronics, German Aerospace Center (DLR)"
+repository-code: "https://github.com/AIROB-Lab/MOSAIC-2.0"
+url: "https://airob-lab.github.io/MOSAIC-2.0/"
+license: MIT
+keywords:
+  - biosignal processing
+  - assistive robotics
+  - electromyography
+  - human-machine interfaces
+  - real-time systems
+  - machine learning

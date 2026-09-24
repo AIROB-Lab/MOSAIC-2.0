@@ -1,0 +1,31 @@
+{
+  "title": "MOSAIC 2.0: Modular, Open-Source Suite for Assistive Intelligent Control",
+  "version": "2.0.0",
+  "description": "MOSAIC is a modular, open-source software suite for real-time biosignal processing and assistive intelligent control. It supports visual construction of acquisition, signal-processing, machine-learning, visualization, recording, and device-control pipelines.",
+  "creators": [
+    {
+      "name": "Braun, Hannah",
+      "affiliation": "Assistive Intelligent Robotics Lab, Friedrich-Alexander-Universität Erlangen-Nürnberg"
+    },
+    {
+      "name": "Okhravi, Mahdi",
+      "affiliation": "Assistive Intelligent Robotics Lab, Friedrich-Alexander-Universität Erlangen-Nürnberg"
+    },
+    {
+      "name": "Castellini, Claudio",
+      "affiliation": "Assistive Intelligent Robotics Lab, Friedrich-Alexander-Universität Erlangen-Nürnberg; Institute of Robotics and Mechatronics, German Aerospace Center (DLR)"
+    }
+  ],
+  "access_right": "open",
+  "license": "mit",
+  "upload_type": "software",
+  "language": "eng",
+  "keywords": [
+    "biosignal processing",
+    "assistive robotics",
+    "electromyography",
+    "human-machine interfaces",
+    "real-time systems",
+    "machine learning"
+  ]
+}
