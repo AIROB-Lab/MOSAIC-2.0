@@ -64,7 +64,17 @@ For extension development, see [Creating a New Block](https://airob-lab.github.i
 
 ## Citation and archival record
 
-Please cite the version of MOSAIC used in your work. This repository includes machine-readable citation and archival metadata in [`CITATION.cff`](CITATION.cff) and [`.zenodo.json`](.zenodo.json). A version-specific Zenodo DOI and citation will be added after the first archived MOSAIC 2.0 release.
+If you use MOSAIC in academic work, please cite:
+
+```bibtex
+@article{braun2025mosaic,
+  title   = {Introducing MOSAIC: a Modular, Open-Source Suite for Assistive Intelligent Control},
+  author  = {Braun, Hannah and Sierotowicz, Marek and Egle, Fabio and Scheidl, Marc-Anton and Miranda Montenegro, Silvana and Thuerauf, Sabine and Castellini, Claudio},
+  journal = {IEEE Access},
+  year    = {2025},
+  doi     = {10.1109/ACCESS.2025.3644237}
+}
+```
 
 ## Maintainers and licence
 
