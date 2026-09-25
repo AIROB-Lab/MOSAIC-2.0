@@ -26,13 +26,13 @@ public partial class LSLViewModel : ObservableObject, IDisposable
     
 
     /// <summary>Whether this block is in Inlet mode.</summary>
-    public bool IsInlet => _block.Mode == LslMode.Inlet;
+    public bool IsInlet => Block.Mode == LslMode.Inlet;
 
     /// <summary>Whether this block is in Outlet mode.</summary>
-    public bool IsOutlet => _block.Mode == LslMode.Outlet;
+    public bool IsOutlet => Block.Mode == LslMode.Outlet;
 
     /// <summary>Mode label for the category badge.</summary>
-    public string ModeLabel => _block.Mode == LslMode.Inlet ? "INLET" : "OUTLET";
+    public string ModeLabel => Block.Mode == LslMode.Inlet ? "INLET" : "OUTLET";
     
 
     #endregion
@@ -128,7 +128,7 @@ public partial class LSLViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void ApplySettings()
     {
-        _block.ApplySettings(_editStreamName, _editStreamType, _editRateOrTimeout, _editChannelsOrChunkLen);
+        Block.ApplySettings(EditStreamName, EditStreamType, EditRateOrTimeout, EditChannelsOrChunkLen);
         OnPropertyChanged(nameof(Block));
     }
 

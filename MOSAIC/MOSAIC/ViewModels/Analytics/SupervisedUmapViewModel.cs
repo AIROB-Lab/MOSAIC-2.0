@@ -61,8 +61,8 @@ public partial class SupervisedUMAPViewModel : ObservableObject, ISubscriber, ID
 
     [ObservableProperty] private int _maxScatterPoints = 1000;
     [ObservableProperty] private ISeries[] _scatterSeries = Array.Empty<ISeries>();
-    [ObservableProperty] private Axis[] _xAxes;
-    [ObservableProperty] private Axis[] _yAxes;
+    [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
+    [ObservableProperty] private Axis[] _yAxes = Array.Empty<Axis>();
     [ObservableProperty] private string _chartTitle = "";
     [ObservableProperty] private string _sampleCountText = "0 samples";
     [ObservableProperty] private string _statusText = "No data captured";
@@ -451,7 +451,7 @@ public partial class SupervisedUMAPViewModel : ObservableObject, ISubscriber, ID
         double x = projection[0];
         double y = projection[1];
 
-        if (_is3D && projection.Count >= 3)
+        if (Is3D && projection.Count >= 3)
         {
             Scatter3D?.AddPoint(x, y, projection[2], 0);
         }
@@ -483,7 +483,7 @@ public partial class SupervisedUMAPViewModel : ObservableObject, ISubscriber, ID
     /// </returns>
     private bool RebuildFrozen3DPoints()
     {
-        if (Scatter3D == null || !_is3D) return true;
+        if (Scatter3D == null || !Is3D) return true;
 
         try
         {
@@ -610,8 +610,8 @@ public partial class SupervisedUMAPViewModel : ObservableObject, ISubscriber, ID
         double half = (maxRange + 2 * margin) / 2;
         double cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
 
-        if (_xAxes?.Length > 0) { _xAxes[0].MinLimit = cx - half; _xAxes[0].MaxLimit = cx + half; }
-        if (_yAxes?.Length > 0) { _yAxes[0].MinLimit = cy - half; _yAxes[0].MaxLimit = cy + half; }
+        if (XAxes?.Length > 0) { XAxes[0].MinLimit = cx - half; XAxes[0].MaxLimit = cx + half; }
+        if (YAxes?.Length > 0) { YAxes[0].MinLimit = cy - half; YAxes[0].MaxLimit = cy + half; }
     }
 
     private void RecomputeAxisBoundsFromClusters()

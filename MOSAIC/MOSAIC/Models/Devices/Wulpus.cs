@@ -321,7 +321,7 @@ public sealed partial class Wulpus : BaseBlock
             _readThread.Start();
         }
 
-        Debug.WriteLine($"[{Name}] Streaming started (mode={(_isSelfTriggered ? "self-triggered" : "timer-driven")}).");
+        Debug.WriteLine($"[{Name}] Streaming started (mode={(IsSelfTriggered ? "self-triggered" : "timer-driven")}).");
         NotifyConnectionStateChanged();
     }
 

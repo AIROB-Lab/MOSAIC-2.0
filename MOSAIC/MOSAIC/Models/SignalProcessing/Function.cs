@@ -156,15 +156,9 @@ public partial class Function : BaseBlock
     /// <param name="param2">Second parameter.</param>
     public void SetFunction(string type, double param1 = 0, double param2 = 0)
     {
-        _functionType = type;
-        _param1 = param1;
-        _param2 = param2;
-
-        RebuildFunction();
-
-        OnPropertyChanged(nameof(FunctionType));
-        OnPropertyChanged(nameof(Param1));
-        OnPropertyChanged(nameof(Param2));
+        FunctionType = type;
+        Param1 = param1;
+        Param2 = param2;
     }
 
     /// <summary>Recordings from this block are named <c>&lt;block&gt;_fn.csv</c>.</summary>
@@ -187,12 +181,9 @@ public partial class Function : BaseBlock
 
         var instance = ActivatorUtilities.CreateInstance<Function>(sp, name, rate, function);
 
-        instance._functionType = fnType;
-        instance._param1 = p1;
-        instance._param2 = p2;
-        instance.OnPropertyChanged(nameof(FunctionType));
-        instance.OnPropertyChanged(nameof(Param1));
-        instance.OnPropertyChanged(nameof(Param2));
+        instance.FunctionType = fnType;
+        instance.Param1 = p1;
+        instance.Param2 = p2;
 
         return instance;
     }

@@ -37,8 +37,7 @@
     "Type": "IncrementalPredictor",
     "DesiredRate": 200,
     "Inputs": ["LowpassFilter", "Trigger"],
-    "Params": ["RidgeRFF", 8, 12, 0.5, 1.0, 300],
-    "Path": "C:\\path\\to\\models\\"
+    "Params": ["RidgeRFF", 8, 12, 0.5, 1.0, 300]
   },
   "ControlAlgorithm": {
     "Type": "ControlAlgorithm",

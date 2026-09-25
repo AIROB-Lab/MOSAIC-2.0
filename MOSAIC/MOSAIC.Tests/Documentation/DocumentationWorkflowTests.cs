@@ -149,9 +149,11 @@ public class DocumentationWorkflowTests
 
         gain.ReceiveInput(source, Matrix<double>.Build.Dense(1, 1));
         Assert.AreEqual(1, results.Values.Count);
+        StringAssert.Contains(gain.LastError!, "numeric vector");
         gain.SetGain(-1);
         gain.ReceiveInput(source, input);
         results.Wait(2);
+        Assert.IsNull(gain.LastError, "A valid vector should clear the recoverable payload error.");
 
         CollectionAssert.AreEqual(new[] { -1d, 2d, 0d }, ((Vector<double>)results.Values.Last()).ToArray());
 

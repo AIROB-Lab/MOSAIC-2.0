@@ -193,10 +193,11 @@ their current values (initially the defaults), so the positional layout never ch
 
 ### Step 5: Guard desktop-only blocks
 
-If the block depends on a desktop-only package, wrap **both** the factory case and the
-catalog entry in `#if !MOSAIC_MOBILE`, exactly as `delsys`, `lsl` and `pypredictor` do.
-Guarding only one of them either shows a palette row that throws on drop, or hides a block
-that would have loaded fine.
+Use the **same compile condition** around the factory case, catalogue entry, and optional
+card registration. Desktop-only blocks such as `lsl` and `pypredictor` use
+`#if !MOSAIC_MOBILE`; optional Delsys support uses `#if ENABLE_DELSYS`. Guarding only one
+registration point either shows a palette row that throws on drop, or hides a block that
+would have loaded correctly.
 
 ### Step 6: Optionally register a custom card view
 

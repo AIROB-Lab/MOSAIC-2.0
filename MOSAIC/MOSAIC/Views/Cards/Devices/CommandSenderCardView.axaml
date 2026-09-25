@@ -113,7 +113,7 @@
                than a spinner because node ids are sparse - a rig can have sensor 18 with
                nothing below it - and one Apply per node is not workable at rig scale. -->
           <TextBox Text="{Binding DeviceSpec}"
-                   Watermark="e.g. 18   or   1-8, 18"
+                   PlaceholderText="e.g. 18   or   1-8, 18"
                    FontSize="13" FontFamily="Cascadia Mono,Consolas,monospace"/>
 
           <!-- Apply: drives the device to exactly the ticked state. There is no ON/OFF

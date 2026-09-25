@@ -297,6 +297,7 @@ public partial class ChannelState : ObservableObject
     /// </summary>
     public void SetActiveWithoutNotify(bool value)
     {
+#pragma warning disable MVVMTK0034
         if (_isActive != value)
         {
             _isActive = value;
@@ -304,6 +305,7 @@ public partial class ChannelState : ObservableObject
             OnPropertyChanged(nameof(BackgroundBrush));
             OnPropertyChanged(nameof(ForegroundBrush));
         }
+#pragma warning restore MVVMTK0034
     }
 
     partial void OnIsActiveChanged(bool value)

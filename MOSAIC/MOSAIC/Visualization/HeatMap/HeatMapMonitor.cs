@@ -97,7 +97,7 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
     private Axis[] _yAxes = Array.Empty<Axis>();
 
     [ObservableProperty]
-    private object _syncContext;
+    private object _syncContext = new();
 
     // series & data
     private HeatSeries<WeightedPoint>? _heatSeries;
@@ -484,15 +484,15 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
                 var labelColor = ThemeHelper.ChartAxisLabel;
                 var gridColor = ThemeHelper.ChartGrid;
 
-                if (_xAxes.Length > 0)
+                if (XAxes.Length > 0)
                 {
-                    _xAxes[0].LabelsPaint = new SolidColorPaint(labelColor) { IsAntialias = true };
-                    _xAxes[0].SeparatorsPaint = new SolidColorPaint(gridColor) { IsAntialias = true };
+                    XAxes[0].LabelsPaint = new SolidColorPaint(labelColor) { IsAntialias = true };
+                    XAxes[0].SeparatorsPaint = new SolidColorPaint(gridColor) { IsAntialias = true };
                 }
-                if (_yAxes.Length > 0)
+                if (YAxes.Length > 0)
                 {
-                    _yAxes[0].LabelsPaint = new SolidColorPaint(labelColor) { IsAntialias = true };
-                    _yAxes[0].SeparatorsPaint = new SolidColorPaint(gridColor) { IsAntialias = true };
+                    YAxes[0].LabelsPaint = new SolidColorPaint(labelColor) { IsAntialias = true };
+                    YAxes[0].SeparatorsPaint = new SolidColorPaint(gridColor) { IsAntialias = true };
                 }
 
                 OnPropertyChanged(nameof(XAxes));
@@ -506,8 +506,7 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
     {
         var labelColor = ThemeHelper.ChartAxisLabel;
         var gridColor = ThemeHelper.ChartGrid;
-
-        _xAxes = new[]
+        XAxes = new[]
         {
             new Axis
             {
@@ -519,7 +518,7 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
                 AnimationsSpeed = TimeSpan.Zero,
             }
         };
-        _yAxes = new[]
+        YAxes = new[]
         {
             new Axis
             {
@@ -550,8 +549,7 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
             AnimationsSpeed = TimeSpan.Zero,
             EasingFunction = null
         };
-
-        _series = new List<ISeries> { _heatSeries };
+        Series = new List<ISeries> { _heatSeries };
     }
 
     private void RebuildGrid()
@@ -569,8 +567,8 @@ public partial class HeatMapMonitor : ObservableObject, IDisposable, IMonitor
             if (_heatSeries != null)
                 _heatSeries.Values = new ObservableCollection<WeightedPoint>(_points);
 
-            if (_xAxes.Length > 0) { _xAxes[0].MinLimit = -0.5; _xAxes[0].MaxLimit = Columns - 0.5; }
-            if (_yAxes.Length > 0) { _yAxes[0].MinLimit = -0.5; _yAxes[0].MaxLimit = Rows    - 0.5; }
+            if (XAxes.Length > 0) { XAxes[0].MinLimit = -0.5; XAxes[0].MaxLimit = Columns - 0.5; }
+            if (YAxes.Length > 0) { YAxes[0].MinLimit = -0.5; YAxes[0].MaxLimit = Rows    - 0.5; }
 
             _anchorMin = _anchorMax = null;
             if (PinColorDomain && _heatSeries?.Values is ObservableCollection<WeightedPoint> oc)

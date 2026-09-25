@@ -278,7 +278,7 @@ public sealed class SpectrogramSettingsFlyout
     private static TextBox MakeTextBox(string watermark, string defaultText, bool isDark) => new()
     {
         Text = defaultText,
-        Watermark = watermark,
+        PlaceholderText = watermark,
         FontSize = 11,
         Padding = new Thickness(6, 4),
         Background = new SolidColorBrush(isDark ? Color.Parse("#1A1A1A") : Colors.White),

@@ -60,7 +60,12 @@ public sealed class GainBlock : BaseBlock
     protected override void OnReceive(object sender, object value)
     {
         if (value is not Vector<double> input)
+        {
+            ReportError("Gain requires a numeric vector.");
             return;
+        }
+
+        ClearError();
 
         // Read once so every channel uses the same gain.
         double gain = Gain;
@@ -72,14 +77,14 @@ public sealed class GainBlock : BaseBlock
 
     #region JSON configuration
 
-    public static GainBlock ConfigureInput(IServiceProvider services, JsonModel model)
+    public static GainBlock ConfigureInput(IServiceProvider sp, JsonModel m)
     {
-        double gain = model.Params is { Count: > 0 }
-            ? JsonModel.GetDouble(model.Params[0], 1.0)
+        double gain = m.Params is { Count: > 0 }
+            ? JsonModel.GetDouble(m.Params[0], 1.0)
             : 1.0;
 
         return ActivatorUtilities.CreateInstance<GainBlock>(
-            services, model.Name ?? "Gain", model.DesiredRate ?? 0d, gain);
+            sp, m.Name ?? "Gain", m.DesiredRate ?? 0d, gain);
     }
 
     protected override string JsonTypeName => "gainblock";

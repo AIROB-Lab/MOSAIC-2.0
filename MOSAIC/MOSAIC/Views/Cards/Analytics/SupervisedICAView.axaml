@@ -44,7 +44,7 @@
             <Border Grid.Row="1" Classes="cardSection">
                 <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
                     <TextBox Grid.Column="0" Text="{Binding LabelInput}"
-                            Watermark="label (e.g., 'rest', 'fist', 'open')" FontSize="12" Padding="8,6"
+                            PlaceholderText="label (e.g., 'rest', 'fist', 'open')" FontSize="12" Padding="8,6"
                             IsEnabled="{Binding !SupervisedICA.IsCapturing}"
                             Background="{DynamicResource ThemeInputBackgroundBrush}"
                             Foreground="{DynamicResource ThemeTextPrimaryBrush}"

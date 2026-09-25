@@ -133,7 +133,7 @@
                                                             <TextBlock Text="Name"
                                                                        FontSize="12"
                                                                        Foreground="{DynamicResource ThemeTextMutedBrush}"/>
-                                                            <TextBox Watermark="Enter name..."
+                                                            <TextBox PlaceholderText="Enter name..."
                                                                      Text="{Binding Name, Mode=OneWay}"/>
                                                         </StackPanel>
                                                         <!-- Desired Rate Input -->

@@ -98,10 +98,10 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
     [ObservableProperty] private ISeries[] _scatterSeries = Array.Empty<ISeries>();
 
     /// <summary>X-axis configuration for the scatter chart (LD1).</summary>
-    [ObservableProperty] private Axis[] _xAxes;
+    [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
 
     /// <summary>Y-axis configuration for the scatter chart (LD2).</summary>
-    [ObservableProperty] private Axis[] _yAxes;
+    [ObservableProperty] private Axis[] _yAxes = Array.Empty<Axis>();
 
     /// <summary>Header displayed above the scatter chart, e.g. <c>"LD1 vs LD2"</c>.</summary>
     [ObservableProperty] private string _chartTitle = "";
@@ -325,9 +325,8 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
     /// </summary>
     private void InitializeCharts()
     {
-        _scatterSeries = Array.Empty<ISeries>();
-
-        _xAxes = new Axis[]
+        ScatterSeries = Array.Empty<ISeries>();
+        XAxes = new Axis[]
         {
             new Axis
             {
@@ -340,8 +339,7 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
                 MaxLimit = 5
             }
         };
-
-        _yAxes = new Axis[]
+        YAxes = new Axis[]
         {
             new Axis
             {
@@ -625,7 +623,7 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
         double x = projection[0];
         double y = projection[1];
 
-        if (_is3D && projection.Count >= 3)
+        if (Is3D && projection.Count >= 3)
         {
             // Class index 0 is reserved for the unlabelled live stream, which LDA labels "default"
             int classIdx = label == "default" ? 0 : GetClassIndex(label);
@@ -656,7 +654,7 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
                 {
                     Ld1Separability = separability[0];
                     Ld2Separability = separability[1];
-                    if (_is3D && separability.Count >= 3)
+                    if (Is3D && separability.Count >= 3)
                         Ld3Separability = separability[2];
                 }
             }, DispatcherPriority.Background);
@@ -725,16 +723,16 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
         double centerY = (minY + maxY) / 2;
         double halfRange = totalRange / 2;
 
-        if (_xAxes?.Length > 0)
+        if (XAxes?.Length > 0)
         {
-            _xAxes[0].MinLimit = centerX - halfRange;
-            _xAxes[0].MaxLimit = centerX + halfRange;
+            XAxes[0].MinLimit = centerX - halfRange;
+            XAxes[0].MaxLimit = centerX + halfRange;
         }
 
-        if (_yAxes?.Length > 0)
+        if (YAxes?.Length > 0)
         {
-            _yAxes[0].MinLimit = centerY - halfRange;
-            _yAxes[0].MaxLimit = centerY + halfRange;
+            YAxes[0].MinLimit = centerY - halfRange;
+            YAxes[0].MaxLimit = centerY + halfRange;
         }
     }
 
@@ -779,7 +777,7 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
     /// </returns>
     private bool RebuildFrozen3DPoints()
     {
-        if (Scatter3D == null || !_is3D) return true;
+        if (Scatter3D == null || !Is3D) return true;
 
         try
         {
@@ -938,15 +936,15 @@ public partial class OnlineLDAViewModel : ObservableObject, ISubscriber, IDispos
             _maxX = _maxY = double.MinValue;
         }
 
-        if (_xAxes?.Length > 0)
+        if (XAxes?.Length > 0)
         {
-            _xAxes[0].MinLimit = -5;
-            _xAxes[0].MaxLimit = 5;
+            XAxes[0].MinLimit = -5;
+            XAxes[0].MaxLimit = 5;
         }
-        if (_yAxes?.Length > 0)
+        if (YAxes?.Length > 0)
         {
-            _yAxes[0].MinLimit = -5;
-            _yAxes[0].MaxLimit = 5;
+            YAxes[0].MinLimit = -5;
+            YAxes[0].MaxLimit = 5;
         }
 
         _clusterInfoUpdatePending = true;

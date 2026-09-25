@@ -14,7 +14,7 @@
                         <DataTemplate>
                             <Grid ColumnDefinitions="*,Auto,*,Auto" ColumnSpacing="6" Margin="0,3">
                                 <TextBox Grid.Column="0" Text="{Binding Name, Mode=TwoWay}"
-                                         Watermark="action name" FontSize="12"
+                                         PlaceholderText="action name" FontSize="12"
                                          Background="{DynamicResource ThemeInputBackgroundBrush}"
                                          Foreground="{DynamicResource ThemeTextPrimaryBrush}"
                                          Padding="8,5" CornerRadius="4" />
@@ -22,7 +22,7 @@
                                            Foreground="{DynamicResource ThemeTextSecondaryBrush}"
                                            VerticalAlignment="Center" />
                                 <TextBox Grid.Column="2" Text="{Binding Values, Mode=TwoWay}"
-                                         Watermark="0;0;0;0;0;0" FontSize="12"
+                                         PlaceholderText="0;0;0;0;0;0" FontSize="12"
                                          FontFamily="Cascadia Code,Consolas,monospace"
                                          Background="{DynamicResource ThemeInputBackgroundBrush}"
                                          Foreground="{DynamicResource ThemeTextPrimaryBrush}"

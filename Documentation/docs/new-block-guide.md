@@ -86,6 +86,9 @@ the upstream block; **`value` contains the data**. Follow these steps in the met
 4. Call `Publish(output)` to send that result downstream. Recording, when enabled,
    also receives the published result.
 
+An unexpected payload calls `ReportError` and publishes nothing. The next valid vector
+calls `ClearError` before processing, which is the current shared diagnostic pattern.
+
 **Leave `Status` to `BaseBlock`.** It updates status and the displayed frequency
 automatically from publication activity and the expected rate. You do not need to
 set `BlockStatus.Normal` after processing or `BlockStatus.Stumbling` when rejecting
@@ -151,6 +154,10 @@ The entry says: use the key `gainblock`, create a `GainBlock`, show the label **
 in **Signal Processing**, and offer one numeric field with a default of 1.0.
 The description helps users find and understand it. `typeof(GainBlock)` refers to
 your C# class; the key must match the factory case you just added.
+
+This catalogue entry is also the complete drag-and-drop registration. The palette reads
+`BlockCatalog.All`, and the canvas uses generic handlers for every descriptor. Do not add
+a Gain-specific row to palette AXAML or a Gain-specific drag handler to `GraphCanvas`.
 
 For this example, there is exactly **one parameter**:
 
@@ -270,8 +277,9 @@ Download [GainCardView.axaml.cs](../examples/GainCardView.axaml.cs) and copy it 
 allows the slider to change it. `DataContext` (assigned next) supplies the ViewModel,
 and `x:DataType` lets the compiler check the binding names.
 
-Follow the existing cards: the AXAML root is `UserControl`, while the code-behind
-inherits `PopoutCardBase`. That base adds desktop pop-out behavior.
+Follow the existing cards: the AXAML root is `cards:PopoutCardBase`, and the code-behind
+inherits `PopoutCardBase`. The example also uses the shared `card`, `cardSection`, status
+converter, category colour, and `SafeNumericUpDown` patterns used by current cards.
 
 Finally, open `Selector/BlockTemplateSelector.cs` and add this arm to
 `BlockTemplateSelector.CreateCard` before the fallback:
@@ -334,7 +342,7 @@ the blocks and awaits their cleanup on deletion, reload and desktop exit.
 |---|---|
 | Transform `[1, -2, 0]` with gain 2.5 | Output `[2.5, -5, 0]`; input remains unchanged |
 | Gain 0, 1, and -1 | Zeros, unchanged values, and sign inversion respectively |
-| Unsupported payload, such as a matrix | No output from this example |
+| Unsupported payload, such as a matrix | No output; `LastError` explains that Gain requires a numeric vector |
 | Missing `Params` | Gain defaults to 1.0 |
 | Palette creation | One Double field called Gain, default 1.0 |
 | JSON creation | The canonical key and optional full-name alias both construct the block |

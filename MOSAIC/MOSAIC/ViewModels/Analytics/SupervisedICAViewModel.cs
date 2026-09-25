@@ -107,10 +107,10 @@ public partial class SupervisedICAViewModel : ObservableObject, ISubscriber, IDi
     [ObservableProperty] private ISeries[] _scatterSeries = Array.Empty<ISeries>();
 
     /// <summary>X-axis configuration for the scatter chart (IC1).</summary>
-    [ObservableProperty] private Axis[] _xAxes;
+    [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
 
     /// <summary>Y-axis configuration for the scatter chart (IC2).</summary>
-    [ObservableProperty] private Axis[] _yAxes;
+    [ObservableProperty] private Axis[] _yAxes = Array.Empty<Axis>();
 
     /// <summary>Header displayed above the scatter chart, e.g. <c>"IC1 vs IC2"</c>.</summary>
     [ObservableProperty] private string _chartTitle = "";
@@ -569,7 +569,7 @@ public partial class SupervisedICAViewModel : ObservableObject, ISubscriber, IDi
         double x = projection[0];
         double y = projection[1];
 
-        if (_is3D && projection.Count >= 3)
+        if (Is3D && projection.Count >= 3)
         {
             int classIdx = 0;
             if (_supervisedIca.IsCapturing && !string.IsNullOrEmpty(_supervisedIca.CurrentLabel))
@@ -740,7 +740,7 @@ public partial class SupervisedICAViewModel : ObservableObject, ISubscriber, IDi
     /// </returns>
     private bool RebuildFrozen3DPoints()
     {
-        if (Scatter3D == null || !_is3D) return true;
+        if (Scatter3D == null || !Is3D) return true;
 
         try
         {
@@ -876,10 +876,10 @@ public partial class SupervisedICAViewModel : ObservableObject, ISubscriber, IDi
             maxY = _maxY;
         }
 
-        double currentXMin = _xAxes?[0]?.MinLimit ?? -5;
-        double currentXMax = _xAxes?[0]?.MaxLimit ?? 5;
-        double currentYMin = _yAxes?[0]?.MinLimit ?? -5;
-        double currentYMax = _yAxes?[0]?.MaxLimit ?? 5;
+        double currentXMin = XAxes?[0]?.MinLimit ?? -5;
+        double currentXMax = XAxes?[0]?.MaxLimit ?? 5;
+        double currentYMin = YAxes?[0]?.MinLimit ?? -5;
+        double currentYMax = YAxes?[0]?.MaxLimit ?? 5;
 
         bool outOfBounds = minX < currentXMin || maxX > currentXMax ||
                            minY < currentYMin || maxY > currentYMax;
@@ -907,16 +907,16 @@ public partial class SupervisedICAViewModel : ObservableObject, ISubscriber, IDi
         _currentAxisMin = Math.Min(newXMin, newYMin);
         _currentAxisMax = Math.Max(newXMax, newYMax);
 
-        if (_xAxes?.Length > 0)
+        if (XAxes?.Length > 0)
         {
-            _xAxes[0].MinLimit = newXMin;
-            _xAxes[0].MaxLimit = newXMax;
+            XAxes[0].MinLimit = newXMin;
+            XAxes[0].MaxLimit = newXMax;
         }
 
-        if (_yAxes?.Length > 0)
+        if (YAxes?.Length > 0)
         {
-            _yAxes[0].MinLimit = newYMin;
-            _yAxes[0].MaxLimit = newYMax;
+            YAxes[0].MinLimit = newYMin;
+            YAxes[0].MaxLimit = newYMax;
         }
     }
 

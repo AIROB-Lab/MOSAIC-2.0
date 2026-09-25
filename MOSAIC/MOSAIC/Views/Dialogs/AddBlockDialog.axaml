@@ -113,7 +113,7 @@
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource ThemeTextSecondaryBrush}" />
                     <TextBox Text="{Binding DesiredRateText, Mode=TwoWay}"
-                             Watermark="inherit from upstream"
+                             PlaceholderText="inherit from upstream"
                              FontSize="13"
                              Height="34"
                              VerticalContentAlignment="Center"

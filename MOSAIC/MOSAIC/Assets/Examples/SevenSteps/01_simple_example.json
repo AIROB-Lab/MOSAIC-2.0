@@ -6,13 +6,11 @@
 // - sinusoidSignal: 10-channel sine wave generator, ticked by Clock.
 // - squaredSignal:  element-wise x^2 of the sine signal.
 // - doubledSignal:  element-wise 2*x of the sine signal (parallel branch).
-// - Set "Path" on any block to dump its output to CSV (e.g. "C:\\temp").
+// - Set "Path" on any block to dump its output to a folder of your choice.
 // -------------------------------------
 {
   "Clock":          { "Type": "Clock",        "DesiredRate": 200 },
   "sinusoidSignal": { "Type": "SinGenerator", "Inputs": [ "Clock" ],          "Params": [ 10 ] },
-  // "sinusoidSignal": { "Type": "SinGenerator", "Inputs": [ "Clock" ],         "Params": [ 10 ],          "Path": "C:\\temp" },
   "squaredSignal":  { "Type": "Function",     "Inputs": [ "sinusoidSignal" ], "Params": [ "power", 2 ] },
-  // "squaredSignal":  { "Type": "Function",    "Inputs": [ "sinusoidSignal" ], "Params": [ "power", 2 ],  "Path": "C:\\temp" },
   "doubledSignal":  { "Type": "Function",     "Inputs": [ "sinusoidSignal" ], "Params": [ "multiply", 2 ] }
 }

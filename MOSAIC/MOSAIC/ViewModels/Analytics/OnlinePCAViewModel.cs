@@ -102,10 +102,10 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
     [ObservableProperty] private ISeries[] _scatterSeries = Array.Empty<ISeries>();
 
     /// <summary>X-axis configuration for the scatter chart (PC1).</summary>
-    [ObservableProperty] private Axis[] _xAxes;
+    [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
 
     /// <summary>Y-axis configuration for the scatter chart (PC2).</summary>
-    [ObservableProperty] private Axis[] _yAxes;
+    [ObservableProperty] private Axis[] _yAxes = Array.Empty<Axis>();
 
     /// <summary>Header displayed above the scatter chart, e.g. <c>"PC1 vs PC2"</c>.</summary>
     [ObservableProperty] private string _chartTitle = "";
@@ -288,7 +288,7 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
     /// </summary>
     private void InitializeCharts()
     {
-        _scatterSeries = new ISeries[]
+        ScatterSeries = new ISeries[]
         {
             new ScatterSeries<ObservablePoint>
             {
@@ -299,8 +299,7 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
                 Name = "Projections"
             }
         };
-
-        _xAxes = new Axis[]
+        XAxes = new Axis[]
         {
             new Axis
             {
@@ -313,8 +312,7 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
                 MaxLimit = 5
             }
         };
-
-        _yAxes = new Axis[]
+        YAxes = new Axis[]
         {
             new Axis
             {
@@ -418,7 +416,7 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
         double x = projection[0];
         double y = projection[1];
 
-        if (_is3D && projection.Count >= 3)
+        if (Is3D && projection.Count >= 3)
         {
             Scatter3D?.AddPoint(x, y, projection[2]);
         }
@@ -452,7 +450,7 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
                 {
                     Pc1Variance = varRatio[0];
                     Pc2Variance = varRatio[1];
-                    if (_is3D && varRatio.Count >= 3)
+                    if (Is3D && varRatio.Count >= 3)
                         Pc3Variance = varRatio[2];
                 }
             }, DispatcherPriority.Background);
@@ -496,15 +494,15 @@ public partial class OnlinePCAViewModel : ObservableObject, ISubscriber, IDispos
         _currentAxisMin = centerX - halfRange;
         _currentAxisMax = centerX + halfRange;
 
-        if (_xAxes?.Length > 0)
+        if (XAxes?.Length > 0)
         {
-            _xAxes[0].MinLimit = centerX - halfRange;
-            _xAxes[0].MaxLimit = centerX + halfRange;
+            XAxes[0].MinLimit = centerX - halfRange;
+            XAxes[0].MaxLimit = centerX + halfRange;
         }
-        if (_yAxes?.Length > 0)
+        if (YAxes?.Length > 0)
         {
-            _yAxes[0].MinLimit = centerY - halfRange;
-            _yAxes[0].MaxLimit = centerY + halfRange;
+            YAxes[0].MinLimit = centerY - halfRange;
+            YAxes[0].MaxLimit = centerY + halfRange;
         }
     }
 

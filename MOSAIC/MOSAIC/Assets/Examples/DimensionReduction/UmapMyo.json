@@ -42,8 +42,7 @@
   "Predictor": {
     "Type": "IncrementalPredictor",
     "Inputs": ["umap3d", "Trigger"],
-    "Params": ["RidgeRFF", 3, 12, 0.5, 1.0, 300],
-    "Path": "C:\\path\\to\\models\\"
+    "Params": ["RidgeRFF", 3, 12, 0.5, 1.0, 300]
   },
   "ControlAlgorithm": {
     "Type": "ControlAlgorithm",

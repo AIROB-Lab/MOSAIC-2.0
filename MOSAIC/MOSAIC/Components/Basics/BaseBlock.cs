@@ -443,9 +443,7 @@ public abstract partial class BaseBlock : ObservableObject, ISubscriber, IPublis
         // ConfigureInput opened one from Path, so the block is already recording — the switch has to
         // show that rather than contradict it.
         if (Dumper is null) return;
-
-        _isRecording = true;
-        OnPropertyChanged(nameof(IsRecording));
+        IsRecording = true;
     }
 
     /// <summary>Opens or closes the dumper when <see cref="IsRecording"/> is set.</summary>

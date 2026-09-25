@@ -685,8 +685,7 @@ public partial class BodyRigViewModel : ObservableObject
         }
 
         int current = _block.GetParentIndex(SelectedSegment);
-        _selectedParentOption = ParentOptions.FirstOrDefault(o => o.Index == current) ?? ParentOptions[0];
-        OnPropertyChanged(nameof(SelectedParentOption));
+        SelectedParentOption = ParentOptions.FirstOrDefault(o => o.Index == current) ?? ParentOptions[0];
     }
 
     /// <summary>Rebuilds the sensor picker labels, sized to the chain and to ids actually seen.</summary>

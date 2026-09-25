@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MOSAIC.Components.Basics;
@@ -140,6 +141,23 @@ public class JsonModelTests
         var result = JsonModel.GetDouble(element, defaultValue: 1.5);
 
         Assert.AreEqual(1.5, result, 1e-9);
+    }
+
+    [TestMethod]
+    public void GetDouble_JsonDecimalString_IsCultureIndependent()
+    {
+        var originalCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
+
+            Assert.AreEqual(2.5, JsonModel.GetDouble(Element("\"2.5\"")), 1e-9);
+            Assert.AreEqual(2.5, JsonModel.GetDouble("2.5"), 1e-9);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
     }
 
     [TestMethod]

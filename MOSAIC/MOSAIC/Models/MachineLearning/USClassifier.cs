@@ -285,7 +285,7 @@ public sealed partial class UltrasoundClassifier : BaseBlock
     protected override string JsonTypeName => "USPrediction";
 
     protected override IReadOnlyList<object>? GetJsonParams()
-        => new List<object> { ModulePath, NumClasses, InH, InW, LearningRate, RandomSeed, _modelPath, IsRegression };
+        => new List<object> { ModulePath, NumClasses, InH, InW, LearningRate, RandomSeed, ModelPath, IsRegression };
 
     #endregion
 
@@ -396,7 +396,7 @@ public sealed partial class UltrasoundClassifier : BaseBlock
         string? savePath    = null)
     {
         if (clusters is null || clusters.Count == 0 || _model is null) return;
-        var saveTarget = savePath ?? _modelPath;
+        var saveTarget = savePath ?? ModelPath;
 
         IsTraining = true;
         OnTrainingStateChanged?.Invoke(true);

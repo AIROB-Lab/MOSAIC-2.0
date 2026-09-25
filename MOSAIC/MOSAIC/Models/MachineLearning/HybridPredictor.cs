@@ -310,7 +310,7 @@ public sealed partial class HybridPredictorBlock : BaseBlock
 
         // Create new classifier with updated class count
         _model = ClassifierFactory.Create(ModelType, InputDim, NumClasses, Config);
-        _classProbabilities = new double[NumClasses];
+        ClassProbabilities = new double[NumClasses];
         _isInitialized = true;
         SampleCount = 0;  // Reset sample count since model is new
 
@@ -437,7 +437,7 @@ public sealed partial class HybridPredictorBlock : BaseBlock
             _model = ClassifierFactory.Create(ModelType, InputDim, NumClasses, Config);
             SampleCount = 0;
             Confidence = 0;
-            _classProbabilities = new double[NumClasses];
+            ClassProbabilities = new double[NumClasses];
         }
 
         Console.WriteLine($"[{Name}] Model changed to {type}");
@@ -453,7 +453,7 @@ public sealed partial class HybridPredictorBlock : BaseBlock
             _model.Reset();
             SampleCount = 0;
             Confidence = 0;
-            _classProbabilities = new double[NumClasses];
+            ClassProbabilities = new double[NumClasses];
         }
 
         Console.WriteLine($"[{Name}] Model reset");
@@ -470,7 +470,7 @@ public sealed partial class HybridPredictorBlock : BaseBlock
         _isInitialized = false;
         SampleCount = 0;
         Confidence = 0;
-        _classProbabilities = Array.Empty<double>();
+        ClassProbabilities = Array.Empty<double>();
         TrainingMessage = "Waiting for classes...";
 
         Console.WriteLine($"[{Name}] All classes cleared");

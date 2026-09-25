@@ -429,7 +429,7 @@ public partial class MockUltrasoundSource : BaseBlock
         }
 
         if (_patterns.Length == 0) return;
-        int h = _frameHeight, w = _frameWidth;
+        int h = FrameHeight, w = FrameWidth;
         if (_patterns[0].Length != h * w) return; // size mismatch — wait for RebuildPatterns
 
         // Build the per-pixel template for this frame, then add noise on top.
@@ -437,7 +437,7 @@ public partial class MockUltrasoundSource : BaseBlock
         if (template is null) return;
 
         var pixels = new double[h * w];
-        if (_noiseLevel > 0.0)
+        if (NoiseLevel > 0.0)
         {
             // Box-Muller for the noise; lighter than calling a normal-distribution
             // class per pixel and stays deterministic given the seed.
@@ -446,7 +446,7 @@ public partial class MockUltrasoundSource : BaseBlock
                 double u1 = 1.0 - _rng.NextDouble();
                 double u2 = 1.0 - _rng.NextDouble();
                 double z  = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2.0 * Math.PI * u2);
-                pixels[i] = Math.Clamp(template[i] + _noiseLevel * z, 0.0, 1.0);
+                pixels[i] = Math.Clamp(template[i] + NoiseLevel * z, 0.0, 1.0);
             }
         }
         else
@@ -471,7 +471,7 @@ public partial class MockUltrasoundSource : BaseBlock
     {
         if (!WeightedMode)
         {
-            int cls = Math.Clamp(_currentClass, 0, _patterns.Length - 1);
+            int cls = Math.Clamp(CurrentClass, 0, _patterns.Length - 1);
             return _patterns[cls];
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -284,25 +285,29 @@ public sealed record JsonModel
     /// <param name="defaultValue">Value returned when <paramref name="obj"/> is null or not convertible.</param>
     /// <returns>The extracted double, or <paramref name="defaultValue"/> if extraction fails.</returns>
     /// <remarks>
-    /// Integer and float values are widened to <see cref="double"/>. String values are parsed via
-    /// <see cref="double.TryParse(string?, out double)"/>.
+    /// Integer and float values are widened to <see cref="double"/>. String values use invariant
+    /// JSON number formatting first, then the current culture as a fallback for user-entered values.
     /// </remarks>
     public static double GetDouble(object? obj, double defaultValue = 0.0) => obj switch
     {
         JsonElement je => je.ValueKind switch
         {
             JsonValueKind.Number => je.GetDouble(),
-            JsonValueKind.String => double.TryParse(je.GetString(), out var d) ? d : defaultValue,
+            JsonValueKind.String => TryParseDouble(je.GetString(), out var d) ? d : defaultValue,
             _ => defaultValue
         },
         double d => d,
         float f => f,
         int i => i,
         long l => l,
-        string s => double.TryParse(s, out var d) ? d : defaultValue,
+        string s => TryParseDouble(s, out var d) ? d : defaultValue,
         null => defaultValue,
         _ => defaultValue
     };
+
+    private static bool TryParseDouble(string? value, out double result)
+        => double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out result)
+           || double.TryParse(value, NumberStyles.Float, CultureInfo.CurrentCulture, out result);
 
     /// <summary>
     /// Extracts a <see cref="bool"/> from a parameter object, handling <see cref="JsonElement"/> transparently.

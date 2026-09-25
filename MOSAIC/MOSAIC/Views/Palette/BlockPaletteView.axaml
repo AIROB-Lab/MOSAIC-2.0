@@ -59,7 +59,7 @@
                 BorderThickness="0,0,0,1">
             <TextBox x:Name="SearchBox"
                      Text="{Binding SearchText, Mode=TwoWay}"
-                     Watermark="Search blocks…"
+                     PlaceholderText="Search blocks…"
                      FontSize="12"
                      Height="32"
                      VerticalContentAlignment="Center"

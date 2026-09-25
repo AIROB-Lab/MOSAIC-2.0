@@ -38,8 +38,7 @@
     "Type": "IncrementalPredictor",
     "DesiredRate": 200,
     "Inputs": ["LowpassFilter", "Trigger"],
-    "Params": ["Ridge", 8, 12, 0.5],
-    "Path": "C:\\path\\to\\models\\"
+    "Params": ["Ridge", 8, 12, 0.5]
   },
   "ControlAlgorithm": {
     "Type": "ControlAlgorithm",
@@ -88,8 +87,7 @@
     "Type": "IncrementalPredictor",
     "DesiredRate": 200,
     "Inputs": ["LowpassFilter2", "Trigger2"],
-    "Params": ["Ridge", 8, 12, 0.5],
-    "Path": "C:\\path\\to\\models\\"
+    "Params": ["Ridge", 8, 12, 0.5]
   },
   "ControlAlgorithm2": {
     "Type": "ControlAlgorithm",

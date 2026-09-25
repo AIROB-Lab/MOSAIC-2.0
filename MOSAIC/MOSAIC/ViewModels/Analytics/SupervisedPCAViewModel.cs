@@ -119,10 +119,10 @@ public partial class SupervisedPCAViewModel : ObservableObject, ISubscriber, IDi
     [ObservableProperty] private ISeries[] _scatterSeries = Array.Empty<ISeries>();
 
     /// <summary>X-axis configuration for the scatter chart (PC1).</summary>
-    [ObservableProperty] private Axis[] _xAxes;
+    [ObservableProperty] private Axis[] _xAxes = Array.Empty<Axis>();
 
     /// <summary>Y-axis configuration for the scatter chart (PC2).</summary>
-    [ObservableProperty] private Axis[] _yAxes;
+    [ObservableProperty] private Axis[] _yAxes = Array.Empty<Axis>();
 
     /// <summary>Header displayed above the scatter chart, e.g. <c>"PC1 vs PC2"</c>.</summary>
     [ObservableProperty] private string _chartTitle = "";
@@ -532,7 +532,7 @@ public partial class SupervisedPCAViewModel : ObservableObject, ISubscriber, IDi
         double x = projection[0];
         double y = projection[1];
 
-        if (_is3D && projection.Count >= 3)
+        if (Is3D && projection.Count >= 3)
         {
             int classIdx = 0;
             if (_supervisedPca.IsCapturing && !string.IsNullOrEmpty(_supervisedPca.CurrentLabel))
@@ -677,7 +677,7 @@ public partial class SupervisedPCAViewModel : ObservableObject, ISubscriber, IDi
     /// </returns>
     private bool RebuildFrozen3DPoints()
     {
-        if (Scatter3D == null || !_is3D) return true;
+        if (Scatter3D == null || !Is3D) return true;
 
         try
         {
@@ -812,8 +812,8 @@ public partial class SupervisedPCAViewModel : ObservableObject, ISubscriber, IDi
         double half = (maxRange + 2 * margin) / 2;
         double cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
 
-        if (_xAxes?.Length > 0) { _xAxes[0].MinLimit = cx - half; _xAxes[0].MaxLimit = cx + half; }
-        if (_yAxes?.Length > 0) { _yAxes[0].MinLimit = cy - half; _yAxes[0].MaxLimit = cy + half; }
+        if (XAxes?.Length > 0) { XAxes[0].MinLimit = cx - half; XAxes[0].MaxLimit = cx + half; }
+        if (YAxes?.Length > 0) { YAxes[0].MinLimit = cy - half; YAxes[0].MaxLimit = cy + half; }
     }
 
     #endregion

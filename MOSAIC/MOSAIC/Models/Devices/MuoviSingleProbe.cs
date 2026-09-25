@@ -191,8 +191,8 @@ public sealed partial class MuoviSingleProbe : BaseBlock
         _readerThread.Start();
 
         _isStreaming = true;
-        _hasEmg = true;
-        _hasImu = StreamImu;
+        HasEmg = true;
+        HasImu = StreamImu;
         StreamInfo.ProbesConnected = 1;
         StreamInfo.TotalChannels = OutputChannels;
         StreamInfo.PipelineStatus = "Streaming";
@@ -217,8 +217,8 @@ public sealed partial class MuoviSingleProbe : BaseBlock
         _stream?.Close(); _clientSocket?.Close(); _listenSocket?.Close();
         _stream = null; _clientSocket = null; _listenSocket = null;
         _isStreaming = false;
-        _hasEmg = false;
-        _hasImu = false;
+        HasEmg = false;
+        HasImu = false;
         StreamInfo.PipelineStatus = "Disconnected";
         Console.WriteLine("[MuoviSingle] Disconnected.");
     }

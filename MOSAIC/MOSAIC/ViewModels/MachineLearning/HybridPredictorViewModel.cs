@@ -218,7 +218,7 @@ public partial class HybridPredictorViewModel : ObservableObject, IDisposable
             {
                 Index = i,
                 Name = _block.ClassNames[i],
-                Probability = i < _classProbabilities.Length ? _classProbabilities[i] : 0,
+                Probability = i < ClassProbabilities.Length ? ClassProbabilities[i] : 0,
                 IsSelected = false,
                 TargetVector = vector != null ? string.Join(", ", vector.Select(v => v.ToString("F1"))) : ""
             });

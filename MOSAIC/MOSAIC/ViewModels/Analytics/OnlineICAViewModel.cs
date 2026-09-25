@@ -96,11 +96,11 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
 
     /// <summary>X-axis configuration for the scatter chart (IC1).</summary>
     [ObservableProperty] 
-    private Axis[] _xAxes;
+    private Axis[] _xAxes = Array.Empty<Axis>();
 
     /// <summary>Y-axis configuration for the scatter chart (IC2).</summary>
     [ObservableProperty]
-    private Axis[] _yAxes;
+    private Axis[] _yAxes = Array.Empty<Axis>();
 
     /// <summary>Header displayed above the scatter chart, e.g. <c>"IC1 vs IC2"</c>.</summary>
     [ObservableProperty] 
@@ -307,7 +307,7 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
     /// </summary>
     private void InitializeCharts()
     {
-        _scatterSeries = new ISeries[]
+        ScatterSeries = new ISeries[]
         {
             new ScatterSeries<ObservablePoint>
             {
@@ -318,8 +318,7 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
                 Name = "Projections"
             }
         };
-
-        _xAxes = new Axis[]
+        XAxes = new Axis[]
         {
             new Axis
             {
@@ -332,8 +331,7 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
                 MaxLimit = 5
             }
         };
-
-        _yAxes = new Axis[]
+        YAxes = new Axis[]
         {
             new Axis
             {
@@ -428,7 +426,7 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
         double x = projection[0];
         double y = projection[1];
 
-        if (_is3D && projection.Count >= 3)
+        if (Is3D && projection.Count >= 3)
         {
             Scatter3D?.AddPoint(x, y, projection[2]);
         }
@@ -462,7 +460,7 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
                 {
                     Ic1Kurtosis = kurtosis[0];
                     Ic2Kurtosis = kurtosis[1];
-                    if (_is3D && kurtosis.Count >= 3)
+                    if (Is3D && kurtosis.Count >= 3)
                         Ic3Kurtosis = kurtosis[2];
                 }
             }, DispatcherPriority.Background);
@@ -490,10 +488,10 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
             maxY = _maxY;
         }
 
-        double currentXMin = _xAxes?[0]?.MinLimit ?? -5;
-        double currentXMax = _xAxes?[0]?.MaxLimit ?? 5;
-        double currentYMin = _yAxes?[0]?.MinLimit ?? -5;
-        double currentYMax = _yAxes?[0]?.MaxLimit ?? 5;
+        double currentXMin = XAxes?[0]?.MinLimit ?? -5;
+        double currentXMax = XAxes?[0]?.MaxLimit ?? 5;
+        double currentYMin = YAxes?[0]?.MinLimit ?? -5;
+        double currentYMax = YAxes?[0]?.MaxLimit ?? 5;
 
         bool outOfBounds = minX < currentXMin || maxX > currentXMax ||
                            minY < currentYMin || maxY > currentYMax;
@@ -521,16 +519,16 @@ public partial class OnlineICAViewModel : ObservableObject, ISubscriber, IDispos
         _currentAxisMin = Math.Min(newXMin, newYMin);
         _currentAxisMax = Math.Max(newXMax, newYMax);
 
-        if (_xAxes?.Length > 0)
+        if (XAxes?.Length > 0)
         {
-            _xAxes[0].MinLimit = newXMin;
-            _xAxes[0].MaxLimit = newXMax;
+            XAxes[0].MinLimit = newXMin;
+            XAxes[0].MaxLimit = newXMax;
         }
 
-        if (_yAxes?.Length > 0)
+        if (YAxes?.Length > 0)
         {
-            _yAxes[0].MinLimit = newYMin;
-            _yAxes[0].MaxLimit = newYMax;
+            YAxes[0].MinLimit = newYMin;
+            YAxes[0].MaxLimit = newYMax;
         }
     }
 

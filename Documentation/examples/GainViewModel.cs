@@ -5,20 +5,22 @@ using MOSAIC.Models.SignalProcessing;
 
 namespace MOSAIC.ViewModels.SignalProcessing;
 
-public partial class GainViewModel : ObservableObject
+public sealed partial class GainViewModel : ObservableObject
 {
-    public GainBlock Block { get; }
+    private readonly GainBlock _block;
+
+    public GainBlock Block => _block;
 
     [ObservableProperty]
     private double _gain;
 
     [ObservableProperty]
-    private string _message = "";
+    private string _message = string.Empty;
 
     public GainViewModel(GainBlock block)
     {
-        Block = block ?? throw new ArgumentNullException(nameof(block));
-        _gain = block.Gain;
+        _block = block ?? throw new ArgumentNullException(nameof(block));
+        _gain = _block.Gain;
     }
 
     [RelayCommand]

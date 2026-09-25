@@ -100,7 +100,7 @@ public sealed partial class CrossCorrelation
         {
             UsesLagSummary = true,
             MinLag = minLag,
-            _maxLag = maxLag,
+            MaxLag = maxLag,
             _fullLagRange = lagParts.Length == 2 && maxLag == 0,
             ChannelCount = channels,
             LowPassWindow = low,
@@ -109,7 +109,7 @@ public sealed partial class CrossCorrelation
             _selectedChannel1 = channel1,
             _selectedChannel2 = channel2
         };
-        block._bufferLen = Math.Max(buffer, block.RequiredSamples);
+        block.BufferLen = Math.Max(buffer, block.RequiredSamples);
         block.InitChannelDumpers(sp, model.Path);
         return block;
     }

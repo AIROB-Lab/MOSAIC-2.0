@@ -81,8 +81,8 @@ public sealed partial class ROS : BaseBlock
 
     #region Public Surface
 
-    public bool IsPublisher  => string.Equals(_action, "publish",   StringComparison.OrdinalIgnoreCase);
-    public bool IsSubscriber => string.Equals(_action, "subscribe", StringComparison.OrdinalIgnoreCase);
+    public bool IsPublisher  => string.Equals(Action, "publish",   StringComparison.OrdinalIgnoreCase);
+    public bool IsSubscriber => string.Equals(Action, "subscribe", StringComparison.OrdinalIgnoreCase);
 
     public event Action<Vector>? OnMessageReceived;
 

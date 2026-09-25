@@ -12,7 +12,7 @@ namespace MOSAIC.Services;
 /// </summary>
 public class RecentFile
 {
-    public string FilePath { get; set; }
+    public string FilePath { get; set; } = string.Empty;
     public DateTime LastAccessed { get; set; }
     
     public string DisplayName => Path.GetFileName(FilePath);
