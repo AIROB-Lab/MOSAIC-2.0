@@ -61,5 +61,6 @@ and Time guides.
 ## Checks not performed
 
 The card's code and bindings compile, but this review did not exercise its appearance,
-slider interaction or pop-out behavior in a running desktop window. No physical
-devices, macOS, iOS or browser targets were tested in this review.
+slider interaction or pop-out behavior in a running desktop window. This focused review
+did not repeat the separate platform checks documented in Getting Started; Windows,
+macOS, iOS and Android have been tested by the project maintainer.

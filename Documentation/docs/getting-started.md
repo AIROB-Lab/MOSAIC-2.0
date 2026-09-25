@@ -5,9 +5,9 @@ If MOSAIC already opens, go straight to [Your First Pipeline](first-pipeline.md)
 
 ## Platforms
 
-MOSAIC has been run successfully on **Windows, macOS, and iOS**. macOS and iOS operation
-has been confirmed by the project maintainer. Hardware availability varies with vendor
-drivers, Bluetooth backends, and optional dependencies.
+MOSAIC has been run successfully on **Windows, macOS, iOS, and Android**. Operation on
+all four platforms has been confirmed by the project maintainer. Hardware availability
+varies with vendor drivers, Bluetooth backends, and optional dependencies.
 
 | Platform | Application project | Notes |
 |---|---|---|
@@ -16,8 +16,8 @@ drivers, Bluetooth backends, and optional dependencies.
 | iOS | `MOSAIC.iOS` | Uses the shared mobile profile and CoreBluetooth; build and signing are managed on a Mac. |
 | Android | `MOSAIC.Android` | Uses the shared mobile profile and Android Bluetooth integration. |
 
-The browser project is outside this getting-started path. Running the application on a
-platform does not establish that every device block works there.
+The public beta does not include a browser build. Running the application on a platform
+does not establish that every device block works there.
 
 ## Build from source
 

@@ -6,6 +6,7 @@
 
 [![Documentation](https://img.shields.io/badge/docs-MOSAIC%202.0-0969da)](https://airob-lab.github.io/MOSAIC-2.0/)
 [![Documentation deployment](https://github.com/AIROB-Lab/MOSAIC-2.0/actions/workflows/documentation-pages.yml/badge.svg)](https://github.com/AIROB-Lab/MOSAIC-2.0/actions/workflows/documentation-pages.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22960262.svg)](https://doi.org/10.5281/zenodo.22960262)
 
 - 📚 [Documentation: setup, usage, examples, and tutorials](https://airob-lab.github.io/MOSAIC-2.0/)
 - 🧩 [API reference](https://airob-lab.github.io/MOSAIC-2.0/api/index.html)
@@ -51,6 +52,8 @@ See [Getting Started](https://airob-lab.github.io/MOSAIC-2.0/docs/getting-starte
 
 This repository does not include credentials, private experimental data, pretrained models, generated checkpoints, proprietary Delsys packages, `MccDaq.dll`, or the native Windows `lsl.dll` runtime. Authorised users can provide optional vendor dependencies locally as described in the [setup guide](https://airob-lab.github.io/MOSAIC-2.0/docs/getting-started.html#packages-and-optional-devices).
 
+A browser build is not included in this beta. Use the desktop or supported mobile application projects described in the setup guide.
+
 ## Development and testing
 
 Run the automated tests from the solution directory:
@@ -64,7 +67,19 @@ For extension development, see [Creating a New Block](https://airob-lab.github.i
 
 ## Citation and archival record
 
-If you use MOSAIC in academic work, please cite:
+### Software
+
+When using the MOSAIC source code, please cite the archived software release:
+
+> Braun, H., Okhravi, M., & Castellini, C. (2026). *MOSAIC 2.0: Modular,
+> Open-Source Suite for Assistive Intelligent Control* (Version 2.0.0-beta.1).
+> Zenodo. https://doi.org/10.5281/zenodo.22960263
+
+Citation metadata is also available in [`CITATION.cff`](CITATION.cff).
+
+### Paper
+
+When referring to MOSAIC's design and research applications, please cite:
 
 ```bibtex
 @article{braun2025mosaic,
