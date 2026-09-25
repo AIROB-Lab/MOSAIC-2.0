@@ -1,6 +1,6 @@
 {
   "title": "MOSAIC 2.0: Modular, Open-Source Suite for Assistive Intelligent Control",
-  "version": "2.0.0",
+  "version": "2.0.0-beta.1"
   "description": "MOSAIC is a modular, open-source software suite for real-time biosignal processing and assistive intelligent control. It supports visual construction of acquisition, signal-processing, machine-learning, visualization, recording, and device-control pipelines.",
   "creators": [
     {
